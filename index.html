@@ -3,39 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>健合實業色卡練習</title>
+    <title>健合實業 | 色卡辨識訓練</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
-        .score-bar { font-size: 14px; margin-bottom: 5px; font-weight: bold; color: #444; }
-        .main-card { background: #fff; width: 100%; max-width: 420px; padding: 12px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex: 1; display: flex; flex-direction: column; min-height: 0; }
-        .img-box { position: relative; width: 100%; flex: 0 0 45%; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #ddd; }
-        #quiz-img { width: 100%; height: 100%; object-fit: contain; }
-        .mask { position: absolute; top: 0; left: 0; width: 100%; height: 38%; background: #222; color: #777; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 5; }
-        #feedback { font-size: 18px; font-weight: bold; margin: 8px 0; min-height: 24px; text-align: center; }
-        .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow-y: auto; padding-bottom: 5px; }
-        button { padding: 12px 0; border: 1.5px solid #007bff; background: #fff; color: #007bff; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.1s; }
-        button:active { background: #007bff; color: #fff; transform: scale(0.95); }
-        button:disabled { border-color: #eee; color: #ccc; }
-        #next-btn { background: #28a745; color: #fff; width: 100%; padding: 14px; font-size: 18px; border: none; border-radius: 12px; margin-top: auto; display: none; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); 
+            margin: 0; padding: 10px; display: flex; flex-direction: column; 
+            align-items: center; height: 100vh; height: 100dvh;
+            overflow: hidden; 
+        }
+        .header { 
+            width: 100%; max-width: 420px; display: flex; justify-content: space-between; 
+            margin-bottom: 10px; font-weight: bold; color: #4b5563; font-size: 15px;
+            background: rgba(255,255,255,0.6); padding: 8px 16px; border-radius: 20px;
+            flex-shrink: 0;
+        }
+        .header span { color: #2563eb; font-weight: 900; }
+        .main-card { 
+            background: #ffffff; width: 100%; max-width: 420px; padding: 14px; 
+            border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); 
+            flex: 1; display: flex; flex-direction: column; min-height: 0; 
+        }
+        .img-box { 
+            position: relative; width: 100%; flex: 0 0 38%; background: #111; 
+            border-radius: 12px; overflow: hidden; border: 3px solid #f3f4f6; 
+            flex-shrink: 0;
+        }
+        #quiz-img { width: 100%; height: 100%; object-fit: contain; background: #000; }
+        .mask { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 38%; 
+            background: rgba(15, 15, 15, 0.98); 
+            color: #d1d5db; display: flex; align-items: center; justify-content: center; 
+            font-size: 13px; font-weight: 600; letter-spacing: 1px; z-index: 5;
+            border-bottom: 2px solid #333;
+        }
+        #feedback { 
+            font-size: 16px; font-weight: bold; margin: 10px 0; min-height: 36px; 
+            display: flex; align-items: center; justify-content: center; border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .feedback-correct { background: #dcfce7; color: #166534; }
+        .feedback-wrong { background: #fee2e2; color: #991b1b; }
+        .btn-grid { 
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; 
+            overflow-y: auto; padding-bottom: 4px; 
+        }
+        button.option-btn { 
+            padding: 12px 0; border: 2px solid #e5e7eb; background: #f9fafb; 
+            color: #374151; border-radius: 10px; font-size: 14px; font-weight: 700; 
+            cursor: pointer; transition: all 0.1s; 
+        }
+        button.option-btn:active { transform: scale(0.95); background: #e5e7eb; }
+        button.option-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        button.option-btn.selected-correct { background: #22c55e; color: white; border-color: #16a34a; }
+        button.option-btn.selected-wrong { background: #ef4444; color: white; border-color: #dc2626; }
+        #next-btn { 
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
+            color: #fff; width: 100%; padding: 14px; font-size: 16px; font-weight: bold;
+            border: none; border-radius: 10px; margin-top: 8px; display: none; 
+            cursor: pointer; flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
 
-<div class="score-bar">進度: <span id="cur">1</span>/12 | 得分: <span id="score">0</span></div>
+<div class="header">
+    <div>📝 題數: <span id="cur">1</span>/12</div>
+    <div>🏆 得分: <span id="score">0</span></div>
+</div>
 
 <div class="main-card">
     <div class="img-box">
         <img id="quiz-img" src="">
-        <div class="mask" id="mask">標籤隱藏</div>
+        <div class="mask" id="mask">🔒 標籤已遮蔽</div>
     </div>
+
     <div id="feedback"></div>
+
     <div class="btn-grid" id="btns"></div>
+
     <button id="next-btn">下一題 ➔</button>
 </div>
 
 <script>
-    // 重新精確校對過的圖片對應表
     const data = [
         { url: "https://i.postimg.cc/jqfpgmv1/S-141926458-0.jpg", ans: "877K" },
         { url: "https://i.postimg.cc/9X968KJV/S-141926459-0.jpg", ans: "801K" },
@@ -47,8 +98,8 @@
         { url: "https://i.postimg.cc/jqfpgmZC/S-141926465-0.jpg", ans: "121A" },
         { url: "https://i.postimg.cc/ZYNG72VB/S-141926466-0.jpg", ans: "292K" },
         { url: "https://i.postimg.cc/J4W99x2h/S-141926467-0.jpg", ans: "220B" },
-        { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B" }, // 已校正為 813B
-        { url: "https://i.postimg.cc/J4W99x2n/S-141926470-0.jpg", ans: "920A" }  // 複訓 920A
+        { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B" }, 
+        { url: "https://i.postimg.cc/J4W99x2n/S-141926470-0.jpg", ans: "920A" }  
     ];
 
     const codes = ["877K", "801K", "923K", "926C", "920A", "921B", "120A", "121A", "292K", "220B", "813B"];
@@ -60,7 +111,12 @@
         const item = data[idx];
         document.getElementById('quiz-img').src = item.url;
         document.getElementById('mask').style.display = 'flex';
-        document.getElementById('feedback').innerText = "";
+        
+        const feedback = document.getElementById('feedback');
+        feedback.innerText = "請選擇對應的色號";
+        feedback.className = "";
+        feedback.style.color = "#6b7280";
+
         document.getElementById('next-btn').style.display = 'none';
         document.getElementById('cur').innerText = idx + 1;
         
@@ -68,17 +124,21 @@
         area.innerHTML = "";
         codes.forEach(c => {
             const b = document.createElement('button');
+            b.className = "option-btn";
             b.innerText = c;
             b.onclick = () => {
                 document.getElementById('mask').style.display = 'none';
-                document.querySelectorAll('#btns button').forEach(el => el.disabled = true);
+                document.querySelectorAll('.option-btn').forEach(el => el.disabled = true);
+                
                 if(c === item.ans) {
-                    document.getElementById('feedback').innerText = "✅ 正確: " + item.ans;
-                    document.getElementById('feedback').style.color = "#28a745";
+                    feedback.innerText = "🎉 答對了！色號是 " + item.ans;
+                    feedback.className = "feedback-correct";
+                    b.classList.add("selected-correct");
                     score++;
                 } else {
-                    document.getElementById('feedback').innerText = "❌ 正確是 " + item.ans;
-                    document.getElementById('feedback').style.color = "#dc3545";
+                    feedback.innerText = "❌ 答錯了，正確應為 " + item.ans;
+                    feedback.className = "feedback-wrong";
+                    b.classList.add("selected-wrong");
                 }
                 document.getElementById('score').innerText = score;
                 document.getElementById('next-btn').style.display = 'block';
@@ -89,9 +149,10 @@
 
     document.getElementById('next-btn').onclick = () => {
         idx++;
-        if(idx < data.length) init();
-        else {
-            alert("測驗結束！總分：" + score + "/12");
+        if(idx < data.length) {
+            init();
+        } else {
+            alert("🌟 測驗結束！您的總得分：" + score + " / 12");
             location.reload();
         }
     };
