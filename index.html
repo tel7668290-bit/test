@@ -9,78 +9,61 @@
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); 
-            margin: 0; padding: 8px; display: flex; flex-direction: column; 
-            align-items: center; height: 100dvh; /* 使用動態高度防擋 */
+            margin: 0; padding: 10px; display: flex; flex-direction: column; 
+            align-items: center; height: 100vh; height: 100dvh;
             overflow: hidden; 
         }
-        
-        /* 頂部進度條：縮小間距 */
         .header { 
             width: 100%; max-width: 420px; display: flex; justify-content: space-between; 
-            margin-bottom: 8px; font-weight: bold; color: #4b5563; font-size: 14px;
-            background: rgba(255,255,255,0.6); padding: 6px 16px; border-radius: 20px;
+            margin-bottom: 10px; font-weight: bold; color: #4b5563; font-size: 15px;
+            background: rgba(255,255,255,0.6); padding: 8px 16px; border-radius: 20px;
             flex-shrink: 0;
         }
         .header span { color: #2563eb; font-weight: 900; }
-
-        /* 主卡片：減少內距 */
         .main-card { 
-            background: #ffffff; width: 100%; max-width: 420px; padding: 10px; 
+            background: #ffffff; width: 100%; max-width: 420px; padding: 14px; 
             border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); 
             flex: 1; display: flex; flex-direction: column; min-height: 0; 
         }
-        
-        /* 圖片區域：高度壓縮至 35% */
         .img-box { 
-            position: relative; width: 100%; flex: 0 0 35%; background: #111; 
+            position: relative; width: 100%; flex: 0 0 38%; background: #111; 
             border-radius: 12px; overflow: hidden; border: 3px solid #f3f4f6; 
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1); flex-shrink: 0;
+            flex-shrink: 0;
         }
         #quiz-img { width: 100%; height: 100%; object-fit: contain; background: #000; }
-        
-        /* 遮罩：維持純黑 */
         .mask { 
             position: absolute; top: 0; left: 0; width: 100%; height: 38%; 
             background: rgba(15, 15, 15, 0.98); 
             color: #d1d5db; display: flex; align-items: center; justify-content: center; 
             font-size: 13px; font-weight: 600; letter-spacing: 1px; z-index: 5;
-            backdrop-filter: blur(2px); border-bottom: 2px solid #333;
+            border-bottom: 2px solid #333;
         }
-
-        /* 答題回饋文字：縮小字體與高度 */
         #feedback { 
-            font-size: 15px; font-weight: bold; margin: 8px 0; min-height: 32px; 
+            font-size: 16px; font-weight: bold; margin: 10px 0; min-height: 36px; 
             display: flex; align-items: center; justify-content: center; border-radius: 8px;
             flex-shrink: 0;
         }
         .feedback-correct { background: #dcfce7; color: #166534; }
         .feedback-wrong { background: #fee2e2; color: #991b1b; }
-
-        /* 按鈕網格：緊密排列 */
         .btn-grid { 
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; 
             overflow-y: auto; padding-bottom: 4px; 
         }
-        
-        /* 選項按鈕：縮小高度，確保點得到 */
         button.option-btn { 
-            padding: 10px 0; border: 2px solid #e5e7eb; background: #f9fafb; 
-            color: #374151; border-radius: 10px; font-size: 13px; font-weight: 700; 
-            cursor: pointer; transition: all 0.15s ease; 
+            padding: 12px 0; border: 2px solid #e5e7eb; background: #f9fafb; 
+            color: #374151; border-radius: 10px; font-size: 14px; font-weight: 700; 
+            cursor: pointer; transition: all 0.1s; 
         }
-        button.option-btn:active { transform: scale(0.92); background: #e5e7eb; }
+        button.option-btn:active { transform: scale(0.95); background: #e5e7eb; }
         button.option-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         button.option-btn.selected-correct { background: #22c55e; color: white; border-color: #16a34a; }
         button.option-btn.selected-wrong { background: #ef4444; color: white; border-color: #dc2626; }
-        
-        /* 下一題按鈕：縮小高度 */
         #next-btn { 
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
-            color: #fff; width: 100%; padding: 12px; font-size: 16px; font-weight: bold;
-            border: none; border-radius: 10px; margin-top: 6px; display: none; 
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); cursor: pointer; flex-shrink: 0;
+            color: #fff; width: 100%; padding: 14px; font-size: 16px; font-weight: bold;
+            border: none; border-radius: 10px; margin-top: 8px; display: none; 
+            cursor: pointer; flex-shrink: 0;
         }
-        #next-btn:active { transform: translateY(2px); box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
     </style>
 </head>
 <body>
@@ -133,7 +116,6 @@
         feedback.innerText = "請選擇對應的色號";
         feedback.className = "";
         feedback.style.color = "#6b7280";
-        feedback.style.background = "transparent";
 
         document.getElementById('next-btn').style.display = 'none';
         document.getElementById('cur').innerText = idx + 1;
