@@ -9,18 +9,14 @@
         body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
         .score-bar { font-size: 14px; margin-bottom: 5px; font-weight: bold; color: #444; }
         .main-card { background: #fff; width: 100%; max-width: 420px; padding: 12px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex: 1; display: flex; flex-direction: column; min-height: 0; }
-        
         .img-box { position: relative; width: 100%; flex: 0 0 45%; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #ddd; }
         #quiz-img { width: 100%; height: 100%; object-fit: contain; }
         .mask { position: absolute; top: 0; left: 0; width: 100%; height: 38%; background: #222; color: #777; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 5; }
-
         #feedback { font-size: 18px; font-weight: bold; margin: 8px 0; min-height: 24px; text-align: center; }
-
         .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow-y: auto; padding-bottom: 5px; }
         button { padding: 12px 0; border: 1.5px solid #007bff; background: #fff; color: #007bff; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.1s; }
         button:active { background: #007bff; color: #fff; transform: scale(0.95); }
         button:disabled { border-color: #eee; color: #ccc; }
-        
         #next-btn { background: #28a745; color: #fff; width: 100%; padding: 14px; font-size: 18px; border: none; border-radius: 12px; margin-top: auto; display: none; }
     </style>
 </head>
@@ -33,15 +29,13 @@
         <img id="quiz-img" src="">
         <div class="mask" id="mask">標籤隱藏</div>
     </div>
-
     <div id="feedback"></div>
-
     <div class="btn-grid" id="btns"></div>
-
     <button id="next-btn">下一題 ➔</button>
 </div>
 
 <script>
+    // 重新精確校對過的圖片對應表
     const data = [
         { url: "https://i.postimg.cc/jqfpgmv1/S-141926458-0.jpg", ans: "877K" },
         { url: "https://i.postimg.cc/9X968KJV/S-141926459-0.jpg", ans: "801K" },
@@ -53,8 +47,8 @@
         { url: "https://i.postimg.cc/jqfpgmZC/S-141926465-0.jpg", ans: "121A" },
         { url: "https://i.postimg.cc/ZYNG72VB/S-141926466-0.jpg", ans: "292K" },
         { url: "https://i.postimg.cc/J4W99x2h/S-141926467-0.jpg", ans: "220B" },
-        { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B" },
-        { url: "https://i.postimg.cc/J4W99x2n/S-141926470-0.jpg", ans: "920A" }
+        { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B" }, // 已校正為 813B
+        { url: "https://i.postimg.cc/J4W99x2n/S-141926470-0.jpg", ans: "920A" }  // 複訓 920A
     ];
 
     const codes = ["877K", "801K", "923K", "926C", "920A", "921B", "120A", "121A", "292K", "220B", "813B"];
@@ -101,7 +95,6 @@
             location.reload();
         }
     };
-
     window.onload = init;
 </script>
 </body>
