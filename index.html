@@ -3,95 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>健合實業 | 色卡辨識訓練 Pro</title>
+    <title>健合實業 | 色彩辨識訓練 (文字隱藏版)</title>
     <style>
-        /* 基礎樣式保持一致 */
+        /* 基礎樣式調整，優化閱讀與視覺中心 */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: #f0f2f5; margin: 0; padding: 10px; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: #fdfdfd; margin: 0; padding: 10px; 
             display: flex; flex-direction: column; align-items: center; 
             height: 100dvh; overflow: hidden; 
         }
         .header { 
-            width: 100%; max-width: 420px; display: flex; justify-content: space-between; 
-            margin-bottom: 8px; font-weight: bold; color: #4b5563; 
-            background: white; padding: 10px 18px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            width: 100%; max-width: 440px; display: flex; justify-content: space-between; 
+            margin-bottom: 8px; font-weight: bold; color: #555; 
+            background: white; padding: 10px 18px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
         .main-card { 
-            background: #ffffff; width: 100%; max-width: 420px; padding: 12px; 
-            border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            flex: 1; display: flex; flex-direction: column; min-height: 0; 
+            background: #ffffff; width: 100%; max-width: 440px; padding: 14px; 
+            border-radius: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); 
+            flex: 1; display: flex; flex-direction: column; min-height: 0; border: 1px solid #f0f0f0;
         }
 
-        /* 圖片區域優化 */
+        /* 圖片區域調整， contain模式與對比優化 */
         .img-box { 
-            position: relative; width: 100%; flex: 0 0 55%; background: #000; 
-            border-radius: 12px; overflow: hidden; border: 2px solid #eee; 
+            position: relative; width: 100%; flex: 0 0 55%; background: #222; 
+            border-radius: 10px; overflow: hidden; border: 1px solid #eee; margin-bottom: 8px;
         }
         #quiz-img { 
             width: 100%; height: 100%; 
-            object-fit: contain; /* 改為 contain 確保看到完整色卡解析度 */
-            image-rendering: -webkit-optimize-contrast; /* 強化清晰度 */
+            object-fit: contain; /* 保留完整解析度 */
+            image-rendering: -webkit-optimize-contrast; 
         }
 
-        /* 遮罩：遮住實體色卡上的文字 */
+        /* 關鍵遮罩：遮住實體文字與編號區域 (佔比提高) */
         .mask { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 28%; 
-            background: #111; z-index: 5; display: flex; align-items: center; justify-content: center;
-            color: #555; font-size: 12px;
-        }
-
-        /* 右上角參考號碼 */
-        .ref-tag {
-            position: absolute; top: 8px; right: 8px; 
-            background: rgba(0,0,0,0.7); color: white; 
-            padding: 4px 10px; border-radius: 6px; font-size: 12px; 
-            z-index: 10; display: none; /* 答對後才顯示 */
+            position: absolute; top: 0; left: 0; width: 100%; height: 30%; /* 擋住上三分之一 */
+            background: #151515; z-index: 5; display: flex; align-items: center; justify-content: center;
+            color: #ccc; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+            backdrop-filter: blur(5px); border-bottom: 1px solid #333;
         }
 
         #feedback { 
-            font-size: 16px; font-weight: 700; margin: 8px 0; min-height: 40px; 
-            display: flex; align-items: center; justify-content: center; border-radius: 10px;
+            font-size: 16px; font-weight: bold; margin: 6px 0; min-height: 40px; 
+            display: flex; align-items: center; justify-content: center; border-radius: 10px; text-align: center;
         }
-        .feedback-correct { background: #e6fffa; color: #2d6a4f; border: 1px solid #b2f5ea; }
-        .feedback-wrong { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
+        .feedback-correct { background: #ecfdf5; color: #15803d; border: 1px solid #a7f3d0; }
+        .feedback-wrong { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 
         .btn-grid { 
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; 
-            overflow-y: auto; padding: 5px; flex: 1;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; 
+            overflow-y: auto; padding: 4px; flex: 1;
         }
         button.option-btn { 
             padding: 10px 0; border: 1px solid #d1d5db; background: #fff; 
             color: #1f2937; border-radius: 8px; font-size: 14px; font-weight: 600; 
-            cursor: pointer; box-shadow: 0 2px 0 #eee;
+            cursor: pointer; transition: background-color 0.1s, color 0.1s, transform 0.1s;
         }
-        button.option-btn:active { transform: translateY(2px); box-shadow: none; }
-        .selected-correct { background: #48bb78 !important; color: white !important; border-color: #38a169 !important; }
-        .selected-wrong { background: #f56565 !important; color: white !important; border-color: #e53e3e !important; }
+        button.option-btn:hover:not(:disabled) { background: #f9fafb; }
+        button.option-btn:active { transform: scale(0.96); }
+        button.option-btn.selected-correct { background: #16a34a !important; color: white !important; border-color: #15803d !important; }
+        button.option-btn.selected-wrong { background: #dc2626 !important; color: white !important; border-color: #b91c1c !important; font-weight: bold; }
         
+        .hint-text { color: #666; font-size: 12px; font-style: italic; margin-top: 5px; margin-bottom: 10px; }
+
         #next-btn { 
-            background: #2d3748; color: #fff; width: 100%; padding: 15px; 
-            font-size: 16px; font-weight: 800; border: none; border-radius: 12px; 
-            margin-top: 10px; display: none; cursor: pointer;
+            background: #111; color: #fff; width: 100%; padding: 14px; 
+            font-size: 16px; font-weight: bold; border: none; border-radius: 10px; 
+            margin-top: 8px; display: none; cursor: pointer; transition: background-color 0.1s;
         }
+        #next-btn:active { background: #333; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div>📊 進度: <span id="cur">1</span>/13</div>
-    <div>🎯 得分: <span id="score">0</span></div>
+    <div>📈 進行中: <span id="cur">1</span>/13</div>
+    <div>🏆 分數: <span id="score">0</span></div>
 </div>
 
 <div class="main-card">
     <div class="img-box">
         <img id="quiz-img" src="">
-        <div class="mask" id="mask">── 標籤遮蔽中 ──</div>
-        <div class="ref-tag" id="ref-tag"></div>
+        <div class="mask" id="mask">── 文字已隱藏 ──</div>
     </div>
 
-    <div id="feedback">請觀察顏色</div>
+    <div id="feedback">請觀察顏色來選擇對應編號</div>
+    <div class="hint-text">實體文字如「健合實業」已被遮蔽，請純色辨識。</div>
 
     <div class="btn-grid" id="btns"></div>
 
@@ -99,37 +96,38 @@
 </div>
 
 <script>
-    // 確保連結為原始圖片
+    // 使用您提供的新圖片檔案名稱
     const data = [
-        { url: "https://i.ibb.co/JRS11vQx/image.jpg", ans: "01" },
-        { url: "https://i.ibb.co/0pZStC4v/image.jpg", ans: "02" },
-        { url: "https://i.ibb.co/HT8v9Jr4/image.jpg", ans: "03" },
-        { url: "https://i.ibb.co/FbPrgP21/image.jpg", ans: "04" },
-        { url: "https://i.ibb.co/ym7STz44/image.jpg", ans: "05" },
-        { url: "https://i.ibb.co/yFqNpjF8/image.jpg", ans: "06" },
-        { url: "https://i.ibb.co/xq1Nfd4D/image.jpg", ans: "07" },
-        { url: "https://i.ibb.co/xqjz076b/image.jpg", ans: "08" },
-        { url: "https://i.ibb.co/spMdQkx8/image.jpg", ans: "09" },
-        { url: "https://i.ibb.co/tTN5jdf4/image.jpg", ans: "10" },
-        { url: "https://i.ibb.co/XrZZCRd8/image.jpg", ans: "11" },
-        { url: "https://i.ibb.co/kgyCFrPg/image.jpg", ans: "12" },
-        { url: "https://i.ibb.co/4nWmqVGr/image.jpg", ans: "13" }
+        { url: "S__142196743_0.jpg", ans: "01" },
+        { url: "S__142196744_0.jpg", ans: "02" },
+        { url: "S__142196745_0.jpg", ans: "03" },
+        { url: "S__142196746_0.jpg", ans: "04" },
+        { url: "S__142196747_0.jpg", ans: "05" },
+        { url: "S__142196748_0.jpg", ans: "06" },
+        { url: "S__142196749_0.jpg", ans: "07" },
+        { url: "S__142196750_0.jpg", ans: "08" },
+        { url: "S__142196751_0.jpg", ans: "09" },
+        { url: "S__142196752_0.jpg", ans: "10" }
     ];
 
     const codes = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
+    
+    // 將題目洗牌，讓每次訓練順序不同
     data.sort(() => Math.random() - 0.5);
 
     let idx = 0, score = 0;
 
     function init() {
         const item = data[idx];
-        document.getElementById('quiz-img').src = item.url;
+        const imgEl = document.getElementById('quiz-img');
+        
+        // 確保圖片在加載時以較佳清晰度渲染
+        imgEl.style.display = 'none'; // 隱藏以避免顯示加載中的破圖
+        imgEl.src = item.url;
+        imgEl.onload = () => imgEl.style.display = 'block'; // 加載完畢後顯示
+
         document.getElementById('mask').style.display = 'flex';
         
-        const refTag = document.getElementById('ref-tag');
-        refTag.innerText = "Ans: P-" + item.ans;
-        refTag.style.display = 'none';
-
         const feedback = document.getElementById('feedback');
         feedback.innerText = "這張是什麼編號？";
         feedback.className = "";
@@ -145,17 +143,17 @@
             b.className = "option-btn";
             b.innerText = "P-" + c;
             b.onclick = () => {
+                // 回答後暫時顯示原圖以便確認
                 document.getElementById('mask').style.display = 'none';
-                document.getElementById('ref-tag').style.display = 'block';
                 document.querySelectorAll('.option-btn').forEach(el => el.disabled = true);
                 
                 if(c === item.ans) {
-                    feedback.innerText = "正確！Plate " + item.ans;
+                    feedback.innerText = "正確！這是 Plate " + item.ans + "。";
                     feedback.className = "feedback-correct";
                     b.classList.add("selected-correct");
                     score++;
                 } else {
-                    feedback.innerText = "不對喔，是 Plate " + item.ans;
+                    feedback.innerText = "錯了！應為 Plate " + item.ans + "。";
                     feedback.className = "feedback-wrong";
                     b.classList.add("selected-wrong");
                 }
@@ -171,7 +169,7 @@
         if(idx < data.length) {
             init();
         } else {
-            alert("測驗結束！最終得分：" + score + " / 13");
+            alert("訓練完成！最終分數：" + score + " / 13");
             location.reload();
         }
     };
