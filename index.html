@@ -2,30 +2,37 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>健合實業 | 色卡辨識訓練系統</title>
+    <title>健合實業 | 色卡辨識訓練系統 (左圖右鈕版)</title>
     <style>
         * { box-sizing: border-box; cursor: default; }
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; 
             background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; 
             display: flex; flex-direction: column; align-items: center; 
+            height: 100vh; overflow: hidden;
         }
 
         .container {
-            width: 100%; max-width: 1200px; background: #1e293b;
-            padding: 30px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            width: 100%; max-width: 1400px; background: #1e293b;
+            padding: 20px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; height: 95vh;
         }
 
         .header { 
-            display: flex; justify-content: space-between; margin-bottom: 25px; 
-            font-size: 24px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 15px;
+            display: flex; justify-content: space-between; margin-bottom: 15px; 
+            font-size: 22px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 10px;
         }
 
-        .img-box { 
-            position: relative; width: 100%; height: 650px; 
-            background: #000; border-radius: 16px; overflow: hidden; 
+        /* 核心分欄佈局 */
+        .main-content {
+            display: flex; flex: 1; gap: 20px; min-height: 0;
+        }
+
+        /* 左側圖片區 */
+        .left-panel {
+            flex: 7; position: relative; background: #000; 
+            border-radius: 12px; overflow: hidden; border: 1px solid #475569;
             display: flex; align-items: center; justify-content: center;
-            border: 1px solid #475569;
         }
 
         #quiz-img { 
@@ -33,31 +40,37 @@
             image-rendering: -webkit-optimize-contrast; 
         }
 
-        /* 獨立動態遮罩：蓋住頂部的公司名與編號 */
         #mask { 
             position: absolute; left: 0; width: 100%; background: #000; 
-            z-index: 10; border-bottom: 2px solid #1e293b;
+            z-index: 10; border-bottom: 1px solid #334155;
+        }
+
+        /* 右側控制區 */
+        .right-panel {
+            flex: 3; display: flex; flex-direction: column; background: #334155;
+            padding: 20px; border-radius: 12px; overflow-y: auto;
         }
 
         #feedback { 
-            font-size: 28px; font-weight: 700; margin: 15px 0; min-height: 80px; 
-            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 700; margin-bottom: 20px; 
+            min-height: 60px; display: flex; align-items: center; justify-content: center;
+            text-align: center; border-radius: 8px;
         }
-        .feedback-correct { color: #4ade80; }
-        .feedback-wrong { color: #f87171; }
+        .feedback-correct { background: #064e3b; color: #4ade80; }
+        .feedback-wrong { background: #7f1d1d; color: #f87171; }
 
         .btn-grid { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
-            gap: 15px; margin-top: 10px;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; 
         }
         button.option-btn { 
-            padding: 20px 0; border: 1px solid #475569; background: #334155; 
-            color: #f8fafc; border-radius: 12px; font-size: 20px; font-weight: 700; 
+            padding: 15px 0; border: 1px solid #475569; background: #1e293b; 
+            color: #f8fafc; border-radius: 8px; font-size: 18px; font-weight: 700; 
             cursor: pointer; transition: 0.2s;
         }
-        button.option-btn:hover:not(:disabled) { background: #475569; transform: translateY(-2px); }
-        .selected-correct { background: #22c55e !important; }
-        .selected-wrong { background: #ef4444 !important; }
+        button.option-btn:hover:not(:disabled) { background: #38bdf8; color: #0f172a; }
+        .selected-correct { background: #22c55e !important; color: white !important; }
+        .selected-wrong { background: #ef4444 !important; color: white !important; }
+
     </style>
 </head>
 <body>
@@ -68,18 +81,20 @@
         <div>🏆 分數: <span id="score">0</span></div>
     </div>
 
-    <div class="img-box">
-        <img id="quiz-img" src="">
-        <div id="mask"></div>
-    </div>
+    <div class="main-content">
+        <div class="left-panel">
+            <img id="quiz-img" src="">
+            <div id="mask"></div>
+        </div>
 
-    <div id="feedback">準備中...</div>
-    <div class="btn-grid" id="btns"></div>
+        <div class="right-panel">
+            <div id="feedback">準備開始...</div>
+            <div class="btn-grid" id="btns"></div>
+        </div>
+    </div>
 </div>
 
 <script>
-    // 這裡使用你提供的 Postimg 直接連結
-    // maskT: 遮罩位置, maskH: 遮罩高度 (可根據每張圖自行調整)
     const quizData = [
         { url: "https://i.postimg.cc/jqfpgmv1/S-141926458-0.jpg", ans: "877K", maskT: 0, maskH: 35 },
         { url: "https://i.postimg.cc/9X968KJV/S-141926459-0.jpg", ans: "801K", maskT: 0, maskH: 35 },
@@ -118,7 +133,7 @@
         mask.style.height = item.maskH + "%";
         mask.style.display = 'block';
 
-        feedback.innerText = "請觀察色塊辨識編號";
+        feedback.innerText = "請點擊正確編號";
         feedback.className = "";
         document.getElementById('cur').innerText = idx + 1;
         
@@ -153,7 +168,7 @@
                 init();
             }, 800); 
         } else {
-            feedback.innerText = "✘ 錯誤！正確是 " + correct;
+            feedback.innerText = "✘ 錯誤！";
             feedback.className = "feedback-wrong";
             btnElement.classList.add('selected-wrong');
             
