@@ -1,189 +1,170 @@
-@@ -1,101 +1,162 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>健合實業色卡練習</title>
-    <title>健合實業 | 色卡辨識訓練</title>
+    <title>健合實業 | 色卡辨識訓練系統</title>
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
-        .score-bar { font-size: 14px; margin-bottom: 5px; font-weight: bold; color: #444; }
-        .main-card { background: #fff; width: 100%; max-width: 420px; padding: 12px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex: 1; display: flex; flex-direction: column; min-height: 0; }
-        .img-box { position: relative; width: 100%; flex: 0 0 45%; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #ddd; }
-        #quiz-img { width: 100%; height: 100%; object-fit: contain; }
-        .mask { position: absolute; top: 0; left: 0; width: 100%; height: 38%; background: #222; color: #777; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 5; }
-        #feedback { font-size: 18px; font-weight: bold; margin: 8px 0; min-height: 24px; text-align: center; }
-        .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow-y: auto; padding-bottom: 5px; }
-        button { padding: 12px 0; border: 1.5px solid #007bff; background: #fff; color: #007bff; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.1s; }
-        button:active { background: #007bff; color: #fff; transform: scale(0.95); }
-        button:disabled { border-color: #eee; color: #ccc; }
-        #next-btn { background: #28a745; color: #fff; width: 100%; padding: 14px; font-size: 18px; border: none; border-radius: 12px; margin-top: auto; display: none; }
+        * { box-sizing: border-box; cursor: default; }
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); 
-            margin: 0; padding: 10px; display: flex; flex-direction: column; 
-            align-items: center; height: 100vh; height: 100dvh;
-            overflow: hidden; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center; 
         }
+
+        .container {
+            width: 100%; max-width: 1200px; background: #1e293b;
+            padding: 30px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
         .header { 
-            width: 100%; max-width: 420px; display: flex; justify-content: space-between; 
-            margin-bottom: 10px; font-weight: bold; color: #4b5563; font-size: 15px;
-            background: rgba(255,255,255,0.6); padding: 8px 16px; border-radius: 20px;
-            flex-shrink: 0;
+            display: flex; justify-content: space-between; margin-bottom: 25px; 
+            font-size: 24px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 15px;
         }
-        .header span { color: #2563eb; font-weight: 900; }
-        .main-card { 
-            background: #ffffff; width: 100%; max-width: 420px; padding: 14px; 
-            border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); 
-            flex: 1; display: flex; flex-direction: column; min-height: 0; 
-        }
+
         .img-box { 
-            position: relative; width: 100%; flex: 0 0 38%; background: #111; 
-            border-radius: 12px; overflow: hidden; border: 3px solid #f3f4f6; 
-            flex-shrink: 0;
+            position: relative; width: 100%; height: 650px; 
+            background: #000; border-radius: 16px; overflow: hidden; 
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #475569;
         }
-        #quiz-img { width: 100%; height: 100%; object-fit: contain; background: #000; }
-        .mask { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 38%; 
-            background: rgba(15, 15, 15, 0.98); 
-            color: #d1d5db; display: flex; align-items: center; justify-content: center; 
-            font-size: 13px; font-weight: 600; letter-spacing: 1px; z-index: 5;
-            border-bottom: 2px solid #333;
+
+        #quiz-img { 
+            max-width: 100%; max-height: 100%; object-fit: contain; 
+            image-rendering: -webkit-optimize-contrast; 
         }
+
+        /* 獨立動態遮罩：蓋住頂部的公司名與編號 */
+        #mask { 
+            position: absolute; left: 0; width: 100%; background: #000; 
+            z-index: 10; border-bottom: 2px solid #1e293b;
+        }
+
         #feedback { 
-            font-size: 16px; font-weight: bold; margin: 10px 0; min-height: 36px; 
-            display: flex; align-items: center; justify-content: center; border-radius: 8px;
-            flex-shrink: 0;
+            font-size: 28px; font-weight: 700; margin: 15px 0; min-height: 80px; 
+            display: flex; align-items: center; justify-content: center;
         }
-        .feedback-correct { background: #dcfce7; color: #166534; }
-        .feedback-wrong { background: #fee2e2; color: #991b1b; }
+        .feedback-correct { color: #4ade80; }
+        .feedback-wrong { color: #f87171; }
+
         .btn-grid { 
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; 
-            overflow-y: auto; padding-bottom: 4px; 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
+            gap: 15px; margin-top: 10px;
         }
         button.option-btn { 
-            padding: 12px 0; border: 2px solid #e5e7eb; background: #f9fafb; 
-            color: #374151; border-radius: 10px; font-size: 14px; font-weight: 700; 
-            cursor: pointer; transition: all 0.1s; 
+            padding: 20px 0; border: 1px solid #475569; background: #334155; 
+            color: #f8fafc; border-radius: 12px; font-size: 20px; font-weight: 700; 
+            cursor: pointer; transition: 0.2s;
         }
-        button.option-btn:active { transform: scale(0.95); background: #e5e7eb; }
-        button.option-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        button.option-btn.selected-correct { background: #22c55e; color: white; border-color: #16a34a; }
-        button.option-btn.selected-wrong { background: #ef4444; color: white; border-color: #dc2626; }
-        #next-btn { 
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
-            color: #fff; width: 100%; padding: 14px; font-size: 16px; font-weight: bold;
-            border: none; border-radius: 10px; margin-top: 8px; display: none; 
-            cursor: pointer; flex-shrink: 0;
-        }
+        button.option-btn:hover:not(:disabled) { background: #475569; transform: translateY(-2px); }
+        .selected-correct { background: #22c55e !important; }
+        .selected-wrong { background: #ef4444 !important; }
     </style>
 </head>
 <body>
 
-<div class="score-bar">進度: <span id="cur">1</span>/12 | 得分: <span id="score">0</span></div>
-<div class="header">
-    <div>📝 題數: <span id="cur">1</span>/12</div>
-    <div>🏆 得分: <span id="score">0</span></div>
-</div>
-
-<div class="main-card">
-    <div class="img-box">
-        <img id="quiz-img" src="">
-        <div class="mask" id="mask">標籤隱藏</div>
-        <div class="mask" id="mask">🔒 標籤已遮蔽</div>
+<div class="container">
+    <div class="header">
+        <div>📊 進度: <span id="cur">1</span> / 12</div>
+        <div>🏆 分數: <span id="score">0</span></div>
     </div>
 
-    <div id="feedback"></div>
+    <div class="img-box">
+        <img id="quiz-img" src="">
+        <div id="mask"></div>
+    </div>
 
+    <div id="feedback">準備中...</div>
     <div class="btn-grid" id="btns"></div>
-
-    <button id="next-btn">下一題 ➔</button>
 </div>
 
 <script>
-    // 重新精確校對過的圖片對應表
-    const data = [
-        { url: "https://i.postimg.cc/jqfpgmv1/S-141926458-0.jpg", ans: "877K" },
-        { url: "https://i.postimg.cc/9X968KJV/S-141926459-0.jpg", ans: "801K" },
-        { url: "https://i.postimg.cc/44cDLqBs/S-141926460-0.jpg", ans: "923K" },
-        { url: "https://i.postimg.cc/G3DW7VqR/S-141926461-0.jpg", ans: "926C" },
-        { url: "https://i.postimg.cc/T2bz7FCT/S-141926462-0.jpg", ans: "920A" },
-        { url: "https://i.postimg.cc/wxNCfZ0x/S-141926463-0.jpg", ans: "921B" },
-        { url: "https://i.postimg.cc/zDhst60B/S-141926464-0.jpg", ans: "120A" },
-        { url: "https://i.postimg.cc/jqfpgmZC/S-141926465-0.jpg", ans: "121A" },
-        { url: "https://i.postimg.cc/ZYNG72VB/S-141926466-0.jpg", ans: "292K" },
-        { url: "https://i.postimg.cc/J4W99x2h/S-141926467-0.jpg", ans: "220B" },
-        { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B" }, // 已校正為 813B
-        { url: "https://i.postimg.cc/J4W99x2n/S-141926470-0.jpg", ans: "920A" }  // 複訓 920A
-        { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B" }, 
-        { url: "https://i.postimg.cc/J4W99x2n/S-141926470-0.jpg", ans: "920A" }  
+    // 這裡使用你提供的 Postimg 直接連結
+    // maskT: 遮罩位置, maskH: 遮罩高度 (可根據每張圖自行調整)
+    const quizData = [
+        { url: "https://i.postimg.cc/jqfpgmv1/S-141926458-0.jpg", ans: "877K", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/9X968KJV/S-141926459-0.jpg", ans: "801K", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/44cDLqBs/S-141926460-0.jpg", ans: "923K", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/G3DW7VqR/S-141926461-0.jpg", ans: "926C", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/T2bz7FCT/S-141926462-0.jpg", ans: "920A", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/wxNCfZ0x/S-141926463-0.jpg", ans: "921B", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/zDhst60B/S-141926464-0.jpg", ans: "120A", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/jqfpgmZC/S-141926465-0.jpg", ans: "121A", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/ZYNG72VB/S-141926466-0.jpg", ans: "292K", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/J4W99x2h/S-141926467-0.jpg", ans: "220B", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B", maskT: 0, maskH: 35 },
+        { url: "https://i.postimg.cc/J4W99x2n/S-141926470-0.jpg", ans: "920A", maskT: 0, maskH: 35 }
     ];
 
     const codes = ["877K", "801K", "923K", "926C", "920A", "921B", "120A", "121A", "292K", "220B", "813B"];
-    data.sort(() => Math.random() - 0.5);
+    
+    quizData.sort(() => Math.random() - 0.5);
 
     let idx = 0, score = 0;
 
     function init() {
-        const item = data[idx];
-        document.getElementById('quiz-img').src = item.url;
-        document.getElementById('mask').style.display = 'flex';
-        document.getElementById('feedback').innerText = "";
-        
+        if (idx >= quizData.length) {
+            alert("🌟 訓練結束！總得分：" + score + " / " + quizData.length);
+            location.reload();
+            return;
+        }
+
+        const item = quizData[idx];
+        const img = document.getElementById('quiz-img');
+        const mask = document.getElementById('mask');
         const feedback = document.getElementById('feedback');
-        feedback.innerText = "請選擇對應的色號";
+        
+        img.src = item.url;
+        mask.style.top = item.maskT + "%";
+        mask.style.height = item.maskH + "%";
+        mask.style.display = 'block';
+
+        feedback.innerText = "請觀察色塊辨識編號";
         feedback.className = "";
-        feedback.style.color = "#6b7280";
-
-        document.getElementById('next-btn').style.display = 'none';
         document.getElementById('cur').innerText = idx + 1;
-
+        
         const area = document.getElementById('btns');
         area.innerHTML = "";
+        
         codes.forEach(c => {
             const b = document.createElement('button');
             b.className = "option-btn";
             b.innerText = c;
-            b.onclick = () => {
-                document.getElementById('mask').style.display = 'none';
-                document.querySelectorAll('#btns button').forEach(el => el.disabled = true);
-                document.querySelectorAll('.option-btn').forEach(el => el.disabled = true);
-                
-                if(c === item.ans) {
-                    document.getElementById('feedback').innerText = "✅ 正確: " + item.ans;
-                    document.getElementById('feedback').style.color = "#28a745";
-                    feedback.innerText = "🎉 答對了！色號是 " + item.ans;
-                    feedback.className = "feedback-correct";
-                    b.classList.add("selected-correct");
-                    score++;
-                } else {
-                    document.getElementById('feedback').innerText = "❌ 正確是 " + item.ans;
-                    document.getElementById('feedback').style.color = "#dc3545";
-                    feedback.innerText = "❌ 答錯了，正確應為 " + item.ans;
-                    feedback.className = "feedback-wrong";
-                    b.classList.add("selected-wrong");
-                }
-                document.getElementById('score').innerText = score;
-                document.getElementById('next-btn').style.display = 'block';
-            };
+            b.onclick = () => checkAnswer(c, item.ans, b);
             area.appendChild(b);
         });
     }
 
-    document.getElementById('next-btn').onclick = () => {
-        idx++;
-        if(idx < data.length) init();
-        else {
-            alert("測驗結束！總分：" + score + "/12");
-        if(idx < data.length) {
-            init();
+    function checkAnswer(selected, correct, btnElement) {
+        const feedback = document.getElementById('feedback');
+        const mask = document.getElementById('mask');
+        
+        document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+        mask.style.display = 'none';
+
+        if (selected === correct) {
+            score++;
+            document.getElementById('score').innerText = score;
+            feedback.innerText = "✔ 正確！";
+            feedback.className = "feedback-correct";
+            btnElement.classList.add('selected-correct');
+            
+            setTimeout(() => {
+                idx++;
+                init();
+            }, 800); 
         } else {
-            alert("🌟 測驗結束！您的總得分：" + score + " / 12");
-            location.reload();
+            feedback.innerText = "✘ 錯誤！正確是 " + correct;
+            feedback.className = "feedback-wrong";
+            btnElement.classList.add('selected-wrong');
+            
+            setTimeout(() => {
+                alert("【答錯提醒】\n\n這張色卡的編號是：" + correct);
+                idx++;
+                init();
+            }, 100);
         }
-    };
+    }
+
     window.onload = init;
 </script>
 </body>
