@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>健合實業 | 色卡辨識專業訓練系統</title>
+    <title>健合實業 | 色卡辨識自動訓練系統</title>
     <style>
         * { box-sizing: border-box; cursor: default; }
         body { 
@@ -22,7 +22,6 @@
         }
         .header span { color: #38bdf8; }
 
-        /* 圖片容器 */
         .img-box { 
             position: relative; width: 100%; height: 650px; 
             background: #000; border-radius: 16px; overflow: hidden; 
@@ -35,23 +34,18 @@
             image-rendering: -webkit-optimize-contrast; 
         }
 
-        /* 獨立動態遮罩 */
         #mask { 
             position: absolute; left: 0; width: 100%; background: #000; 
             z-index: 10; border-bottom: 2px solid #1e293b;
-            display: flex; align-items: center; justify-content: center;
-            color: #475569; font-size: 14px; letter-spacing: 4px;
         }
 
         #feedback { 
             font-size: 28px; font-weight: 700; margin: 20px 0; min-height: 80px; 
             display: flex; align-items: center; justify-content: center; border-radius: 12px;
-            transition: all 0.3s;
         }
         .feedback-correct { background: #064e3b; color: #4ade80; }
         .feedback-wrong { background: #7f1d1d; color: #f87171; }
 
-        /* 按鈕區塊 */
         .btn-grid { 
             display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
             gap: 15px; margin-top: 10px;
@@ -62,40 +56,29 @@
             cursor: pointer; transition: 0.2s;
         }
         button.option-btn:hover:not(:disabled) { background: #475569; transform: translateY(-2px); }
-        button.option-btn:disabled { cursor: not-allowed; }
-        .selected-correct { background: #22c55e !important; border-color: #4ade80 !important; }
-        .selected-wrong { background: #ef4444 !important; border-color: #f87171 !important; }
-
-        #next-btn { 
-            background: #38bdf8; color: #0f172a; width: 100%; padding: 22px; 
-            font-size: 24px; font-weight: 900; border: none; border-radius: 15px; 
-            margin-top: 30px; display: none; cursor: pointer;
-        }
+        .selected-correct { background: #22c55e !important; }
+        .selected-wrong { background: #ef4444 !important; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div>📊 訓練進度: <span id="cur">1</span> / 13</div>
-        <div>🏆 目前得分: <span id="score">0</span></div>
+        <div>📊 進度: <span id="cur">1</span> / 13</div>
+        <div>🏆 分數: <span id="score">0</span></div>
     </div>
 
     <div class="img-box">
         <img id="quiz-img" src="">
-        <div id="mask">HIDDEN SECTION</div>
+        <div id="mask"></div>
     </div>
 
-    <div id="feedback">請觀察顏色並辨識編號</div>
+    <div id="feedback">辨識色彩中...</div>
 
     <div class="btn-grid" id="btns"></div>
-
-    <button id="next-btn">確認並進入下一題 ➔</button>
 </div>
 
 <script>
-    // 根據你提供的新邏輯對應答案與遮罩參數
-    // maskT: 遮罩位置(%), maskH: 遮罩高度(%)
     const quizData = [
         { url: "S__142196743_0.jpg", ans: "220B", maskT: 45, maskH: 25 },
         { url: "S__142196744_0.jpg", ans: "120A", maskT: 50, maskH: 30 },
@@ -112,69 +95,80 @@
         { url: "S__142196752_0.jpg", ans: "813B", maskT: 40, maskH: 25 }
     ];
 
-    // 按鈕選項
     const codes = ["220B", "120A", "121A", "231B", "920A", "921B", "926C", "923K", "801K", "877K", "882C", "813B"];
     
-    // 洗牌題目
     quizData.sort(() => Math.random() - 0.5);
 
     let idx = 0, score = 0;
 
     function init() {
+        if (idx >= quizData.length) {
+            alert("🌟 訓練結束！總得分：" + score + " / " + quizData.length);
+            location.reload();
+            return;
+        }
+
         const item = quizData[idx];
         const img = document.getElementById('quiz-img');
         const mask = document.getElementById('mask');
         const feedback = document.getElementById('feedback');
         
-        // 載入圖片與個別遮罩設定
         img.src = item.url;
         mask.style.top = item.maskT + "%";
         mask.style.height = item.maskH + "%";
-        mask.style.display = 'flex';
+        mask.style.display = 'block';
 
-        feedback.innerText = "請點擊對應編號按鈕";
+        feedback.innerText = "請點擊編號";
         feedback.className = "";
-        document.getElementById('next-btn').style.display = 'none';
         document.getElementById('cur').innerText = idx + 1;
         
         const area = document.getElementById('btns');
         area.innerHTML = "";
         
-        // 生成按鈕
         codes.forEach(c => {
             const b = document.createElement('button');
             b.className = "option-btn";
             b.innerText = c;
-            b.onclick = () => {
-                mask.style.display = 'none'; // 揭曉答案
-                document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
-                
-                if(c === item.ans) {
-                    feedback.innerText = "✔ 答對了！這是 Plate " + item.ans;
-                    feedback.className = "feedback-correct";
-                    b.classList.add("selected-correct");
-                    score++;
-                } else {
-                    feedback.innerText = "✘ 答錯了，正確應該是 " + item.ans;
-                    feedback.className = "feedback-wrong";
-                    b.classList.add("selected-wrong");
-                }
-                document.getElementById('score').innerText = score;
-                document.getElementById('next-btn').style.display = 'block';
-            };
+            b.onclick = () => checkAnswer(c, item.ans, b);
             area.appendChild(b);
         });
     }
 
-    document.getElementById('next-btn').onclick = () => {
-        idx++;
-        if(idx < quizData.length) {
-            init();
+    function checkAnswer(selected, correct, btnElement) {
+        const feedback = document.getElementById('feedback');
+        const mask = document.getElementById('mask');
+        
+        // 禁用所有按鈕防止重複點擊
+        document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+        mask.style.display = 'none'; // 揭曉圖片文字
+
+        if (selected === correct) {
+            // 答對邏輯
+            score++;
+            document.getElementById('score').innerText = score;
+            feedback.innerText = "✔ 正確！下一題...";
+            feedback.className = "feedback-correct";
+            btnElement.classList.add('selected-correct');
+            
+            // 0.8秒後自動下一題
+            setTimeout(() => {
+                idx++;
+                init();
+            }, 800);
         } else {
-            alert("🌟 訓練完成！您的得分是：" + score + " / 13");
-            location.reload();
+            // 答錯邏輯
+            feedback.innerText = "✘ 答錯了！正確是 " + correct;
+            feedback.className = "feedback-wrong";
+            btnElement.classList.add('selected-wrong');
+            
+            // 彈窗警告，確認後手動下一題
+            setTimeout(() => {
+                alert("【答錯提醒】\n\n這張色卡的正確編號應為：" + correct + "\n請記住這個顏色與編號的對應。");
+                idx++;
+                init();
+            }, 100);
         }
-    };
+    }
 
     window.onload = init;
 </script>
