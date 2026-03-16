@@ -2,30 +2,32 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>健合實業 | 色卡辨識專業訓練</title>
+    <title>健合實業 | 色卡辨識專業訓練系統</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; cursor: default; }
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: #121212; color: #eee; margin: 0; padding: 20px; 
+            background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; 
             display: flex; flex-direction: column; align-items: center; 
         }
 
         .container {
-            width: 100%; max-width: 1300px; background: #1e1e1e;
-            padding: 25px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            width: 100%; max-width: 1200px; background: #1e293b;
+            padding: 30px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
         }
 
         .header { 
-            display: flex; justify-content: space-between; margin-bottom: 20px; 
-            font-size: 22px; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 15px;
+            display: flex; justify-content: space-between; margin-bottom: 25px; 
+            font-size: 24px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 15px;
         }
+        .header span { color: #38bdf8; }
 
-        /* 圖片容器：加大以利電腦觀看 */
+        /* 圖片容器 */
         .img-box { 
-            position: relative; width: 100%; height: 700px; 
-            background: #000; border-radius: 8px; overflow: hidden; 
+            position: relative; width: 100%; height: 650px; 
+            background: #000; border-radius: 16px; overflow: hidden; 
             display: flex; align-items: center; justify-content: center;
+            border: 1px solid #475569;
         }
 
         #quiz-img { 
@@ -33,37 +35,41 @@
             image-rendering: -webkit-optimize-contrast; 
         }
 
-        /* 獨立遮罩：根據每張圖動態調整 top 與 height */
+        /* 獨立動態遮罩 */
         #mask { 
             position: absolute; left: 0; width: 100%; background: #000; 
-            z-index: 10; border-top: 1px solid #222; border-bottom: 1px solid #222;
+            z-index: 10; border-bottom: 2px solid #1e293b;
+            display: flex; align-items: center; justify-content: center;
+            color: #475569; font-size: 14px; letter-spacing: 4px;
         }
 
         #feedback { 
-            font-size: 26px; font-weight: bold; margin: 20px 0; min-height: 70px; 
-            display: flex; align-items: center; justify-content: center; border-radius: 10px;
+            font-size: 28px; font-weight: 700; margin: 20px 0; min-height: 80px; 
+            display: flex; align-items: center; justify-content: center; border-radius: 12px;
+            transition: all 0.3s;
         }
-        .feedback-correct { background: #064e3b; color: #34d399; }
+        .feedback-correct { background: #064e3b; color: #4ade80; }
         .feedback-wrong { background: #7f1d1d; color: #f87171; }
 
-        /* 按鈕區：照著圖片號碼填寫 */
+        /* 按鈕區塊 */
         .btn-grid { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
-            gap: 12px; margin-top: 10px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+            gap: 15px; margin-top: 10px;
         }
         button.option-btn { 
-            padding: 16px 0; border: 1px solid #444; background: #2d2d2d; 
-            color: #fff; border-radius: 8px; font-size: 18px; font-weight: bold; 
+            padding: 20px 0; border: 1px solid #475569; background: #334155; 
+            color: #f8fafc; border-radius: 12px; font-size: 20px; font-weight: 700; 
             cursor: pointer; transition: 0.2s;
         }
-        button.option-btn:hover:not(:disabled) { background: #3d3d3d; border-color: #666; }
-        .selected-correct { background: #059669 !important; border-color: #10b981 !important; }
-        .selected-wrong { background: #dc2626 !important; border-color: #ef4444 !important; }
+        button.option-btn:hover:not(:disabled) { background: #475569; transform: translateY(-2px); }
+        button.option-btn:disabled { cursor: not-allowed; }
+        .selected-correct { background: #22c55e !important; border-color: #4ade80 !important; }
+        .selected-wrong { background: #ef4444 !important; border-color: #f87171 !important; }
 
         #next-btn { 
-            background: #3b82f6; color: #fff; width: 100%; padding: 20px; 
-            font-size: 22px; font-weight: bold; border: none; border-radius: 10px; 
-            margin-top: 25px; display: none; cursor: pointer;
+            background: #38bdf8; color: #0f172a; width: 100%; padding: 22px; 
+            font-size: 24px; font-weight: 900; border: none; border-radius: 15px; 
+            margin-top: 30px; display: none; cursor: pointer;
         }
     </style>
 </head>
@@ -71,44 +77,45 @@
 
 <div class="container">
     <div class="header">
-        <div>📈 測驗中: <span id="cur">1</span> / 11</div>
-        <div>🏆 分數: <span id="score">0</span></div>
+        <div>📊 訓練進度: <span id="cur">1</span> / 13</div>
+        <div>🏆 目前得分: <span id="score">0</span></div>
     </div>
 
     <div class="img-box">
         <img id="quiz-img" src="">
-        <div id="mask"></div>
+        <div id="mask">HIDDEN SECTION</div>
     </div>
 
-    <div id="feedback">觀察色塊辨認編號</div>
+    <div id="feedback">請觀察顏色並辨識編號</div>
 
     <div class="btn-grid" id="btns"></div>
 
-    <button id="next-btn">下一張練習 ➔</button>
+    <button id="next-btn">確認並進入下一題 ➔</button>
 </div>
 
 <script>
-    /**
-     * maskT: 遮罩距離圖片頂部的百分比
-     * maskH: 遮罩本身的高度百分比
-     */
+    // 根據你提供的新邏輯對應答案與遮罩參數
+    // maskT: 遮罩位置(%), maskH: 遮罩高度(%)
     const quizData = [
-        { url: "image_e5efd6.png", ans: "877K", maskT: 0, maskH: 45 },
-        { url: "image_e5f33e.jpg", ans: "801K", maskT: 0, maskH: 40 },
-        { url: "image_e5f31c.png", ans: "923K", maskT: 0, maskH: 40 },
-        { url: "image_e5f2fa.png", ans: "882C", maskT: 35, maskH: 25 },
-        { url: "image_e5f2d8.png", ans: "120A", maskT: 50, maskH: 30 },
-        { url: "image_e5f2bc.png", ans: "813B", maskT: 40, maskH: 25 },
-        { url: "image_e5efbb.jpg", ans: "923K", maskT: 35, maskH: 25 },
-        { url: "image_e5efb4.jpg", ans: "926C", maskT: 30, maskH: 25 },
-        { url: "image_e5ef99.png", ans: "921B", maskT: 55, maskH: 25 },
-        { url: "image_e5ef7d.png", ans: "121A", maskT: 55, maskH: 25 },
-        { url: "image_e5ef75.png", ans: "231B", maskT: 55, maskH: 25 },
-        { url: "image_e5ef5b.jpg", ans: "920A", maskT: 45, maskH: 25 }
+        { url: "S__142196743_0.jpg", ans: "220B", maskT: 45, maskH: 25 },
+        { url: "S__142196744_0.jpg", ans: "120A", maskT: 50, maskH: 30 },
+        { url: "S__142196745_0.jpg", ans: "121A", maskT: 55, maskH: 25 },
+        { url: "S__142196746_0.jpg", ans: "231B", maskT: 55, maskH: 25 },
+        { url: "S__142196747_01.jpg", ans: "920A", maskT: 30, maskH: 25 },
+        { url: "S__142196747_0@.jpg", ans: "921B", maskT: 45, maskH: 25 },
+        { url: "S__142196748_0.jpg", ans: "926C", maskT: 30, maskH: 25 },
+        { url: "S__142196749_0.jpg", ans: "923K", maskT: 35, maskH: 25 },
+        { url: "S__142196750_01.jpg", ans: "801K", maskT: 35, maskH: 25 },
+        { url: "S__142196750_02.jpg", ans: "877K", maskT: 35, maskH: 25 },
+        { url: "S__142196750_03.jpg", ans: "923K", maskT: 35, maskH: 25 },
+        { url: "S__142196751_0.jpg", ans: "882C", maskT: 40, maskH: 25 },
+        { url: "S__142196752_0.jpg", ans: "813B", maskT: 40, maskH: 25 }
     ];
 
-    const allOptions = ["877K", "801K", "923K", "882C", "120A", "813B", "926C", "921B", "121A", "231B", "920A"];
+    // 按鈕選項
+    const codes = ["220B", "120A", "121A", "231B", "920A", "921B", "926C", "923K", "801K", "877K", "882C", "813B"];
     
+    // 洗牌題目
     quizData.sort(() => Math.random() - 0.5);
 
     let idx = 0, score = 0;
@@ -119,34 +126,36 @@
         const mask = document.getElementById('mask');
         const feedback = document.getElementById('feedback');
         
+        // 載入圖片與個別遮罩設定
         img.src = item.url;
-        
-        // 核心修改：獨立控制遮罩
         mask.style.top = item.maskT + "%";
         mask.style.height = item.maskH + "%";
-        mask.style.display = 'block';
+        mask.style.display = 'flex';
 
-        feedback.innerText = "請選擇正確編號";
+        feedback.innerText = "請點擊對應編號按鈕";
         feedback.className = "";
         document.getElementById('next-btn').style.display = 'none';
         document.getElementById('cur').innerText = idx + 1;
         
         const area = document.getElementById('btns');
         area.innerHTML = "";
-        allOptions.forEach(opt => {
+        
+        // 生成按鈕
+        codes.forEach(c => {
             const b = document.createElement('button');
             b.className = "option-btn";
-            b.innerText = opt;
+            b.innerText = c;
             b.onclick = () => {
                 mask.style.display = 'none'; // 揭曉答案
                 document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
-                if(opt === item.ans) {
-                    feedback.innerText = "✔ 正確！編號為 " + item.ans;
+                
+                if(c === item.ans) {
+                    feedback.innerText = "✔ 答對了！這是 Plate " + item.ans;
                     feedback.className = "feedback-correct";
                     b.classList.add("selected-correct");
                     score++;
                 } else {
-                    feedback.innerText = "✘ 錯誤！正確是 " + item.ans;
+                    feedback.innerText = "✘ 答錯了，正確應該是 " + item.ans;
                     feedback.className = "feedback-wrong";
                     b.classList.add("selected-wrong");
                 }
@@ -159,9 +168,10 @@
 
     document.getElementById('next-btn').onclick = () => {
         idx++;
-        if(idx < quizData.length) init();
-        else {
-            alert("測驗結束！總分：" + score + " / " + quizData.length);
+        if(idx < quizData.length) {
+            init();
+        } else {
+            alert("🌟 訓練完成！您的得分是：" + score + " / 13");
             location.reload();
         }
     };
