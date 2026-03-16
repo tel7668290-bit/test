@@ -2,85 +2,68 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>健合實業 | 色卡辨識訓練電腦版</title>
+    <title>健合實業 | 色卡辨識專業訓練</title>
     <style>
         * { box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: #f4f7f6; margin: 0; padding: 20px; 
+            background: #121212; color: #eee; margin: 0; padding: 20px; 
             display: flex; flex-direction: column; align-items: center; 
-            min-height: 100vh;
         }
 
-        /* 電腦版大框架 */
         .container {
-            width: 100%;
-            max-width: 1100px; /* 整體放大 */
-            background: #fff;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%; max-width: 1300px; background: #1e1e1e;
+            padding: 25px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
         .header { 
-            display: flex; justify-content: space-between; 
-            margin-bottom: 20px; font-size: 20px; font-weight: bold; color: #333;
-            border-bottom: 2px solid #eee; padding-bottom: 10px;
+            display: flex; justify-content: space-between; margin-bottom: 20px; 
+            font-size: 22px; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 15px;
         }
-        .header span { color: #2563eb; }
 
-        /* 圖片顯示區域極大化 */
+        /* 圖片容器：加大以利電腦觀看 */
         .img-box { 
-            position: relative; 
-            width: 100%; 
-            height: 600px; /* 增加高度 */
-            background: #000; 
-            border-radius: 10px; 
-            overflow: hidden; 
-            margin-bottom: 20px;
-        }
-        #quiz-img { 
-            width: 100%; height: 100%; 
-            object-fit: contain; /* 確保不失真，完整解析度 */
-            image-rendering: -webkit-optimize-contrast;
+            position: relative; width: 100%; height: 700px; 
+            background: #000; border-radius: 8px; overflow: hidden; 
+            display: flex; align-items: center; justify-content: center;
         }
 
-        /* 遮罩：徹底遮住頂部公司名與編號 */
-        .mask { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 28%; 
-            background: #000; /* 全黑遮蔽 */
-            z-index: 5; display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 18px; letter-spacing: 2px;
+        #quiz-img { 
+            max-width: 100%; max-height: 100%; object-fit: contain; 
+            image-rendering: -webkit-optimize-contrast; 
+        }
+
+        /* 獨立遮罩：根據每張圖動態調整 top 與 height */
+        #mask { 
+            position: absolute; left: 0; width: 100%; background: #000; 
+            z-index: 10; border-top: 1px solid #222; border-bottom: 1px solid #222;
         }
 
         #feedback { 
-            font-size: 22px; font-weight: 700; margin: 15px 0; min-height: 50px; 
+            font-size: 26px; font-weight: bold; margin: 20px 0; min-height: 70px; 
             display: flex; align-items: center; justify-content: center; border-radius: 10px;
         }
-        .feedback-correct { background: #d1fae5; color: #065f46; border: 2px solid #34d399; }
-        .feedback-wrong { background: #fee2e2; color: #991b1b; border: 2px solid #f87171; }
+        .feedback-correct { background: #064e3b; color: #34d399; }
+        .feedback-wrong { background: #7f1d1d; color: #f87171; }
 
-        /* 按鈕選項放大 */
+        /* 按鈕區：照著圖片號碼填寫 */
         .btn-grid { 
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); /* 電腦版改為5列 */
-            gap: 12px; 
-            padding: 10px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
+            gap: 12px; margin-top: 10px;
         }
         button.option-btn { 
-            padding: 15px 0; border: 2px solid #e2e8f0; background: #fff; 
-            color: #1a202c; border-radius: 10px; font-size: 18px; font-weight: 700; 
-            cursor: pointer; transition: all 0.2s;
+            padding: 16px 0; border: 1px solid #444; background: #2d2d2d; 
+            color: #fff; border-radius: 8px; font-size: 18px; font-weight: bold; 
+            cursor: pointer; transition: 0.2s;
         }
-        button.option-btn:hover:not(:disabled) { background: #edf2f7; border-color: #cbd5e0; }
-        .selected-correct { background: #10b981 !important; color: white !important; border-color: #059669 !important; }
-        .selected-wrong { background: #ef4444 !important; color: white !important; border-color: #dc2626 !important; }
+        button.option-btn:hover:not(:disabled) { background: #3d3d3d; border-color: #666; }
+        .selected-correct { background: #059669 !important; border-color: #10b981 !important; }
+        .selected-wrong { background: #dc2626 !important; border-color: #ef4444 !important; }
 
         #next-btn { 
-            background: #2d3748; color: #fff; width: 100%; padding: 20px; 
-            font-size: 20px; font-weight: 800; border: none; border-radius: 12px; 
-            margin-top: 20px; display: none; cursor: pointer;
+            background: #3b82f6; color: #fff; width: 100%; padding: 20px; 
+            font-size: 22px; font-weight: bold; border: none; border-radius: 10px; 
+            margin-top: 25px; display: none; cursor: pointer;
         }
     </style>
 </head>
@@ -88,77 +71,82 @@
 
 <div class="container">
     <div class="header">
-        <div>📝 測驗進度: <span id="cur">1</span> / 13</div>
-        <div>🏆 目前得分: <span id="score">0</span></div>
+        <div>📈 測驗中: <span id="cur">1</span> / 11</div>
+        <div>🏆 分數: <span id="score">0</span></div>
     </div>
 
     <div class="img-box">
         <img id="quiz-img" src="">
-        <div class="mask" id="mask">── 健合實業 / 色號標籤 已遮蔽 ──</div>
+        <div id="mask"></div>
     </div>
 
-    <div id="feedback">請根據色塊辨識編號</div>
+    <div id="feedback">觀察色塊辨認編號</div>
 
     <div class="btn-grid" id="btns"></div>
 
-    <button id="next-btn">確認下一題，繼續訓練 ➔</button>
+    <button id="next-btn">下一張練習 ➔</button>
 </div>
 
 <script>
-    // 根據截圖檔名與右上角邏輯對應答案
-    const data = [
-        { url: "S__142196743_0.jpg", ans: "220B" },
-        { url: "S__142196744_0.jpg", ans: "120A" },
-        { url: "S__142196745_0.jpg", ans: "121A" },
-        { url: "S__142196746_0.jpg", ans: "231B" },
-        { url: "S__142196747_01.jpg", ans: "920A" },
-        { url: "S__142196747_0@.jpg", ans: "921B" },
-        { url: "S__142196748_0.jpg", ans: "926C" },
-        { url: "S__142196749_0.jpg", ans: "923K" },
-        { url: "S__142196750_01.jpg", ans: "801K" },
-        { url: "S__142196750_02.jpg", ans: "877K" },
-        { url: "S__142196750_03.jpg", ans: "923K" },
-        { url: "S__142196751_0.jpg", ans: "882C" },
-        { url: "S__142196752_0.jpg", ans: "813B" }
+    /**
+     * maskT: 遮罩距離圖片頂部的百分比
+     * maskH: 遮罩本身的高度百分比
+     */
+    const quizData = [
+        { url: "image_e5efd6.png", ans: "877K", maskT: 0, maskH: 45 },
+        { url: "image_e5f33e.jpg", ans: "801K", maskT: 0, maskH: 40 },
+        { url: "image_e5f31c.png", ans: "923K", maskT: 0, maskH: 40 },
+        { url: "image_e5f2fa.png", ans: "882C", maskT: 35, maskH: 25 },
+        { url: "image_e5f2d8.png", ans: "120A", maskT: 50, maskH: 30 },
+        { url: "image_e5f2bc.png", ans: "813B", maskT: 40, maskH: 25 },
+        { url: "image_e5efbb.jpg", ans: "923K", maskT: 35, maskH: 25 },
+        { url: "image_e5efb4.jpg", ans: "926C", maskT: 30, maskH: 25 },
+        { url: "image_e5ef99.png", ans: "921B", maskT: 55, maskH: 25 },
+        { url: "image_e5ef7d.png", ans: "121A", maskT: 55, maskH: 25 },
+        { url: "image_e5ef75.png", ans: "231B", maskT: 55, maskH: 25 },
+        { url: "image_e5ef5b.jpg", ans: "920A", maskT: 45, maskH: 25 }
     ];
 
-    // 按鈕顯示的編號 (對應檔名末尾三碼)
-    const codes = ["220B", "120A", "121A", "231B", "920A", "921B", "926C", "923K", "801K", "877K", "923K", "882C", "813B"];
+    const allOptions = ["877K", "801K", "923K", "882C", "120A", "813B", "926C", "921B", "121A", "231B", "920A"];
     
-    data.sort(() => Math.random() - 0.5);
+    quizData.sort(() => Math.random() - 0.5);
 
     let idx = 0, score = 0;
 
     function init() {
-        const item = data[idx];
-        document.getElementById('quiz-img').src = item.url;
-        document.getElementById('mask').style.display = 'flex';
-        
+        const item = quizData[idx];
+        const img = document.getElementById('quiz-img');
+        const mask = document.getElementById('mask');
         const feedback = document.getElementById('feedback');
-        feedback.innerText = "請點擊對應編號按鈕";
-        feedback.className = "";
+        
+        img.src = item.url;
+        
+        // 核心修改：獨立控制遮罩
+        mask.style.top = item.maskT + "%";
+        mask.style.height = item.maskH + "%";
+        mask.style.display = 'block';
 
+        feedback.innerText = "請選擇正確編號";
+        feedback.className = "";
         document.getElementById('next-btn').style.display = 'none';
         document.getElementById('cur').innerText = idx + 1;
         
         const area = document.getElementById('btns');
         area.innerHTML = "";
-        
-        codes.forEach(c => {
+        allOptions.forEach(opt => {
             const b = document.createElement('button');
             b.className = "option-btn";
-            b.innerText = c;
+            b.innerText = opt;
             b.onclick = () => {
-                document.getElementById('mask').style.display = 'none'; // 揭曉答案
-                document.querySelectorAll('.option-btn').forEach(el => el.disabled = true);
-                
-                if(c === item.ans) {
-                    feedback.innerText = "🎉 正確！這是 Plate " + item.ans;
+                mask.style.display = 'none'; // 揭曉答案
+                document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+                if(opt === item.ans) {
+                    feedback.innerText = "✔ 正確！編號為 " + item.ans;
                     feedback.className = "feedback-correct";
                     b.classList.add("selected-correct");
                     score++;
                 } else {
-                    feedback.innerText = "❌ 錯誤，正確編號應為 " + item.ans;
+                    feedback.innerText = "✘ 錯誤！正確是 " + item.ans;
                     feedback.className = "feedback-wrong";
                     b.classList.add("selected-wrong");
                 }
@@ -171,10 +159,9 @@
 
     document.getElementById('next-btn').onclick = () => {
         idx++;
-        if(idx < data.length) {
-            init();
-        } else {
-            alert("🌟 測驗結束！總得分：" + score + " / 13");
+        if(idx < quizData.length) init();
+        else {
+            alert("測驗結束！總分：" + score + " / " + quizData.length);
             location.reload();
         }
     };
