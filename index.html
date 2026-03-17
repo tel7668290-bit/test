@@ -12,15 +12,16 @@
             height: 100vh; overflow: hidden;
         }
 
+        /* ---------------- 首頁樣式 ---------------- */
         #mode-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.98); z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 30px; transition: opacity 0.5s;
+            gap: 25px; transition: opacity 0.5s;
         }
         .mode-title { font-size: 48px; margin-bottom: 20px; color: #f8fafc; letter-spacing: 2px; }
         .mode-btn {
-            padding: 25px 60px; font-size: 28px; font-weight: 900;
+            padding: 20px 50px; font-size: 26px; font-weight: 900;
             background: #38bdf8; color: #0f172a; border: none; border-radius: 20px;
             cursor: pointer; transition: 0.2s; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
             width: 400px; text-align: center;
@@ -28,41 +29,36 @@
         .mode-btn:hover { transform: translateY(-5px); background: #7dd3fc; }
         .mode-btn.exam { background: #fbbf24; }
         .mode-btn.exam:hover { background: #fcd34d; }
+        .mode-btn.gallery { background: #c084fc; color: #fff; }
+        .mode-btn.gallery:hover { background: #d8b4fe; }
 
+        /* ---------------- 測驗畫面樣式 ---------------- */
         .container {
             width: 100%; max-width: 1400px; background: #1e293b;
             padding: 20px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
             display: none; flex-direction: column; height: 95vh;
         }
-
         .header { 
             display: flex; justify-content: space-between; margin-bottom: 15px; 
             font-size: 22px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 10px;
         }
         .header span { color: #38bdf8; }
-
         .main-content { display: flex; flex: 1; gap: 20px; min-height: 0; }
-
         .left-panel {
             flex: 7; position: relative; background: #000; 
             border-radius: 12px; overflow: hidden; border: 1px solid #475569;
             display: flex; align-items: center; justify-content: center;
         }
-
         #quiz-img { max-width: 100%; max-height: 100%; object-fit: contain; }
-
         #quiz-text {
             display: none; font-size: 48px; font-weight: 900; color: #38bdf8;
             text-align: center; padding: 40px; line-height: 1.4;
         }
-
-        #mask { position: absolute; background: #000; z-index: 10; border: 1px solid #334155; border-radius: 4px; }
-
+        #mask { position: absolute; background: #000; z-index: 10; border: 1px solid #334155; }
         .right-panel {
             flex: 3; display: flex; flex-direction: column; background: #334155;
             padding: 20px; border-radius: 12px; overflow-y: auto;
         }
-
         #feedback { 
             font-size: 22px; font-weight: 700; margin-bottom: 20px; 
             min-height: 60px; display: flex; align-items: center; justify-content: center;
@@ -70,7 +66,6 @@
         }
         .feedback-correct { background: #064e3b; color: #4ade80; }
         .feedback-wrong { background: #7f1d1d; color: #f87171; }
-
         .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         button.option-btn { 
             padding: 12px 5px; border: 1px solid #475569; background: #1e293b; 
@@ -80,10 +75,9 @@
         button.option-btn:hover:not(:disabled) { background: #38bdf8; color: #0f172a; }
         .selected-correct { background: #22c55e !important; color: white !important; }
         .selected-wrong { background: #ef4444 !important; color: white !important; }
-        
-        #preload-status { color: #94a3b8; font-size: 14px; margin-top: 20px; }
+        #preload-status { color: #94a3b8; font-size: 14px; margin-top: 15px; }
 
-        /* 新增：結算與錯題回顧畫面 CSS */
+        /* ---------------- 結算與錯題回顧畫面 ---------------- */
         #result-screen {
             width: 100%; max-width: 1000px; background: #1e293b;
             padding: 40px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
@@ -103,15 +97,57 @@
         .wrong-info { flex: 1; font-size: 20px; font-weight: 700; line-height: 1.6; }
         .wrong-ans { color: #f87171; }
         .correct-ans { color: #4ade80; }
+
+        /* ---------------- 題庫總覽畫面 (新增) ---------------- */
+        #gallery-screen {
+            width: 100%; max-width: 1400px; background: #1e293b;
+            padding: 20px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            display: none; flex-direction: column; height: 95vh;
+        }
+        .gallery-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #334155; padding-bottom: 15px; margin-bottom: 20px;
+        }
+        .gallery-header h2 { margin: 0; font-size: 28px; color: #f8fafc; }
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px; overflow-y: auto; padding-right: 10px;
+        }
+        .gallery-card {
+            background: #0f172a; border: 1px solid #334155; border-radius: 12px;
+            overflow: hidden; display: flex; flex-direction: column; align-items: center;
+            padding-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .gallery-img-wrapper {
+            width: 100%; height: 180px; background: #000;
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+            border-bottom: 1px solid #334155;
+        }
+        .gallery-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery-text { padding: 20px; text-align: center; color: #38bdf8; font-weight: bold; font-size: 18px; }
+        .gallery-ans {
+            margin-top: 15px; font-size: 22px; font-weight: 900; color: #4ade80;
+            background: #064e3b; padding: 6px 20px; border-radius: 20px;
+        }
     </style>
 </head>
 <body>
 
 <div id="mode-screen">
     <div class="mode-title">清展科技-品保部 | 教育訓練系統</div>
+    <button class="mode-btn gallery" onclick="showGallery()">📚 色卡與檢驗題庫</button>
     <button class="mode-btn" onclick="startQuiz('color')">🎨 一般色卡辨識</button>
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
     <div id="preload-status">⏳ 圖片資源預先載入中...</div>
+</div>
+
+<div id="gallery-screen">
+    <div class="gallery-header">
+        <h2>📚 色卡與檢驗總題庫 (預習區)</h2>
+        <button class="mode-btn exam" style="font-size: 18px; padding: 10px 20px; width: auto;" onclick="location.reload()">返回首頁</button>
+    </div>
+    <div id="gallery-grid" class="gallery-grid">
+        </div>
 </div>
 
 <div class="container" id="quiz-container">
@@ -199,8 +235,9 @@
     ];
 
     let currentData = [], idx = 0, score = 0;
-    let wrongAnswers = []; // 新增：用來記錄錯題的陣列
+    let wrongAnswers = [];
 
+    // --- 預先載入圖片 ---
     function preloadImages() {
         const all = [...colorLibrary, ...standardLibrary].filter(i => i.url);
         let loaded = 0;
@@ -216,6 +253,37 @@
 
     window.onload = preloadImages;
 
+    // --- 新增：顯示總題庫 ---
+    function showGallery() {
+        document.getElementById('mode-screen').style.display = 'none';
+        document.getElementById('gallery-screen').style.display = 'flex';
+        
+        const grid = document.getElementById('gallery-grid');
+        grid.innerHTML = ""; // 清空
+        
+        const allItems = [...colorLibrary, ...standardLibrary];
+        
+        allItems.forEach(item => {
+            const card = document.createElement('div');
+            card.className = "gallery-card";
+            
+            let mediaHtml = "";
+            if (item.type === "text") {
+                mediaHtml = `<div class="gallery-img-wrapper" style="background:#1e293b;"><div class="gallery-text">${item.text}</div></div>`;
+            } else {
+                // 題庫預覽直接顯示完整圖片(無遮罩)，因為圖片本身就有答案標籤
+                mediaHtml = `<div class="gallery-img-wrapper"><img src="${encodeURI(item.url)}" loading="lazy"></div>`;
+            }
+
+            card.innerHTML = `
+                ${mediaHtml}
+                <div class="gallery-ans">${item.ans}</div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // --- 測驗流程 ---
     function startQuiz(mode) {
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('quiz-container').style.display = 'flex';
@@ -223,25 +291,23 @@
         document.getElementById('quiz-title').innerText = (mode === 'color') ? "🎨 一般色卡辨識" : "🔍 檢驗標準測試";
         currentData.sort(() => Math.random() - 0.5);
         idx = 0; score = 0;
-        wrongAnswers = []; // 開始測驗時清空錯題紀錄
+        wrongAnswers = [];
         document.getElementById('total').innerText = currentData.length;
         init();
     }
 
-    // 新增：顯示結算與錯題回顧的函數
+    // 顯示結算與錯題回顧
     function showResultScreen() {
         document.getElementById('quiz-container').style.display = 'none';
         document.getElementById('result-screen').style.display = 'flex';
         document.getElementById('final-score').innerText = `總得分：${score} / ${currentData.length}`;
         
         const listContainer = document.getElementById('wrong-list-container');
-        listContainer.innerHTML = ""; // 清空內容
+        listContainer.innerHTML = "";
 
         if (wrongAnswers.length === 0) {
-            // 全對的慶祝畫面
             listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 28px; color: #4ade80; font-weight: 900;">🎉 太棒了！全部答對，完美通關！</div>`;
         } else {
-            // 產生錯題卡片
             wrongAnswers.forEach(wrong => {
                 const card = document.createElement('div');
                 card.className = "wrong-card";
@@ -267,7 +333,7 @@
 
     function init() {
         if (idx >= currentData.length) {
-            showResultScreen(); // 測驗結束時，改為呼叫結算畫面
+            showResultScreen();
             return;
         }
         const item = currentData[idx];
@@ -283,7 +349,7 @@
             msk.style.top = (item.maskT || 0) + "%"; msk.style.left = (item.maskL || 0) + "%";
             msk.style.width = (item.maskW || 100) + "%"; msk.style.height = (item.maskH || 0) + "%";
             msk.style.display = (item.maskH > 0) ? 'block' : 'none';
-            fbk.innerText = "請判斷異常原因";
+            fbk.innerText = "請判斷答案";
         }
         fbk.className = ""; document.getElementById('cur').innerText = idx + 1;
         const area = document.getElementById('btns'); area.innerHTML = "";
@@ -298,23 +364,14 @@
         document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
         if(hasMask) document.getElementById('mask').style.display = 'none';
         const fbk = document.getElementById('feedback');
-        
         if (selected === correct) {
             score++; document.getElementById('score').innerText = score;
             fbk.innerText = "✔ 正確！"; fbk.className = "feedback-correct"; btn.classList.add('selected-correct');
             setTimeout(() => { idx++; init(); }, 400); 
         } else {
-            // 新增：紀錄錯題資訊
-            wrongAnswers.push({
-                item: currentData[idx],
-                userAns: selected
-            });
-            
+            wrongAnswers.push({ item: currentData[idx], userAns: selected });
             fbk.innerText = "✘ 錯誤！"; fbk.className = "feedback-wrong"; btn.classList.add('selected-wrong');
-            setTimeout(() => { 
-                alert("【判斷提醒】\n\n正確答案為：" + correct); 
-                idx++; init(); 
-            }, 100);
+            setTimeout(() => { alert("【判斷提醒】\n\n正確答案為：" + correct); idx++; init(); }, 100);
         }
     }
 </script>
