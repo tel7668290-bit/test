@@ -56,7 +56,7 @@
             text-align: center; padding: 40px; line-height: 1.4;
         }
 
-        #mask { position: absolute; background: #000; z-index: 10; border: 1px solid #334155; }
+        #mask { position: absolute; background: #000; z-index: 10; border: 1px solid #334155; border-radius: 4px; }
 
         .right-panel {
             flex: 3; display: flex; flex-direction: column; background: #334155;
@@ -82,6 +82,27 @@
         .selected-wrong { background: #ef4444 !important; color: white !important; }
         
         #preload-status { color: #94a3b8; font-size: 14px; margin-top: 20px; }
+
+        /* 新增：結算與錯題回顧畫面 CSS */
+        #result-screen {
+            width: 100%; max-width: 1000px; background: #1e293b;
+            padding: 40px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            display: none; flex-direction: column; align-items: center; height: 90vh;
+        }
+        #final-score { font-size: 42px; font-weight: 900; color: #fbbf24; margin-bottom: 20px; }
+        #wrong-list-container {
+            width: 100%; flex: 1; overflow-y: auto; background: #0f172a; 
+            border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155;
+        }
+        .wrong-card {
+            background: #334155; border-radius: 8px; padding: 15px;
+            margin-bottom: 15px; display: flex; align-items: center; gap: 20px;
+        }
+        .wrong-img { width: 140px; height: 90px; object-fit: cover; border-radius: 6px; border: 1px solid #475569; }
+        .wrong-text-q { width: 140px; font-size: 14px; color: #38bdf8; font-weight: bold; line-height: 1.3; text-align: center; }
+        .wrong-info { flex: 1; font-size: 20px; font-weight: 700; line-height: 1.6; }
+        .wrong-ans { color: #f87171; }
+        .correct-ans { color: #4ade80; }
     </style>
 </head>
 <body>
@@ -111,19 +132,29 @@
     </div>
 </div>
 
+<div id="result-screen">
+    <div style="font-size: 32px; font-weight: 900; color: #f8fafc; margin-bottom: 10px;">測驗結束</div>
+    <div id="final-score">總得分：0 / 0</div>
+    <div style="width: 100%; font-size: 20px; color: #94a3b8; margin-bottom: 10px; font-weight: 700;">📝 錯題回顧清單：</div>
+    
+    <div id="wrong-list-container">
+        </div>
+    
+    <button class="mode-btn exam" style="font-size: 24px; padding: 15px 40px;" onclick="location.reload()">返回首頁重新測驗</button>
+</div>
+
 <script>
     const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
     
-    // --- 色卡題庫：嚴格對應截圖中的副檔名與檔名 ---
     const colorLibrary = [
         { url: "colors/120A.png", ans: "120A", maskT: 34, maskL: 60, maskW: 18, maskH: 11, opts: colorOptions },
         { url: "colors/121A.jpg", ans: "121A", maskT: 34, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
         { url: "colors/220B.jpg", ans: "220B", maskT: 30, maskL: 65, maskW: 18, maskH: 12, opts: colorOptions },
         { url: "colors/231B.png", ans: "231B", maskT: 21, maskL: 73, maskW: 20, maskH: 16, opts: colorOptions },
-        { url: "colors/292K.png", ans: "292K", maskT: 25, maskL: 14, maskW: 35, maskH: 15, opts: colorOptions },            //  maskT (Top): 數字越小越往上，越大越往下。
-        { url: "colors/801K.jpg", ans: "801K", maskT: 20, maskL: 60, maskW: 20, maskH: 18, opts: colorOptions },            //  maskL (Left): 數字越小越往左，越大越往右。
-        { url: "colors/813B.jpg", ans: "813B", maskT: 40, maskL: 69, maskW: 22, maskH: 15, opts: colorOptions },            //  maskW (Width): 遮罩的寬度（數字越大遮得越寬）。
-        { url: "colors/870B.jpg", ans: "870B", maskT: 39, maskL: 73, maskW: 18, maskH: 14, opts: colorOptions },            //  maskH (Height): 遮罩的高度（數字越大遮得越高）。
+        { url: "colors/292K.png", ans: "292K", maskT: 25, maskL: 14, maskW: 35, maskH: 15, opts: colorOptions },
+        { url: "colors/801K.jpg", ans: "801K", maskT: 20, maskL: 60, maskW: 20, maskH: 18, opts: colorOptions },
+        { url: "colors/813B.jpg", ans: "813B", maskT: 40, maskL: 69, maskW: 22, maskH: 15, opts: colorOptions },
+        { url: "colors/870B.jpg", ans: "870B", maskT: 39, maskL: 73, maskW: 18, maskH: 14, opts: colorOptions },
         { url: "colors/877K.png", ans: "877K", maskT: 18, maskL: 65, maskW: 20, maskH: 18, opts: colorOptions },
         { url: "colors/882C.jpg", ans: "882C", maskT: 30, maskL: 68, maskW: 19, maskH: 14, opts: colorOptions },
         { url: "colors/920A.jpg", ans: "920A", maskT: 34, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
@@ -132,7 +163,6 @@
         { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
-    // --- 檢測題庫：嚴格對應截圖中的中文檔名 ---
     const standardLibrary = [
         { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
         { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
@@ -169,6 +199,7 @@
     ];
 
     let currentData = [], idx = 0, score = 0;
+    let wrongAnswers = []; // 新增：用來記錄錯題的陣列
 
     function preloadImages() {
         const all = [...colorLibrary, ...standardLibrary].filter(i => i.url);
@@ -179,7 +210,7 @@
                 loaded++;
                 if (loaded === all.length) document.getElementById('preload-status').innerText = "✅ 資源已備妥";
             };
-            img.src = encodeURI(item.url); // 關鍵：處理中文路徑
+            img.src = encodeURI(item.url);
         });
     }
 
@@ -192,14 +223,52 @@
         document.getElementById('quiz-title').innerText = (mode === 'color') ? "🎨 一般色卡辨識" : "🔍 檢驗標準測試";
         currentData.sort(() => Math.random() - 0.5);
         idx = 0; score = 0;
+        wrongAnswers = []; // 開始測驗時清空錯題紀錄
         document.getElementById('total').innerText = currentData.length;
         init();
     }
 
+    // 新增：顯示結算與錯題回顧的函數
+    function showResultScreen() {
+        document.getElementById('quiz-container').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'flex';
+        document.getElementById('final-score').innerText = `總得分：${score} / ${currentData.length}`;
+        
+        const listContainer = document.getElementById('wrong-list-container');
+        listContainer.innerHTML = ""; // 清空內容
+
+        if (wrongAnswers.length === 0) {
+            // 全對的慶祝畫面
+            listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 28px; color: #4ade80; font-weight: 900;">🎉 太棒了！全部答對，完美通關！</div>`;
+        } else {
+            // 產生錯題卡片
+            wrongAnswers.forEach(wrong => {
+                const card = document.createElement('div');
+                card.className = "wrong-card";
+                
+                let mediaHtml = "";
+                if (wrong.item.type === "text") {
+                    mediaHtml = `<div class="wrong-text-q">${wrong.item.text}</div>`;
+                } else {
+                    mediaHtml = `<img src="${encodeURI(wrong.item.url)}" class="wrong-img">`;
+                }
+
+                card.innerHTML = `
+                    ${mediaHtml}
+                    <div class="wrong-info">
+                        <div style="color: #94a3b8; font-size: 16px; margin-bottom: 5px;">你的選擇：<span class="wrong-ans">${wrong.userAns}</span></div>
+                        <div>正確答案：<span class="correct-ans">${wrong.item.ans}</span></div>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+    }
+
     function init() {
         if (idx >= currentData.length) {
-            alert("🌟 訓練結束！總得分：" + score + " / " + currentData.length);
-            location.reload(); return;
+            showResultScreen(); // 測驗結束時，改為呼叫結算畫面
+            return;
         }
         const item = currentData[idx];
         const img = document.getElementById('quiz-img'), txt = document.getElementById('quiz-text'), msk = document.getElementById('mask'), fbk = document.getElementById('feedback');
@@ -210,7 +279,7 @@
             fbk.innerText = "請選擇正確規格";
         } else {
             txt.style.display = 'none'; img.style.display = 'block';
-            img.src = encodeURI(item.url); // 關鍵修正
+            img.src = encodeURI(item.url);
             msk.style.top = (item.maskT || 0) + "%"; msk.style.left = (item.maskL || 0) + "%";
             msk.style.width = (item.maskW || 100) + "%"; msk.style.height = (item.maskH || 0) + "%";
             msk.style.display = (item.maskH > 0) ? 'block' : 'none';
@@ -229,13 +298,23 @@
         document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
         if(hasMask) document.getElementById('mask').style.display = 'none';
         const fbk = document.getElementById('feedback');
+        
         if (selected === correct) {
             score++; document.getElementById('score').innerText = score;
             fbk.innerText = "✔ 正確！"; fbk.className = "feedback-correct"; btn.classList.add('selected-correct');
             setTimeout(() => { idx++; init(); }, 400); 
         } else {
+            // 新增：紀錄錯題資訊
+            wrongAnswers.push({
+                item: currentData[idx],
+                userAns: selected
+            });
+            
             fbk.innerText = "✘ 錯誤！"; fbk.className = "feedback-wrong"; btn.classList.add('selected-wrong');
-            setTimeout(() => { alert("【判斷提醒】\n\n正確答案為：" + correct); idx++; init(); }, 100);
+            setTimeout(() => { 
+                alert("【判斷提醒】\n\n正確答案為：" + correct); 
+                idx++; init(); 
+            }, 100);
         }
     }
 </script>
