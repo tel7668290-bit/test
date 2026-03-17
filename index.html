@@ -54,7 +54,7 @@
             display: none; font-size: 48px; font-weight: 900; color: #38bdf8;
             text-align: center; padding: 40px; line-height: 1.4;
         }
-        #mask { position: absolute; background: #000; z-index: 10; border: 1px solid #334155; }
+        #mask { position: absolute; background: #000; z-index: 10; border: 1px solid #334155; border-radius: 4px; }
         .right-panel {
             flex: 3; display: flex; flex-direction: column; background: #334155;
             padding: 20px; border-radius: 12px; overflow-y: auto;
@@ -92,13 +92,13 @@
             background: #334155; border-radius: 8px; padding: 15px;
             margin-bottom: 15px; display: flex; align-items: center; gap: 20px;
         }
-        .wrong-img { width: 140px; height: 90px; object-fit: cover; border-radius: 6px; border: 1px solid #475569; }
+        .wrong-img { width: 140px; height: 90px; object-fit: contain; background: #000; border-radius: 6px; border: 1px solid #475569; }
         .wrong-text-q { width: 140px; font-size: 14px; color: #38bdf8; font-weight: bold; line-height: 1.3; text-align: center; }
         .wrong-info { flex: 1; font-size: 20px; font-weight: 700; line-height: 1.6; }
         .wrong-ans { color: #f87171; }
         .correct-ans { color: #4ade80; }
 
-        /* ---------------- 題庫總覽畫面 (新增) ---------------- */
+        /* ---------------- 題庫總覽畫面 ---------------- */
         #gallery-screen {
             width: 100%; max-width: 1400px; background: #1e293b;
             padding: 20px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
@@ -119,11 +119,12 @@
             padding-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
         .gallery-img-wrapper {
-            width: 100%; height: 180px; background: #000;
+            width: 100%; height: 200px; background: #000;
             display: flex; justify-content: center; align-items: center; overflow: hidden;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid #334155; padding: 10px;
         }
-        .gallery-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        /* 取消 cover，改為 contain 完整顯示，並確保圖片順利載入 */
+        .gallery-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
         .gallery-text { padding: 20px; text-align: center; color: #38bdf8; font-weight: bold; font-size: 18px; }
         .gallery-ans {
             margin-top: 15px; font-size: 22px; font-weight: 900; color: #4ade80;
@@ -135,9 +136,9 @@
 
 <div id="mode-screen">
     <div class="mode-title">清展科技-品保部 | 教育訓練系統</div>
-    <button class="mode-btn gallery" onclick="showGallery()">📚 色卡與檢驗題庫</button>
     <button class="mode-btn" onclick="startQuiz('color')">🎨 一般色卡辨識</button>
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
+    <button class="mode-btn gallery" onclick="showGallery()">📚 色卡與檢驗題庫</button>
     <div id="preload-status">⏳ 圖片資源預先載入中...</div>
 </div>
 
@@ -271,8 +272,8 @@
             if (item.type === "text") {
                 mediaHtml = `<div class="gallery-img-wrapper" style="background:#1e293b;"><div class="gallery-text">${item.text}</div></div>`;
             } else {
-                // 題庫預覽直接顯示完整圖片(無遮罩)，因為圖片本身就有答案標籤
-                mediaHtml = `<div class="gallery-img-wrapper"><img src="${encodeURI(item.url)}" loading="lazy"></div>`;
+                // 移除 loading="lazy" 確保圖片立即顯示
+                mediaHtml = `<div class="gallery-img-wrapper"><img src="${encodeURI(item.url)}" alt="圖片載入中"></div>`;
             }
 
             card.innerHTML = `
