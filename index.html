@@ -32,8 +32,7 @@
         .container {
             width: 100%; max-width: 1400px; background: #1e293b;
             padding: 20px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            display: none; 
-            flex-direction: column; height: 95vh;
+            display: none; flex-direction: column; height: 95vh;
         }
 
         .header { 
@@ -50,20 +49,14 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        #quiz-img { 
-            max-width: 100%; max-height: 100%; object-fit: contain; 
-            image-rendering: -webkit-optimize-contrast; 
-        }
+        #quiz-img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
         #quiz-text {
             display: none; font-size: 48px; font-weight: 900; color: #38bdf8;
-            text-align: center; padding: 40px; line-height: 1.4; letter-spacing: 2px;
+            text-align: center; padding: 40px; line-height: 1.4;
         }
 
-        #mask { 
-            position: absolute; left: 0; width: 100%; background: #000; 
-            z-index: 10; border-bottom: 1px solid #334155;
-        }
+        #mask { position: absolute; background: #000; z-index: 10; border: 1px solid #334155; }
 
         .right-panel {
             flex: 3; display: flex; flex-direction: column; background: #334155;
@@ -82,15 +75,13 @@
         button.option-btn { 
             padding: 12px 5px; border: 1px solid #475569; background: #1e293b; 
             color: #f8fafc; border-radius: 8px; font-size: 16px; font-weight: 700; 
-            cursor: pointer; transition: 0.2s; text-align: center;
+            cursor: pointer; transition: 0.2s;
         }
         button.option-btn:hover:not(:disabled) { background: #38bdf8; color: #0f172a; }
         .selected-correct { background: #22c55e !important; color: white !important; }
         .selected-wrong { background: #ef4444 !important; color: white !important; }
         
-        #preload-status {
-            color: #94a3b8; font-size: 14px; margin-top: 20px; font-style: italic;
-        }
+        #preload-status { color: #94a3b8; font-size: 14px; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -107,7 +98,6 @@
         <div id="quiz-title">模式載入中...</div>
         <div>📊 進度: <span id="cur">1</span> / <span id="total">0</span> &nbsp;|&nbsp; 🏆 得分: <span id="score">0</span></div>
     </div>
-
     <div class="main-content">
         <div class="left-panel">
             <img id="quiz-img" src="">
@@ -122,172 +112,74 @@
 </div>
 
 <script>
-// --- 一般色卡辨識 (精準定位 14 題) ---
-    // maskT:頂 maskL:左 maskW:寬 maskH:高 (皆為百分比)
+    const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
+    
+    // --- 色卡題庫：嚴格對應截圖中的副檔名與檔名 ---
     const colorLibrary = [
-        { url: "colors/920A.jpg", ans: "920A", maskT: 34, maskL: 72, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/921B.jpg", ans: "921B", maskT: 34, maskL: 72, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/923K.jpg", ans: "923K", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions },
-        { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions },
-        { url: "colors/121A.jpg", ans: "121A", maskT: 34, maskL: 72, maskW: 18, maskH: 11, opts: colorOptions },
         { url: "colors/120A.png", ans: "120A", maskT: 34, maskL: 72, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/121A.jpg", ans: "121A", maskT: 34, maskL: 72, maskW: 18, maskH: 11, opts: colorOptions },
         { url: "colors/220B.jpg", ans: "220B", maskT: 30, maskL: 73, maskW: 18, maskH: 12, opts: colorOptions },
-        { url: "colors/231B.png", ans: "231B", maskT: 21, maskH: 16, maskL: 73, maskW: 20, opts: colorOptions },
+        { url: "colors/231B.png", ans: "231B", maskT: 21, maskL: 73, maskW: 20, maskH: 16, opts: colorOptions },
+        { url: "colors/292K.png", ans: "292K", maskT: 18, maskL: 14, maskW: 25, maskH: 15, opts: colorOptions },
         { url: "colors/801K.jpg", ans: "801K", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions },
         { url: "colors/813B.jpg", ans: "813B", maskT: 40, maskL: 69, maskW: 22, maskH: 15, opts: colorOptions },
         { url: "colors/870B.jpg", ans: "870B", maskT: 12, maskL: 71, maskW: 19, maskH: 18, opts: colorOptions },
         { url: "colors/877K.png", ans: "877K", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions },
         { url: "colors/882C.jpg", ans: "882C", maskT: 25, maskL: 71, maskW: 19, maskH: 14, opts: colorOptions },
-        // 特別處理：292K 為手寫在左側
-        { url: "colors/292K.png", ans: "292K", maskT: 18, maskL: 14, maskW: 25, maskH: 15, opts: colorOptions }
+        { url: "colors/920A.jpg", ans: "920A", maskT: 34, maskL: 72, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/921B.jpg", ans: "921B", maskT: 34, maskL: 72, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/923K.jpg", ans: "923K", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions },
+        { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
-    function init() {
-        if (idx >= currentData.length) {
-            alert("🌟 訓練結束！總得分：" + score + " / " + currentData.length);
-            location.reload();
-            return;
-        }
-
-        const item = currentData[idx];
-        const img = document.getElementById('quiz-img');
-        const textContainer = document.getElementById('quiz-text');
-        const mask = document.getElementById('mask');
-        const feedback = document.getElementById('feedback');
-        
-        if (item.type === "text") {
-            img.style.display = 'none';
-            mask.style.display = 'none';
-            textContainer.style.display = 'block';
-            textContainer.innerText = item.text;
-        } else {
-            textContainer.style.display = 'none';
-            img.style.display = 'block';
-            img.src = item.url;
-            
-            // --- 精準遮罩定位邏輯 ---
-            mask.style.top = (item.maskT || 0) + "%";
-            mask.style.left = (item.maskL || 0) + "%";
-            mask.style.width = (item.maskW || 100) + "%";
-            mask.style.height = (item.maskH || 0) + "%";
-            mask.style.display = (item.maskH > 0) ? 'block' : 'none';
-            mask.style.borderRadius = "4px"; // 稍微圓角更美觀
-        }
-
-        feedback.className = "";
-        document.getElementById('cur').innerText = idx + 1;
-        
-        const area = document.getElementById('btns');
-        area.innerHTML = "";
-        item.opts.forEach(c => {
-            const b = document.createElement('button');
-            b.className = "option-btn";
-            b.innerText = c;
-            b.onclick = () => checkAnswer(c, item.ans, b, (item.type !== "text" && item.maskH > 0));
-            area.appendChild(b);
-        });
-    }
-
-   // --- 檢驗標準與異常測試 ---
-
+    // --- 檢測題庫：嚴格對應截圖中的中文檔名 ---
     const standardLibrary = [
-
-        // 1. 代表號 (純文字題)
-
         { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
-
         { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
-
         { type: "text", text: "📝 請問「消光」的代表號是？", ans: "C", opts: ["A", "B", "C", "K", "Q", "Y"] },
-
         { type: "text", text: "📝 請問「混合白點」的代表號是？", ans: "Q", opts: ["A", "B", "C", "K", "Q", "Y"] },
-
         { type: "text", text: "📝 請問「混合金點」的代表號是？", ans: "Y", opts: ["A", "B", "C", "K", "Q", "Y"] },
-
         { type: "text", text: "📝 請問「砂紋」的代表號是？", ans: "K", opts: ["A", "B", "C", "K", "Q", "Y"] },
-
         
-
-        // 2. 毛料異常
-
-        { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-
-        { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-
-        { url: "standards/毛料-撞傷撞凹.jpg", ans: "撞傷", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-
-        { url: "standards/毛料-模具痕.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-
-        { url: "standards/毛料-氧化1.jpg", ans: "氧化", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-
-        { url: "standards/毛料-破洞or氣孔.jpg", ans: "破洞氣孔", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
-
-        { url: "standards/毛料-變形.jpg", ans: "變形", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
-
+        { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "standards/毛料-撞傷撞凹.jpg", ans: "撞傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "standards/毛料-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "standards/毛料-氧化1.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "standards/毛料-破洞or氣孔.jpg", ans: "破洞氣孔", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
+        { url: "standards/毛料-變形.jpg", ans: "變形", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
         
-
-        // 3. 粉體異常
-
-        { url: "standards/粉體-掛勾痕.jpg", ans: "掛勾痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-
-        { url: "standards/粉體-模具痕.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-
-        { url: "standards/粉體-模厚過厚.jpg", ans: "模厚過厚", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-
-        { url: "standards/粉體-橘皮.jpg", ans: "橘皮", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-
-        { url: "standards/粉體-火山口.jpg", ans: "火山口", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-
-        { url: "standards/粉體-髒污.jpg", ans: "髒污", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-
+        { url: "standards/粉體-掛勾痕.jpg", ans: "掛勾痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "standards/粉體-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "standards/粉體-模厚過厚.jpg", ans: "模厚過厚", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "standards/粉體-橘皮.jpg", ans: "橘皮", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "standards/粉體-火山口.jpg", ans: "火山口", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "standards/粉體-髒污.jpg", ans: "髒污", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
         
-
-        // 4. 陽極異常
-
-        { url: "standards/陽極-模具痕.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-
-        { url: "standards/陽極-氣泡.jpg", ans: "氣泡", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-
-        { url: "standards/陽極-氧化.jpg", ans: "氧化", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-
-        { url: "standards/陽極-色差.jpg", ans: "色差", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-
-        { url: "standards/陽極-電鍍不全.jpg", ans: "電鍍不全", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-
-        { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-
-
-
-        // 5. 純文字規格題
+        { url: "standards/陽極-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "standards/陽極-氣泡.jpg", ans: "氣泡", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "standards/陽極-氧化.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "standards/陽極-色差.jpg", ans: "色差", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "standards/陽極-電鍍不全.jpg", ans: "電鍍不全", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
 
         { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
-
         { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
-
         { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
-
     ];
 
-    let currentData = [];
-    let idx = 0, score = 0;
+    let currentData = [], idx = 0, score = 0;
 
     function preloadImages() {
-        const allImages = [...colorLibrary, ...standardLibrary];
+        const all = [...colorLibrary, ...standardLibrary].filter(i => i.url);
         let loaded = 0;
-        const targetCount = allImages.filter(i => i.url).length;
-        
-        allImages.forEach(item => {
-            if (item.url) {
-                const img = new Image();
-                img.onload = () => {
-                    loaded++;
-                    if (loaded === targetCount) {
-                        document.getElementById('preload-status').innerText = "✅ 資源載入完成，可流暢進行測驗！";
-                    }
-                };
-                img.onerror = () => { loaded++; }; // 失敗也算進進度，避免卡住
-                img.src = item.url;
-            }
+        all.forEach(item => {
+            const img = new Image();
+            img.onload = img.onerror = () => {
+                loaded++;
+                if (loaded === all.length) document.getElementById('preload-status').innerText = "✅ 資源已備妥";
+            };
+            img.src = encodeURI(item.url); // 關鍵：處理中文路徑
         });
     }
 
@@ -296,15 +188,8 @@
     function startQuiz(mode) {
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('quiz-container').style.display = 'flex';
-
-        if (mode === 'color') {
-            document.getElementById('quiz-title').innerText = "🎨 一般色卡辨識";
-            currentData = [...colorLibrary];
-        } else {
-            document.getElementById('quiz-title').innerText = "🔍 檢驗標準測試";
-            currentData = [...standardLibrary];
-        }
-
+        currentData = (mode === 'color') ? [...colorLibrary] : [...standardLibrary];
+        document.getElementById('quiz-title').innerText = (mode === 'color') ? "🎨 一般色卡辨識" : "🔍 檢驗標準測試";
         currentData.sort(() => Math.random() - 0.5);
         idx = 0; score = 0;
         document.getElementById('total').innerText = currentData.length;
@@ -313,73 +198,44 @@
 
     function init() {
         if (idx >= currentData.length) {
-            alert("🌟 訓練結束！總得分：" + score + " / " + currentData.length + "\n點擊確定返回首頁。");
-            location.reload();
-            return;
+            alert("🌟 訓練結束！總得分：" + score + " / " + currentData.length);
+            location.reload(); return;
         }
-
         const item = currentData[idx];
-        const img = document.getElementById('quiz-img');
-        const textContainer = document.getElementById('quiz-text');
-        const mask = document.getElementById('mask');
-        const feedback = document.getElementById('feedback');
+        const img = document.getElementById('quiz-img'), txt = document.getElementById('quiz-text'), msk = document.getElementById('mask'), fbk = document.getElementById('feedback');
         
         if (item.type === "text") {
-            img.style.display = 'none';
-            mask.style.display = 'none';
-            textContainer.style.display = 'block';
-            textContainer.innerText = item.text;
-            feedback.innerText = "請根據題目選擇正確規格";
+            img.style.display = msk.style.display = 'none';
+            txt.style.display = 'block'; txt.innerText = item.text;
+            fbk.innerText = "請選擇正確規格";
         } else {
-            textContainer.style.display = 'none';
-            img.style.display = 'block';
-            img.src = item.url;
-            mask.style.top = item.maskT + "%";
-            mask.style.height = item.maskH + "%";
-            mask.style.display = (item.maskH > 0) ? 'block' : 'none';
-            feedback.innerText = "請判斷圖片中的異常或代表號";
+            txt.style.display = 'none'; img.style.display = 'block';
+            img.src = encodeURI(item.url); // 關鍵修正
+            msk.style.top = (item.maskT || 0) + "%"; msk.style.left = (item.maskL || 0) + "%";
+            msk.style.width = (item.maskW || 100) + "%"; msk.style.height = (item.maskH || 0) + "%";
+            msk.style.display = (item.maskH > 0) ? 'block' : 'none';
+            fbk.innerText = "請判斷答案";
         }
-
-        feedback.className = "";
-        document.getElementById('cur').innerText = idx + 1;
-        
-        const area = document.getElementById('btns');
-        area.innerHTML = "";
-        
+        fbk.className = ""; document.getElementById('cur').innerText = idx + 1;
+        const area = document.getElementById('btns'); area.innerHTML = "";
         item.opts.forEach(c => {
-            const b = document.createElement('button');
-            b.className = "option-btn";
-            b.innerText = c;
+            const b = document.createElement('button'); b.className = "option-btn"; b.innerText = c;
             b.onclick = () => checkAnswer(c, item.ans, b, (item.type !== "text" && item.maskH > 0));
             area.appendChild(b);
         });
     }
 
-    function checkAnswer(selected, correct, btnElement, hasMask) {
-        const feedback = document.getElementById('feedback');
-        const mask = document.getElementById('mask');
-        
-        document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
-        if(hasMask) mask.style.display = 'none';
-
+    function checkAnswer(selected, correct, btn, hasMask) {
+        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+        if(hasMask) document.getElementById('mask').style.display = 'none';
+        const fbk = document.getElementById('feedback');
         if (selected === correct) {
-            score++;
-            document.getElementById('score').innerText = score;
-            feedback.innerText = "✔ 正確！";
-            feedback.className = "feedback-correct";
-            btnElement.classList.add('selected-correct');
-            
+            score++; document.getElementById('score').innerText = score;
+            fbk.innerText = "✔ 正確！"; fbk.className = "feedback-correct"; btn.classList.add('selected-correct');
             setTimeout(() => { idx++; init(); }, 400); 
         } else {
-            feedback.innerText = "✘ 錯誤！";
-            feedback.className = "feedback-wrong";
-            btnElement.classList.add('selected-wrong');
-            
-            setTimeout(() => {
-                alert("【判斷提醒】\n\n正確答案為：" + correct);
-                idx++;
-                init();
-            }, 100);
+            fbk.innerText = "✘ 錯誤！"; fbk.className = "feedback-wrong"; btn.classList.add('selected-wrong');
+            setTimeout(() => { alert("【判斷提醒】\n\n正確答案為：" + correct); idx++; init(); }, 100);
         }
     }
 </script>
