@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>健合實業 | 色卡辨識訓練系統 (左圖右鈕版)</title>
+    <title>健合實業 | 色卡辨識訓練系統 (精準校正版)</title>
     <style>
         * { box-sizing: border-box; cursor: default; }
         body { 
@@ -23,12 +23,10 @@
             font-size: 22px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 10px;
         }
 
-        /* 核心分欄佈局 */
         .main-content {
             display: flex; flex: 1; gap: 20px; min-height: 0;
         }
 
-        /* 左側圖片區 */
         .left-panel {
             flex: 7; position: relative; background: #000; 
             border-radius: 12px; overflow: hidden; border: 1px solid #475569;
@@ -45,7 +43,6 @@
             z-index: 10; border-bottom: 1px solid #334155;
         }
 
-        /* 右側控制區 */
         .right-panel {
             flex: 3; display: flex; flex-direction: column; background: #334155;
             padding: 20px; border-radius: 12px; overflow-y: auto;
@@ -88,7 +85,7 @@
         </div>
 
         <div class="right-panel">
-            <div id="feedback">準備開始...</div>
+            <div id="feedback">請辨識</div>
             <div class="btn-grid" id="btns"></div>
         </div>
     </div>
@@ -103,11 +100,12 @@
         { url: "https://i.postimg.cc/T2bz7FCT/S-141926462-0.jpg", ans: "920A", maskT: 0, maskH: 35 },
         { url: "https://i.postimg.cc/wxNCfZ0x/S-141926463-0.jpg", ans: "921B", maskT: 0, maskH: 35 },
         { url: "https://i.postimg.cc/zDhst60B/S-141926464-0.jpg", ans: "120A", maskT: 0, maskH: 35 },
-        { url: "https://i.postimg.cc/k59WrhcW/S-142196757.jpg", ans: "121A", maskT: 0, maskH: 35 },
+        // 針對 121A 進行遮罩微調 (向下移動 10%)
+        { url: "https://i.postimg.cc/jqfpgmZC/S-141926465-0.jpg", ans: "121A", maskT: 10, maskH: 40 },
         { url: "https://i.postimg.cc/ZYNG72VB/S-141926466-0.jpg", ans: "292K", maskT: 0, maskH: 35 },
         { url: "https://i.postimg.cc/J4W99x2h/S-141926467-0.jpg", ans: "220B", maskT: 0, maskH: 35 },
         { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B", maskT: 0, maskH: 35 },
-
+        { url: "https://i.postimg.cc/J4W99x2n/S-141926470-0.jpg", ans: "920A", maskT: 0, maskH: 35 }
     ];
 
     const codes = ["877K", "801K", "923K", "926C", "920A", "921B", "120A", "121A", "292K", "220B", "813B"];
@@ -163,10 +161,11 @@
             feedback.className = "feedback-correct";
             btnElement.classList.add('selected-correct');
             
+            // 加快跳轉速度 (改為 0.4 秒)
             setTimeout(() => {
                 idx++;
                 init();
-            }, 800); 
+            }, 400); 
         } else {
             feedback.innerText = "✘ 錯誤！";
             feedback.className = "feedback-wrong";
