@@ -142,23 +142,23 @@
         { url: "colors/926C.jpg", ans: "926C", maskT: 0, maskH: 50, opts: colorOptions }
     ];
 
-    // --- 檢驗標準與異常測試 (對應 GitHub 中文檔名) ---
+   // --- 檢驗標準與異常測試 ---
 
     const standardLibrary = [
 
-        // 1. 代表號 (保留你之前設定的英文版代表號網址，如果你有上傳中文檔名請自行替換)
+        // 1. 代表號 (純文字題)
 
-        { url: "standards/liang-guang-dai-biao-hao-A.jpg", ans: "A", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
 
-        { url: "standards/ping-guang-dai-biao-hao-B.jpg", ans: "B", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
 
-        { url: "standards/xiao-guang-dai-biao-hao-C.jpg", ans: "C", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「消光」的代表號是？", ans: "C", opts: ["A", "B", "C", "K", "Q", "Y"] },
 
-        { url: "standards/hun-he-bai-dian-dai-biao-hao-Q.jpg", ans: "Q", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「混合白點」的代表號是？", ans: "Q", opts: ["A", "B", "C", "K", "Q", "Y"] },
 
-        { url: "standards/hun-he-jin-dian-dai-biao-hao-Y.jpg", ans: "Y", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「混合金點」的代表號是？", ans: "Y", opts: ["A", "B", "C", "K", "Q", "Y"] },
 
-        { url: "standards/砂紋代表號-K.jpg", ans: "K", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「砂紋」的代表號是？", ans: "K", opts: ["A", "B", "C", "K", "Q", "Y"] },
 
         
 
@@ -212,7 +212,7 @@
 
 
 
-        // 5. 純文字規格題 (取消圖片，直接顯示文字)
+        // 5. 純文字規格題
 
         { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
 
