@@ -90,9 +90,7 @@
         .selected-correct { background: #22c55e !important; color: white !important; }
         .selected-wrong { background: #ef4444 !important; color: white !important; }
         
-        .bottom-actions {
-            margin-top: auto; display: flex; justify-content: flex-end; padding-top: 15px;
-        }
+        .bottom-actions { margin-top: auto; display: flex; justify-content: flex-end; padding-top: 15px; }
         #preload-status { color: #94a3b8; font-size: 14px; margin-top: 15px; }
 
         /* ---------------- 結算與錯題回顧畫面 ---------------- */
@@ -139,6 +137,7 @@
         }
         .gallery-nav-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
         .gallery-nav-btn.active.exam-tab { background: #fbbf24; border-color: #fbbf24; }
+        
         .gallery-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 15px; overflow-y: auto; padding-right: 5px; flex: 1; 
@@ -146,19 +145,20 @@
         .gallery-card {
             background: #0f172a; border: 1px solid #334155; border-radius: 12px;
             overflow: hidden; display: flex; flex-direction: column; align-items: center;
-            padding-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); height: 100%;
         }
+        
+        /* 圖片題專屬樣式 */
         .gallery-img-wrapper {
             width: 100%; height: 180px; background: #000;
             display: flex; justify-content: center; align-items: center; overflow: hidden;
             border-bottom: 1px solid #334155; padding: 5px; 
-            cursor: pointer; transition: 0.2s; /* 提示可點擊 */
+            cursor: pointer; transition: 0.2s; 
         }
         .gallery-img-wrapper:hover { opacity: 0.8; }
         .gallery-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
-        .gallery-text { padding: 15px; text-align: center; color: #38bdf8; font-weight: bold; font-size: 16px; }
         .gallery-ans {
-            margin-top: 10px; font-size: 20px; font-weight: 900; color: #4ade80;
+            margin-top: auto; margin-bottom: 15px; font-size: 20px; font-weight: 900; color: #4ade80;
             background: #064e3b; padding: 5px 15px; border-radius: 20px;
         }
 
@@ -166,8 +166,7 @@
         #image-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.92); z-index: 999; 
-            justify-content: center; align-items: center; flex-direction: column;
-            cursor: pointer; /* 點擊周圍關閉 */
+            justify-content: center; align-items: center; flex-direction: column; cursor: pointer;
         }
         .modal-content {
             position: relative; max-width: 95%; max-height: 90%;
@@ -202,11 +201,9 @@
             .wrong-card { flex-direction: column; text-align: center; }
             #final-score { font-size: 28px; }
             .gallery-nav-btn { font-size: 16px; padding: 8px 15px; width: 48%; text-align: center; }
-            
-            /* 手機版 Modal 調整 */
             #modal-img { max-height: 65vh; }
             #modal-caption { font-size: 24px; padding: 6px 25px; }
-            .modal-close { top: -45px; right: -10px; font-size: 50px; } /* 手機的叉叉大一點比較好按 */
+            .modal-close { top: -45px; right: -10px; font-size: 50px; }
         }
     </style>
 </head>
@@ -291,6 +288,7 @@
         { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
+    // 💡 已將所有「文字題」集中移至陣列最前方
     const standardLibrary = [
         { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
         { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
@@ -300,7 +298,7 @@
         { type: "text", text: "📝 請問「砂紋」的代表號是？", ans: "K", opts: ["A", "B", "C", "K", "Q", "Y"] },
         { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
         { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
-        { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
+        { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
         
         { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
         { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
@@ -322,14 +320,12 @@
         { url: "standards/陽極-氧化.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
         { url: "standards/陽極-色差.jpg", ans: "色差", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
         { url: "standards/陽極-電鍍不全.jpg", ans: "電鍍不全", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-
+        { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] }
     ];
 
     let currentData = [], idx = 0, score = 0;
     let wrongAnswers = [];
 
-    // --- 圖片放大控制函數 ---
     function openModal(url, text) {
         document.getElementById('modal-img').src = url;
         document.getElementById('modal-caption').innerText = text;
@@ -380,19 +376,25 @@
             const card = document.createElement('div');
             card.className = "gallery-card";
             
-            let mediaHtml = "";
             if (item.type === "text") {
-                mediaHtml = `<div class="gallery-img-wrapper" style="background:#1e293b; cursor: default;"><div class="gallery-text">${item.text}</div></div>`;
+                // 💡 專屬文字題的排版 (仿造截圖外觀)
+                card.innerHTML = `
+                    <div style="width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center; padding: 20px; background: #1e293b; border-bottom: 1px solid #334155;">
+                        <div style="color: #38bdf8; font-weight: bold; font-size: 18px; text-align: center; line-height: 1.4;">${item.text}</div>
+                    </div>
+                    <div style="width: 100%; padding: 15px; display: flex; justify-content: center; align-items: center; flex: 1;">
+                        <div style="font-size: 20px; font-weight: 900; color: #4ade80; background: #064e3b; padding: 6px 25px; border-radius: 20px; margin-top: 5px;">${item.ans}</div>
+                    </div>
+                `;
             } else {
                 const safeUrl = encodeURI(item.url);
-                // 綁定點擊放大事件
-                mediaHtml = `<div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}')"><img src="${safeUrl}" alt="圖片"></div>`;
+                card.innerHTML = `
+                    <div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}')">
+                        <img src="${safeUrl}" alt="圖片">
+                    </div>
+                    <div style="margin-top: 15px; margin-bottom: 5px; font-size: 22px; font-weight: 900; color: #4ade80; background: #064e3b; padding: 6px 20px; border-radius: 20px;">${item.ans}</div>
+                `;
             }
-
-            card.innerHTML = `
-                ${mediaHtml}
-                <div class="gallery-ans">${item.ans}</div>
-            `;
             grid.appendChild(card);
         });
     }
