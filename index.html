@@ -88,7 +88,6 @@
         .selected-correct { background: #22c55e !important; color: white !important; }
         .selected-wrong { background: #ef4444 !important; color: white !important; }
         
-        /* 預載入提示 */
         #preload-status {
             color: #94a3b8; font-size: 14px; margin-top: 20px; font-style: italic;
         }
@@ -123,79 +122,129 @@
 </div>
 
 <script>
-    const colorOptions = ["877K", "801K", "923K", "926C", "920A", "921B", "120A", "121A", "292K", "220B", "813B"];
+    // --- 一般色卡辨識 (更新為 GitHub 截圖中的 14 個檔案) ---
+    const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
+    
     const colorLibrary = [
-        { url: "https://i.postimg.cc/jqfpgmv1/S-141926458-0.jpg", ans: "877K", maskT: 0, maskH: 35, opts: colorOptions },
-        { url: "https://i.postimg.cc/9X968KJV/S-141926459-0.jpg", ans: "801K", maskT: 0, maskH: 35, opts: colorOptions },
-        { url: "https://i.postimg.cc/44cDLqBs/S-141926460-0.jpg", ans: "923K", maskT: 0, maskH: 35, opts: colorOptions },
-        { url: "https://i.postimg.cc/G3DW7VqR/S-141926461-0.jpg", ans: "926C", maskT: 0, maskH: 35, opts: colorOptions },
-        { url: "https://i.postimg.cc/T2bz7FCT/S-141926462-0.jpg", ans: "920A", maskT: 0, maskH: 35, opts: colorOptions },
-        { url: "https://i.postimg.cc/wxNCfZ0x/S-141926463-0.jpg", ans: "921B", maskT: 0, maskH: 35, opts: colorOptions },
-        { url: "https://i.postimg.cc/zDhst60B/S-141926464-0.jpg", ans: "120A", maskT: 0, maskH: 35, opts: colorOptions },
-        { url: "https://i.postimg.cc/jqfpgmZC/S-141926465-0.jpg", ans: "121A", maskT: 10, maskH: 40, opts: colorOptions },
-        { url: "https://i.postimg.cc/ZYNG72VB/S-141926466-0.jpg", ans: "292K", maskT: 0, maskH: 35, opts: colorOptions },
-        { url: "https://i.postimg.cc/J4W99x2h/S-141926467-0.jpg", ans: "220B", maskT: 0, maskH: 35, opts: colorOptions },
-        { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B", maskT: 0, maskH: 35, opts: colorOptions },
-        { url: "https://i.postimg.cc/J4W99x2n/S-141926470-0.jpg", ans: "920A", maskT: 0, maskH: 35, opts: colorOptions }
+        { url: "colors/120A.png", ans: "120A", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/121A.jpg", ans: "121A", maskT: 10, maskH: 40, opts: colorOptions }, // 保留你之前微調過的遮罩位置
+        { url: "colors/220B.jpg", ans: "220B", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/231B.png", ans: "231B", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/292K.png", ans: "292K", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/801K.jpg", ans: "801K", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/813B.jpg", ans: "813B", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/870B.jpg", ans: "870B", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/877K.png", ans: "877K", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/882C.jpg", ans: "882C", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/920A.jpg", ans: "920A", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/921B.jpg", ans: "921B", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/923K.jpg", ans: "923K", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "colors/926C.jpg", ans: "926C", maskT: 0, maskH: 35, opts: colorOptions }
     ];
 
+    // --- 檢驗標準與異常測試 (對應 GitHub 中文檔名) ---
+
     const standardLibrary = [
-        { url: "https://i.postimg.cc/RZJgfkHQ/liang-guang-dai-biao-hao-A.jpg", ans: "A", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { url: "https://i.postimg.cc/Nj2dT3HR/ping-guang-dai-biao-hao-B.jpg", ans: "B", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { url: "https://i.postimg.cc/9QwLT67b/xiao-guang-dai-biao-hao-C.jpg", ans: "C", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { url: "https://i.postimg.cc/QdKf52Tv/hun-he-bai-dian-dai-biao-hao-Q.jpg", ans: "Q", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { url: "https://i.postimg.cc/mg1mMvH0/hun-he-jin-dian-dai-biao-hao-Y.jpg", ans: "Y", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { url: "https://i.postimg.cc/4xHWtD91/sha-wen-dai-biao-hao-K.jpg", ans: "K", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+
+        // 1. 代表號 (保留你之前設定的英文版代表號網址，如果你有上傳中文檔名請自行替換)
+
+        { url: "standards/liang-guang-dai-biao-hao-A.jpg", ans: "A", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+
+        { url: "standards/ping-guang-dai-biao-hao-B.jpg", ans: "B", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+
+        { url: "standards/xiao-guang-dai-biao-hao-C.jpg", ans: "C", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+
+        { url: "standards/hun-he-bai-dian-dai-biao-hao-Q.jpg", ans: "Q", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+
+        { url: "standards/hun-he-jin-dian-dai-biao-hao-Y.jpg", ans: "Y", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+
+        { url: "standards/砂紋代表號-K.jpg", ans: "K", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+
         
-        { url: "https://i.postimg.cc/ncPdXFC1/mao-liao-gua-shang.jpg", ans: "刮傷", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "https://i.postimg.cc/J42TsrGZ/mao-liao-chi-cun-bu-liang.jpg", ans: "尺寸不良", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "https://i.postimg.cc/MKFsn6vt/mao-liao-zhuang-shang-zhuang-ao.jpg", ans: "撞傷", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "https://i.postimg.cc/28KH1kVH/mao-liao-mo-ju-hen.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "https://i.postimg.cc/dVZ5dbyj/mao-liao-yang-hua1.jpg", ans: "氧化", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "https://i.postimg.cc/HshSrYV2/mao-liao-po-dongor-qi-kong.jpg", ans: "破洞氣孔", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
-        { url: "https://i.postimg.cc/Dw4xs9Xr/mao-liao-bian-xing.jpg", ans: "變形", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
+
+        // 2. 毛料異常
+
+        { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+
+        { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+
+        { url: "standards/毛料-撞傷撞凹.jpg", ans: "撞傷", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+
+        { url: "standards/毛料-模具痕.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+
+        { url: "standards/毛料-氧化1.jpg", ans: "氧化", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+
+        { url: "standards/毛料-破洞or氣孔.jpg", ans: "破洞氣孔", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
+
+        { url: "standards/毛料-變形.jpg", ans: "變形", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
+
         
-        { url: "https://i.postimg.cc/3x0tpsvt/fen-ti-gua-gou-hen.jpg", ans: "掛勾痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "https://i.postimg.cc/6p4MRkvH/fen-ti-mo-ju-hen.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "https://i.postimg.cc/YCLdg5Wy/fen-ti-mo-hou-guo-hou.jpg", ans: "模厚過厚", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "https://i.postimg.cc/JzHpJfkF/fen-ti-ju-pi.jpg", ans: "橘皮", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "https://i.postimg.cc/3x0tpsv9/fen-ti-huo-shan-kou.jpg", ans: "火山口", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "https://i.postimg.cc/dVZ5dbyp/fen-ti-zang-wu.jpg", ans: "髒污", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+
+        // 3. 粉體異常
+
+        { url: "standards/粉體-掛勾痕.jpg", ans: "掛勾痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+
+        { url: "standards/粉體-模具痕.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+
+        { url: "standards/粉體-模厚過厚.jpg", ans: "模厚過厚", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+
+        { url: "standards/粉體-橘皮.jpg", ans: "橘皮", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+
+        { url: "standards/粉體-火山口.jpg", ans: "火山口", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+
+        { url: "standards/粉體-髒污.jpg", ans: "髒污", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+
         
-        { url: "https://i.postimg.cc/g09NKgyF/yang-ji-mo-ju-hen.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "https://i.postimg.cc/BnPmDrFG/yang-ji-qi-pao.jpg", ans: "氣泡", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "https://i.postimg.cc/zGHxWsh8/yang-ji-yang-hua.jpg", ans: "氧化", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "https://i.postimg.cc/XvMQgsfh/yang-ji-se-cha.jpg", ans: "色差", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "https://i.postimg.cc/cLtFYp3Z/yang-ji-dian-du-bu-quan.jpg", ans: "電鍍不全", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "https://i.postimg.cc/nL80134N/yang-ji-dian-du-liu-hen.jpg", ans: "電鍍流痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+
+        // 4. 陽極異常
+
+        { url: "standards/陽極-模具痕.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+
+        { url: "standards/陽極-氣泡.jpg", ans: "氣泡", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+
+        { url: "standards/陽極-氧化.jpg", ans: "氧化", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+
+        { url: "standards/陽極-色差.jpg", ans: "色差", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+
+        { url: "standards/陽極-電鍍不全.jpg", ans: "電鍍不全", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+
+        { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+
+
+
+        // 5. 純文字規格題 (取消圖片，直接顯示文字)
 
         { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
+
         { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
+
         { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
+
     ];
 
     let currentData = [];
     let idx = 0, score = 0;
 
-    // --- 背景預先載入功能 ---
     function preloadImages() {
         const allImages = [...colorLibrary, ...standardLibrary];
         let loaded = 0;
+        const targetCount = allImages.filter(i => i.url).length;
+        
         allImages.forEach(item => {
             if (item.url) {
                 const img = new Image();
                 img.onload = () => {
                     loaded++;
-                    if (loaded === allImages.filter(i => i.url).length) {
+                    if (loaded === targetCount) {
                         document.getElementById('preload-status').innerText = "✅ 資源載入完成，可流暢進行測驗！";
                     }
                 };
+                img.onerror = () => { loaded++; }; // 失敗也算進進度，避免卡住
                 img.src = item.url;
             }
         });
     }
 
-    // 當網頁載入時啟動預載入
     window.onload = preloadImages;
 
     function startQuiz(mode) {
