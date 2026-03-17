@@ -44,17 +44,34 @@
         }
         .header span { color: #38bdf8; }
         .main-content { display: flex; flex: 1; gap: 20px; min-height: 0; }
+        
         .left-panel {
-            flex: 7; position: relative; background: #000; 
+            flex: 7; background: #000; 
             border-radius: 12px; overflow: hidden; border: 1px solid #475569;
             display: flex; align-items: center; justify-content: center;
         }
-        #quiz-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        /* 💡 核心修復：緊身衣 Wrapper，讓遮罩永遠貼合圖片 */
+        #img-wrapper {
+            position: relative;
+            display: inline-block; /* 緊縮包覆圖片 */
+            max-width: 100%;
+            max-height: 100%;
+        }
+        #quiz-img { 
+            max-width: 100%; 
+            max-height: 100%; 
+            width: auto; 
+            height: auto; 
+            display: block; 
+        }
+
         #quiz-text {
             display: none; font-size: 48px; font-weight: 900; color: #38bdf8;
             text-align: center; padding: 40px; line-height: 1.4;
         }
         #mask { position: absolute; background: #000; z-index: 10; border: 1px solid #334155; border-radius: 4px; }
+        
         .right-panel {
             flex: 3; display: flex; flex-direction: column; background: #334155;
             padding: 20px; border-radius: 12px; overflow-y: auto;
@@ -123,19 +140,40 @@
             display: flex; justify-content: center; align-items: center; overflow: hidden;
             border-bottom: 1px solid #334155; padding: 10px;
         }
-        /* 取消 cover，改為 contain 完整顯示，並確保圖片順利載入 */
         .gallery-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
         .gallery-text { padding: 20px; text-align: center; color: #38bdf8; font-weight: bold; font-size: 18px; }
         .gallery-ans {
             margin-top: 15px; font-size: 22px; font-weight: 900; color: #4ade80;
             background: #064e3b; padding: 6px 20px; border-radius: 20px;
         }
+
+        /* 📱 手機版專屬優化 (響應式設計) */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .mode-title { font-size: 32px; text-align: center; line-height: 1.2; }
+            .mode-btn { width: 90%; font-size: 20px; padding: 15px; }
+            .header { font-size: 16px; margin-bottom: 10px; }
+            
+            /* 將左右排列改為上下排列 */
+            .main-content { flex-direction: column; }
+            .left-panel { flex: none; height: 40vh; }
+            .right-panel { flex: 1; padding: 15px; }
+            
+            #feedback { font-size: 18px; min-height: 50px; margin-bottom: 10px; }
+            .btn-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            button.option-btn { font-size: 14px; padding: 10px 5px; }
+            
+            /* 錯題與題庫手機版調整 */
+            .wrong-card { flex-direction: column; text-align: center; }
+            .gallery-header { flex-direction: column; gap: 15px; }
+            #final-score { font-size: 28px; }
+        }
     </style>
 </head>
 <body>
 
 <div id="mode-screen">
-    <div class="mode-title">清展科技-品保部 | 教育訓練系統</div>
+    <div class="mode-title">清展科技-品保部<br>教育訓練系統</div>
     <button class="mode-btn" onclick="startQuiz('color')">🎨 一般色卡辨識</button>
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
     <button class="mode-btn gallery" onclick="showGallery()">📚 色卡與檢驗題庫</button>
@@ -144,8 +182,8 @@
 
 <div id="gallery-screen">
     <div class="gallery-header">
-        <h2>📚 色卡與檢驗總題庫 (預習區)</h2>
-        <button class="mode-btn exam" style="font-size: 18px; padding: 10px 20px; width: auto;" onclick="location.reload()">返回首頁</button>
+        <h2>📚 色卡與檢驗總題庫</h2>
+        <button class="mode-btn exam" style="font-size: 16px; padding: 8px 15px; width: auto;" onclick="location.reload()">返回首頁</button>
     </div>
     <div id="gallery-grid" class="gallery-grid">
         </div>
@@ -158,9 +196,11 @@
     </div>
     <div class="main-content">
         <div class="left-panel">
-            <img id="quiz-img" src="">
-            <div id="quiz-text"></div>
-            <div id="mask"></div>
+            <div id="img-wrapper">
+                <img id="quiz-img" src="">
+                <div id="quiz-text"></div>
+                <div id="mask"></div>
+            </div>
         </div>
         <div class="right-panel">
             <div id="feedback">請根據圖片或題目選擇正確答案</div>
@@ -174,10 +214,9 @@
     <div id="final-score">總得分：0 / 0</div>
     <div style="width: 100%; font-size: 20px; color: #94a3b8; margin-bottom: 10px; font-weight: 700;">📝 錯題回顧清單：</div>
     
-    <div id="wrong-list-container">
-        </div>
+    <div id="wrong-list-container"></div>
     
-    <button class="mode-btn exam" style="font-size: 24px; padding: 15px 40px;" onclick="location.reload()">返回首頁重新測驗</button>
+    <button class="mode-btn exam" style="font-size: 20px; padding: 15px 30px;" onclick="location.reload()">返回首頁重新測驗</button>
 </div>
 
 <script>
@@ -254,13 +293,13 @@
 
     window.onload = preloadImages;
 
-    // --- 新增：顯示總題庫 ---
+    // --- 顯示總題庫 ---
     function showGallery() {
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('gallery-screen').style.display = 'flex';
         
         const grid = document.getElementById('gallery-grid');
-        grid.innerHTML = ""; // 清空
+        grid.innerHTML = "";
         
         const allItems = [...colorLibrary, ...standardLibrary];
         
@@ -272,7 +311,6 @@
             if (item.type === "text") {
                 mediaHtml = `<div class="gallery-img-wrapper" style="background:#1e293b;"><div class="gallery-text">${item.text}</div></div>`;
             } else {
-                // 移除 loading="lazy" 確保圖片立即顯示
                 mediaHtml = `<div class="gallery-img-wrapper"><img src="${encodeURI(item.url)}" alt="圖片載入中"></div>`;
             }
 
@@ -344,6 +382,8 @@
             img.style.display = msk.style.display = 'none';
             txt.style.display = 'block'; txt.innerText = item.text;
             fbk.innerText = "請選擇正確規格";
+            // 文字題時不顯示包覆框背景，維持整潔
+            document.getElementById('img-wrapper').style.background = 'transparent';
         } else {
             txt.style.display = 'none'; img.style.display = 'block';
             img.src = encodeURI(item.url);
