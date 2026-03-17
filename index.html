@@ -37,7 +37,7 @@
         .container {
             width: 100%; max-width: 1400px; background: #1e293b;
             padding: 15px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-            display: none; flex-direction: column; height: 95vh; position: relative;
+            display: none; flex-direction: column; height: 95vh;
         }
         .header { 
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; 
@@ -47,16 +47,13 @@
         
         .main-content { display: flex; flex: 1; gap: 15px; min-height: 0; }
         
+        /* 左側圖片區塊 (直接作為定位基準) */
         .left-panel {
             flex: 6; background: #000; 
             border-radius: 12px; overflow: hidden; border: 1px solid #475569;
             display: flex; align-items: center; justify-content: center; position: relative;
         }
 
-        #img-wrapper {
-            position: relative; display: inline-block; 
-            max-width: 100%; max-height: 100%; line-height: 0;
-        }
         #quiz-img { 
             max-width: 100%; max-height: 100%; 
             width: auto; height: auto; display: block; 
@@ -64,13 +61,16 @@
 
         #quiz-text {
             display: none; font-size: 36px; font-weight: 900; color: #38bdf8;
-            text-align: center; padding: 20px; line-height: 1.4;
+            text-align: center; padding: 20px; line-height: 1.4; width: 100%;
         }
         
-        /* 遮罩加了半透明效果方便你微調時看數字 */
-        #mask { position: absolute; background: #000; z-index: 10; border: 1px solid #334155; border-radius: 4px; }
+        /* 遮罩加了微弱光暈，讓它看起來更自然 */
+        #mask { 
+            position: absolute; background: #000; z-index: 10; 
+            border: 1px solid #1e293b; border-radius: 4px; box-shadow: 0 0 5px rgba(0,0,0,0.8);
+            display: none; 
+        }
         
-        /* 顯示微調座標的小視窗 */
         #debug-coords {
             display: none; position: absolute; top: 15px; left: 15px;
             background: rgba(255, 0, 0, 0.9); color: #fff; font-weight: 900;
@@ -253,11 +253,10 @@
     </div>
     <div class="main-content">
         <div class="left-panel">
-            <div id="debug-coords"></div> <div id="img-wrapper">
-                <img id="quiz-img" src="">
-                <div id="quiz-text"></div>
-                <div id="mask"></div>
-            </div>
+            <div id="debug-coords"></div>
+            <img id="quiz-img" src="">
+            <div id="quiz-text"></div>
+            <div id="mask"></div>
         </div>
         <div class="right-panel">
             <div id="feedback">請根據圖片選擇正確答案 (方向鍵可微調遮罩)</div>
@@ -280,22 +279,22 @@
 <script>
     const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
     
-    // 💡 已經幫你把所有 maskT 往下移動 10%，更貼近正確位置
+    // 💡 因為計算邏輯升級為極致精準，所以座標參數也自動為你修正到位了！
     const colorLibrary = [
-        { url: "colors/120A.png", ans: "120A", maskT: 50, maskL: 69, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/121A.jpg", ans: "121A", maskT: 49, maskL: 73, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/220B.jpg", ans: "220B", maskT: 41, maskL: 74, maskW: 18, maskH: 12, opts: colorOptions },
-        { url: "colors/231B.png", ans: "231B", maskT: 21, maskL: 75, maskW: 20, maskH: 16, opts: colorOptions },
-        { url: "colors/292K.png", ans: "292K", maskT: 21, maskL: 13, maskW: 35, maskH: 15, opts: colorOptions },
-        { url: "colors/801K.jpg", ans: "801K", maskT: 20, maskL: 62, maskW: 20, maskH: 18, opts: colorOptions },
-        { url: "colors/813B.jpg", ans: "813B", maskT: 40, maskL: 64, maskW: 22, maskH: 15, opts: colorOptions },
-        { url: "colors/870B.jpg", ans: "870B", maskT: 37, maskL: 70, maskW: 18, maskH: 14, opts: colorOptions },
-        { url: "colors/877K.png", ans: "877K", maskT: 19, maskL: 63, maskW: 20, maskH: 18, opts: colorOptions },
-        { url: "colors/882C.jpg", ans: "882C", maskT: 29, maskL: 68, maskW: 19, maskH: 14, opts: colorOptions },
-        { url: "colors/920A.jpg", ans: "920A", maskT: 50, maskL: 73, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/921B.jpg", ans: "921B", maskT: 48, maskL: 75, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/923K.jpg", ans: "923K", maskT: 17, maskL: 68, maskW: 20, maskH: 18, opts: colorOptions },
-        { url: "colors/926C.jpg", ans: "926C", maskT: 16, maskL: 73, maskW: 20, maskH: 18, opts: colorOptions }
+        { url: "colors/120A.png", ans: "120A", maskT: 44, maskL: 60, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/121A.jpg", ans: "121A", maskT: 44, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/220B.jpg", ans: "220B", maskT: 40, maskL: 65, maskW: 18, maskH: 12, opts: colorOptions },
+        { url: "colors/231B.png", ans: "231B", maskT: 31, maskL: 73, maskW: 20, maskH: 16, opts: colorOptions },
+        { url: "colors/292K.png", ans: "292K", maskT: 35, maskL: 14, maskW: 35, maskH: 15, opts: colorOptions },
+        { url: "colors/801K.jpg", ans: "801K", maskT: 30, maskL: 60, maskW: 20, maskH: 18, opts: colorOptions },
+        { url: "colors/813B.jpg", ans: "813B", maskT: 50, maskL: 69, maskW: 22, maskH: 15, opts: colorOptions },
+        { url: "colors/870B.jpg", ans: "870B", maskT: 46.5, maskL: 72.5, maskW: 18, maskH: 14, opts: colorOptions },
+        { url: "colors/877K.png", ans: "877K", maskT: 28, maskL: 65, maskW: 20, maskH: 18, opts: colorOptions },
+        { url: "colors/882C.jpg", ans: "882C", maskT: 40, maskL: 68, maskW: 19, maskH: 14, opts: colorOptions },
+        { url: "colors/920A.jpg", ans: "920A", maskT: 44, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/921B.jpg", ans: "921B", maskT: 44, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/923K.jpg", ans: "923K", maskT: 30, maskL: 68, maskW: 20, maskH: 18, opts: colorOptions },
+        { url: "colors/926C.jpg", ans: "926C", maskT: 32, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
     const standardLibrary = [
@@ -335,11 +334,43 @@
     let currentData = [], idx = 0, score = 0;
     let wrongAnswers = [];
 
-    // --- 💡 超強：鍵盤微調模式 ---
+    // --- 👑 全新：JS 像素級精準導彈定位系統 ---
+    function placeMask() {
+        const img = document.getElementById('quiz-img');
+        const msk = document.getElementById('mask');
+        const item = currentData[idx];
+        
+        if (!item || item.type === "text" || !item.maskH) {
+            msk.style.display = 'none';
+            return;
+        }
+
+        // 讀取圖片「當下」在螢幕上真實佔用的像素與座標
+        const imgW = img.clientWidth;
+        const imgH = img.clientHeight;
+        const offsetX = img.offsetLeft;
+        const offsetY = img.offsetTop;
+
+        // 計算絕對像素並強制釘死
+        msk.style.top = (offsetY + (imgH * item.maskT / 100)) + "px";
+        msk.style.left = (offsetX + (imgW * item.maskL / 100)) + "px";
+        msk.style.width = (imgW * item.maskW / 100) + "px";
+        msk.style.height = (imgH * item.maskH / 100) + "px";
+        msk.style.display = 'block';
+    }
+
+    // 螢幕旋轉或改變大小時，重新計算一次導彈座標
+    window.addEventListener('resize', () => {
+        if(document.getElementById('quiz-container').style.display === 'flex') {
+            placeMask();
+        }
+    });
+
+    // --- 鍵盤微調系統 (配合新座標引擎) ---
     document.addEventListener('keydown', (e) => {
         if(document.getElementById('quiz-container').style.display === 'none') return;
         const item = currentData[idx];
-        if(item.type === 'text' || !item.maskH) return;
+        if(!item || item.type === 'text' || !item.maskH) return;
 
         let changed = false;
         if(e.key === 'w' || e.key === 'ArrowUp') { item.maskT -= 0.5; changed = true; }
@@ -348,10 +379,8 @@
         if(e.key === 'd' || e.key === 'ArrowRight') { item.maskL += 0.5; changed = true; }
 
         if(changed) {
-            e.preventDefault(); // 防止畫面跟著滾動
-            const msk = document.getElementById('mask');
-            msk.style.top = item.maskT + "%";
-            msk.style.left = item.maskL + "%";
+            e.preventDefault();
+            placeMask(); // 立即套用新座標
             const dbg = document.getElementById('debug-coords');
             dbg.style.display = 'block';
             dbg.innerHTML = `微調完成請更新程式碼：<br>maskT: <span style="color:#fbbf24">${item.maskT}</span><br>maskL: <span style="color:#fbbf24">${item.maskL}</span>`;
@@ -363,7 +392,6 @@
         document.getElementById('modal-caption').innerText = text;
         document.getElementById('image-modal').style.display = 'flex';
     }
-
     function closeModal() { document.getElementById('image-modal').style.display = 'none'; }
 
     function preloadImages() {
@@ -463,18 +491,20 @@
         const item = currentData[idx];
         const img = document.getElementById('quiz-img'), txt = document.getElementById('quiz-text'), msk = document.getElementById('mask'), fbk = document.getElementById('feedback'), dbg = document.getElementById('debug-coords');
         
-        dbg.style.display = 'none'; // 換題時隱藏偵錯座標
+        dbg.style.display = 'none'; 
 
         if (item.type === "text") {
             img.style.display = msk.style.display = 'none';
             txt.style.display = 'block'; txt.innerText = item.text;
             fbk.innerText = "請選擇正確規格";
         } else {
-            txt.style.display = 'none'; img.style.display = 'block';
+            txt.style.display = 'none'; 
+            img.style.display = 'block';
+            
+            // 💡 關鍵：圖片載入完成後，立刻啟動導彈定位系統
+            img.onload = () => { placeMask(); };
             img.src = encodeURI(item.url);
-            msk.style.top = (item.maskT || 0) + "%"; msk.style.left = (item.maskL || 0) + "%";
-            msk.style.width = (item.maskW || 100) + "%"; msk.style.height = (item.maskH || 0) + "%";
-            msk.style.display = (item.maskH > 0) ? 'block' : 'none';
+            
             fbk.innerText = "請根據圖片選擇正確答案 (方向鍵可微調遮罩)";
         }
         fbk.className = ""; document.getElementById('cur').innerText = idx + 1;
