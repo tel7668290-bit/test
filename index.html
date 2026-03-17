@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>健合實業 | 色卡辨識訓練系統 (精準校正版)</title>
+    <title>健合實業 | 辨識訓練與檢驗標準測試</title>
     <style>
         * { box-sizing: border-box; cursor: default; }
         body { 
@@ -12,16 +12,37 @@
             height: 100vh; overflow: hidden;
         }
 
+        /* 模式選擇畫面 */
+        #mode-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.98); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 30px; transition: opacity 0.5s;
+        }
+        .mode-title { font-size: 48px; margin-bottom: 20px; color: #f8fafc; letter-spacing: 2px; }
+        .mode-btn {
+            padding: 25px 60px; font-size: 28px; font-weight: 900;
+            background: #38bdf8; color: #0f172a; border: none; border-radius: 20px;
+            cursor: pointer; transition: 0.2s; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            width: 400px; text-align: center;
+        }
+        .mode-btn:hover { transform: translateY(-5px); background: #7dd3fc; }
+        .mode-btn.exam { background: #fbbf24; }
+        .mode-btn.exam:hover { background: #fcd34d; }
+
+        /* 主訓練介面 */
         .container {
             width: 100%; max-width: 1400px; background: #1e293b;
             padding: 20px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column; height: 95vh;
+            display: none; /* 初始隱藏，選擇模式後顯示 */
+            flex-direction: column; height: 95vh;
         }
 
         .header { 
             display: flex; justify-content: space-between; margin-bottom: 15px; 
             font-size: 22px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 10px;
         }
+        .header span { color: #38bdf8; }
 
         .main-content {
             display: flex; flex: 1; gap: 20px; min-height: 0;
@@ -56,26 +77,32 @@
         .feedback-correct { background: #064e3b; color: #4ade80; }
         .feedback-wrong { background: #7f1d1d; color: #f87171; }
 
+        /* 動態按鈕網格 */
         .btn-grid { 
             display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; 
         }
         button.option-btn { 
-            padding: 15px 0; border: 1px solid #475569; background: #1e293b; 
-            color: #f8fafc; border-radius: 8px; font-size: 18px; font-weight: 700; 
-            cursor: pointer; transition: 0.2s;
+            padding: 12px 5px; border: 1px solid #475569; background: #1e293b; 
+            color: #f8fafc; border-radius: 8px; font-size: 17px; font-weight: 700; 
+            cursor: pointer; transition: 0.2s; text-align: center;
         }
         button.option-btn:hover:not(:disabled) { background: #38bdf8; color: #0f172a; }
         .selected-correct { background: #22c55e !important; color: white !important; }
         .selected-wrong { background: #ef4444 !important; color: white !important; }
-
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="mode-screen">
+    <div class="mode-title">健合實業 | 教育訓練系統</div>
+    <button class="mode-btn" onclick="startQuiz('color')">🎨 一般色卡辨識</button>
+    <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
+</div>
+
+<div class="container" id="quiz-container">
     <div class="header">
-        <div>📊 進度: <span id="cur">1</span> / 12</div>
-        <div>🏆 分數: <span id="score">0</span></div>
+        <div id="quiz-title">模式載入中...</div>
+        <div>📊 進度: <span id="cur">1</span> / <span id="total">0</span> &nbsp;|&nbsp; 🏆 得分: <span id="score">0</span></div>
     </div>
 
     <div class="main-content">
@@ -83,43 +110,114 @@
             <img id="quiz-img" src="">
             <div id="mask"></div>
         </div>
-
         <div class="right-panel">
-            <div id="feedback">請辨識</div>
+            <div id="feedback">請根據圖片選擇正確答案</div>
             <div class="btn-grid" id="btns"></div>
         </div>
     </div>
 </div>
 
 <script>
-    const quizData = [
-        { url: "https://i.postimg.cc/jqfpgmv1/S-141926458-0.jpg", ans: "877K", maskT: 0, maskH: 35 },
-        { url: "https://i.postimg.cc/9X968KJV/S-141926459-0.jpg", ans: "801K", maskT: 0, maskH: 35 },
-        { url: "https://i.postimg.cc/44cDLqBs/S-141926460-0.jpg", ans: "923K", maskT: 0, maskH: 35 },
-        { url: "https://i.postimg.cc/G3DW7VqR/S-141926461-0.jpg", ans: "926C", maskT: 0, maskH: 35 },
-        { url: "https://i.postimg.cc/T2bz7FCT/S-141926462-0.jpg", ans: "920A", maskT: 0, maskH: 35 },
-        { url: "https://i.postimg.cc/wxNCfZ0x/S-141926463-0.jpg", ans: "921B", maskT: 0, maskH: 35 },
-        { url: "https://i.postimg.cc/zDhst60B/S-141926464-0.jpg", ans: "120A", maskT: 0, maskH: 35 },
-        // 針對 121A 進行遮罩微調 (向下移動 10%)
-        { url: "https://i.postimg.cc/jqfpgmZC/S-141926465-0.jpg", ans: "121A", maskT: 10, maskH: 40 },
-        { url: "https://i.postimg.cc/ZYNG72VB/S-141926466-0.jpg", ans: "292K", maskT: 0, maskH: 35 },
-        { url: "https://i.postimg.cc/J4W99x2h/S-141926467-0.jpg", ans: "220B", maskT: 0, maskH: 35 },
-        { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B", maskT: 0, maskH: 35 },
+    // -----------------------------------------
+    // 資料庫 1：一般色卡辨識 (12題)
+    // -----------------------------------------
+    const colorOptions = ["877K", "801K", "923K", "926C", "920A", "921B", "120A", "121A", "292K", "220B", "813B"];
+    const colorLibrary = [
+        { url: "https://i.postimg.cc/jqfpgmv1/S-141926458-0.jpg", ans: "877K", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "https://i.postimg.cc/9X968KJV/S-141926459-0.jpg", ans: "801K", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "https://i.postimg.cc/44cDLqBs/S-141926460-0.jpg", ans: "923K", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "https://i.postimg.cc/G3DW7VqR/S-141926461-0.jpg", ans: "926C", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "https://i.postimg.cc/T2bz7FCT/S-141926462-0.jpg", ans: "920A", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "https://i.postimg.cc/wxNCfZ0x/S-141926463-0.jpg", ans: "921B", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "https://i.postimg.cc/zDhst60B/S-141926464-0.jpg", ans: "120A", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "https://i.postimg.cc/jqfpgmZC/S-141926465-0.jpg", ans: "121A", maskT: 10, maskH: 40, opts: colorOptions },
+        { url: "https://i.postimg.cc/ZYNG72VB/S-141926466-0.jpg", ans: "292K", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "https://i.postimg.cc/J4W99x2h/S-141926467-0.jpg", ans: "220B", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "https://i.postimg.cc/YqwJJRs0/S-141926469-0.jpg", ans: "813B", maskT: 0, maskH: 35, opts: colorOptions },
+        { url: "https://i.postimg.cc/J4W99x2n/S-141926470-0.jpg", ans: "920A", maskT: 0, maskH: 35, opts: colorOptions }
+    ];
 
-    const codes = ["877K", "801K", "923K", "926C", "920A", "921B", "120A", "121A", "292K", "220B"];
-    
-    quizData.sort(() => Math.random() - 0.5);
+    // -----------------------------------------
+    // 資料庫 2：檢驗標準與異常測試 (28題)
+    // -----------------------------------------
+    const standardLibrary = [
+        // 代表號 (有遮罩)
+        { url: "https://i.postimg.cc/RZJgfkHQ/liang-guang-dai-biao-hao-A.jpg", ans: "A", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { url: "https://i.postimg.cc/Nj2dT3HR/ping-guang-dai-biao-hao-B.jpg", ans: "B", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { url: "https://i.postimg.cc/9QwLT67b/xiao-guang-dai-biao-hao-C.jpg", ans: "C", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { url: "https://i.postimg.cc/QdKf52Tv/hun-he-bai-dian-dai-biao-hao-Q.jpg", ans: "Q", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { url: "https://i.postimg.cc/mg1mMvH0/hun-he-jin-dian-dai-biao-hao-Y.jpg", ans: "Y", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { url: "https://i.postimg.cc/4xHWtD91/sha-wen-dai-biao-hao-K.jpg", ans: "K", maskT: 0, maskH: 35, opts: ["A", "B", "C", "K", "Q", "Y"] },
+        
+        // 毛料異常 (無遮罩 maskH: 0)
+        { url: "https://i.postimg.cc/ncPdXFC1/mao-liao-gua-shang.jpg", ans: "刮傷", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "https://i.postimg.cc/J42TsrGZ/mao-liao-chi-cun-bu-liang.jpg", ans: "尺寸不良", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "https://i.postimg.cc/MKFsn6vt/mao-liao-zhuang-shang-zhuang-ao.jpg", ans: "撞傷", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "https://i.postimg.cc/28KH1kVH/mao-liao-mo-ju-hen.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "https://i.postimg.cc/dVZ5dbyj/mao-liao-yang-hua1.jpg", ans: "氧化", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "https://i.postimg.cc/HshSrYV2/mao-liao-po-dongor-qi-kong.jpg", ans: "破洞氣孔", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
+        { url: "https://i.postimg.cc/Dw4xs9Xr/mao-liao-bian-xing.jpg", ans: "變形", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
+        
+        // 毛料硬度規格
+        { url: "https://i.postimg.cc/vZx09JVJ/ying-du-ying-du-fan-wei.jpg", ans: "11~14", maskT: 0, maskH: 0, opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
+        
+        // 粉體異常
+        { url: "https://i.postimg.cc/3x0tpsvt/fen-ti-gua-gou-hen.jpg", ans: "掛勾痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "https://i.postimg.cc/6p4MRkvH/fen-ti-mo-ju-hen.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "https://i.postimg.cc/YCLdg5Wy/fen-ti-mo-hou-guo-hou.jpg", ans: "模厚過厚", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "https://i.postimg.cc/JzHpJfkF/fen-ti-ju-pi.jpg", ans: "橘皮", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "https://i.postimg.cc/3x0tpsv9/fen-ti-huo-shan-kou.jpg", ans: "火山口", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "https://i.postimg.cc/dVZ5dbyp/fen-ti-zang-wu.jpg", ans: "髒污", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        
+        // 粉體模厚規格
+        { url: "https://i.postimg.cc/13Vv6kqC/fen-ti-mo-hou-fan-wei.jpg", ans: "40um~130um", maskT: 0, maskH: 0, opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
 
+        // 陽極異常
+        { url: "https://i.postimg.cc/g09NKgyF/yang-ji-mo-ju-hen.jpg", ans: "模具痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "https://i.postimg.cc/BnPmDrFG/yang-ji-qi-pao.jpg", ans: "氣泡", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "https://i.postimg.cc/zGHxWsh8/yang-ji-yang-hua.jpg", ans: "氧化", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "https://i.postimg.cc/XvMQgsfh/yang-ji-se-cha.jpg", ans: "色差", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "https://i.postimg.cc/cLtFYp3Z/yang-ji-dian-du-bu-quan.jpg", ans: "電鍍不全", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "https://i.postimg.cc/nL80134N/yang-ji-dian-du-liu-hen.jpg", ans: "電鍍流痕", maskT: 0, maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        
+        // 陽極模厚規格
+        { url: "https://i.postimg.cc/25p2x0QP/dian-du-mo-hou-fan-wei.jpg", ans: "8um~30um", maskT: 0, maskH: 0, opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
+    ];
+
+    let currentData = [];
     let idx = 0, score = 0;
 
+    // 啟動測驗模式
+    function startQuiz(mode) {
+        document.getElementById('mode-screen').style.display = 'none';
+        document.getElementById('quiz-container').style.display = 'flex';
+
+        if (mode === 'color') {
+            document.getElementById('quiz-title').innerText = "🎨 一般色卡辨識";
+            currentData = [...colorLibrary];
+        } else {
+            document.getElementById('quiz-title').innerText = "🔍 檢驗標準測試";
+            currentData = [...standardLibrary];
+        }
+
+        // 洗牌打亂順序
+        currentData.sort(() => Math.random() - 0.5);
+        
+        idx = 0; 
+        score = 0;
+        document.getElementById('total').innerText = currentData.length;
+        init();
+    }
+
+    // 載入題目
     function init() {
-        if (idx >= quizData.length) {
-            alert("🌟 訓練結束！總得分：" + score + " / " + quizData.length);
+        if (idx >= currentData.length) {
+            alert("🌟 訓練結束！總得分：" + score + " / " + currentData.length + "\n點擊確定返回首頁。");
             location.reload();
             return;
         }
 
-        const item = quizData[idx];
+        const item = currentData[idx];
         const img = document.getElementById('quiz-img');
         const mask = document.getElementById('mask');
         const feedback = document.getElementById('feedback');
@@ -127,30 +225,34 @@
         img.src = item.url;
         mask.style.top = item.maskT + "%";
         mask.style.height = item.maskH + "%";
-        mask.style.display = 'block';
+        
+        // 判斷是否需要遮罩 (異常圖片不需要遮罩)
+        mask.style.display = (item.maskH > 0) ? 'block' : 'none';
 
-        feedback.innerText = "請點擊正確編號";
+        feedback.innerText = "請判斷答案";
         feedback.className = "";
         document.getElementById('cur').innerText = idx + 1;
         
         const area = document.getElementById('btns');
         area.innerHTML = "";
         
-        codes.forEach(c => {
+        // 動態生成選項按鈕
+        item.opts.forEach(c => {
             const b = document.createElement('button');
             b.className = "option-btn";
             b.innerText = c;
-            b.onclick = () => checkAnswer(c, item.ans, b);
+            b.onclick = () => checkAnswer(c, item.ans, b, item.maskH > 0);
             area.appendChild(b);
         });
     }
 
-    function checkAnswer(selected, correct, btnElement) {
+    // 檢查答案
+    function checkAnswer(selected, correct, btnElement, hasMask) {
         const feedback = document.getElementById('feedback');
         const mask = document.getElementById('mask');
         
         document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
-        mask.style.display = 'none';
+        if(hasMask) mask.style.display = 'none'; // 答題後移開遮罩
 
         if (selected === correct) {
             score++;
@@ -159,25 +261,19 @@
             feedback.className = "feedback-correct";
             btnElement.classList.add('selected-correct');
             
-            // 加快跳轉速度 (改為 0.4 秒)
-            setTimeout(() => {
-                idx++;
-                init();
-            }, 400); 
+            setTimeout(() => { idx++; init(); }, 400); 
         } else {
             feedback.innerText = "✘ 錯誤！";
             feedback.className = "feedback-wrong";
             btnElement.classList.add('selected-wrong');
             
             setTimeout(() => {
-                alert("【答錯提醒】\n\n這張色卡的編號是：" + correct);
+                alert("【判斷提醒】\n\n正確答案為：" + correct);
                 idx++;
                 init();
             }, 100);
         }
     }
-
-    window.onload = init;
 </script>
 </body>
 </html>
