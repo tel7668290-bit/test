@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>清展科技-品保部 | 手機版測驗</title>
+    <title>清展科技-品保部 | 手機版測驗與題庫</title>
     <style>
         * { box-sizing: border-box; touch-action: manipulation; }
         body { 
@@ -31,29 +31,59 @@
         .mode-btn.gallery { background: #c084fc; color: #fff; }
         .mode-btn.back { background: #475569; color: #fff; margin-top: 20px; }
 
-        /* 📱 測驗容器 (上下排列) */
-        .container {
+        /* 📱 手機版題庫 (列表式) */
+        #gallery-screen {
             width: 100%; height: 100%; display: none; flex-direction: column;
         }
+        .gallery-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 5px 15px 5px; border-bottom: 2px solid #334155; margin-bottom: 10px;
+        }
+        .gallery-header h2 { margin: 0; font-size: 22px; color: #f8fafc; }
+        
+        .gallery-nav { display: flex; gap: 10px; margin-bottom: 10px; }
+        .tab-btn {
+            flex: 1; padding: 12px; background: #334155; border: 2px solid #475569;
+            color: #cbd5e1; border-radius: 8px; font-size: 16px; font-weight: bold;
+        }
+        .tab-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
+        .tab-btn.active.exam-tab { background: #fbbf24; border-color: #fbbf24; }
+
+        /* 列表按鈕 */
+        #gallery-list {
+            flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;
+        }
+        .gallery-list-btn {
+            width: 100%; padding: 16px 20px; background: #1e293b; border: 1px solid #334155;
+            border-radius: 12px; color: #f8fafc; font-size: 18px; font-weight: 700;
+            text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        /* 📱 圖片放大彈出視窗 (Modal) */
+        #image-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95); z-index: 999; 
+            flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+        }
+        #modal-img { max-width: 100%; max-height: 60vh; border-radius: 8px; border: 2px solid #475569; display: none; }
+        #modal-text-q { font-size: 22px; color: #38bdf8; text-align: center; line-height: 1.4; display: none; margin-bottom: 20px; }
+        #modal-caption { margin-top: 20px; font-size: 26px; font-weight: 900; color: #4ade80; background: #064e3b; padding: 8px 30px; border-radius: 20px; text-align: center; }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 50px; color: #cbd5e1; background: none; border: none; padding: 0; line-height: 1;}
+
+        /* 📱 測驗容器 (上下排列) */
+        .container { width: 100%; height: 100%; display: none; flex-direction: column; }
         .header { 
             display: flex; justify-content: space-between; align-items: center; 
             font-size: 16px; font-weight: 800; padding-bottom: 10px; margin-bottom: 10px;
             border-bottom: 2px solid #334155;
         }
         
-        /* 🚨 核心防跑位設定：強迫圖片框佔滿左右，高度自動 */
         #img-wrapper {
             position: relative; width: 100%; display: block;
-            border: 2px solid #475569; border-radius: 8px; overflow: hidden;
-            background: #000;
+            border: 2px solid #475569; border-radius: 8px; overflow: hidden; background: #000;
         }
-        #quiz-img { 
-            width: 100%; height: auto; display: block; 
-        }
-        #mask { 
-            position: absolute; background: #000; z-index: 10; 
-            border-radius: 4px; box-shadow: 0 0 3px rgba(0,0,0,0.5);
-        }
+        #quiz-img { width: 100%; height: auto; display: block; }
+        #mask { position: absolute; background: #000; z-index: 10; border-radius: 4px; box-shadow: 0 0 3px rgba(0,0,0,0.5); }
 
         #quiz-text {
             display: none; font-size: 24px; font-weight: 900; color: #38bdf8;
@@ -61,7 +91,6 @@
             border-radius: 8px; border: 1px solid #475569;
         }
 
-        /* 答案區 */
         .right-panel {
             flex: 1; display: flex; flex-direction: column; margin-top: 15px;
             background: #1e293b; padding: 15px; border-radius: 12px;
@@ -85,17 +114,12 @@
         .bottom-actions { margin-top: auto; display: flex; justify-content: center; padding-top: 15px; }
 
         /* 結算畫面 */
-        #result-screen {
-            width: 100%; display: none; flex-direction: column; align-items: center; height: 100%;
-        }
+        #result-screen { width: 100%; display: none; flex-direction: column; align-items: center; height: 100%; }
         #wrong-list-container {
             width: 100%; flex: 1; overflow-y: auto; background: #1e293b; 
             border-radius: 12px; padding: 10px; margin-bottom: 10px;
         }
-        .wrong-card {
-            background: #334155; border-radius: 8px; padding: 10px;
-            margin-bottom: 10px; text-align: center;
-        }
+        .wrong-card { background: #334155; border-radius: 8px; padding: 10px; margin-bottom: 10px; text-align: center; }
         .wrong-img { width: 100%; max-height: 120px; object-fit: contain; background: #000; border-radius: 6px; }
         .wrong-info { font-size: 16px; font-weight: 700; margin-top: 10px;}
         .wrong-ans { color: #f87171; }
@@ -108,7 +132,28 @@
     <div class="mode-title">清展科技-品保部<br>【手機版測驗】</div>
     <button class="mode-btn" onclick="startQuiz('color')">🎨 一般色卡辨識</button>
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
-    <button class="mode-btn back" onclick="window.location.href='index.html'">🔙 返回電腦版首頁</button>
+    <button class="mode-btn gallery" onclick="showGallery()">📚 手機版題庫</button>
+    <button class="mode-btn back" onclick="window.location.href='index.html'">💻 返回電腦版首頁</button>
+</div>
+
+<div id="gallery-screen">
+    <div class="gallery-header">
+        <h2>📚 手機版題庫</h2>
+        <button class="mode-btn exam" style="font-size: 14px; padding: 6px 12px; width: auto; margin: 0;" onclick="location.reload()">🏠 首頁</button>
+    </div>
+    <div class="gallery-nav">
+        <button id="tab-color" class="tab-btn active" onclick="renderGallery('color')">🎨 色卡</button>
+        <button id="tab-standard" class="tab-btn" onclick="renderGallery('standard')">🔍 檢驗標準</button>
+    </div>
+    <div id="gallery-list">
+        </div>
+</div>
+
+<div id="image-modal" onclick="closeModal()">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div id="modal-text-q" onclick="event.stopPropagation()"></div>
+    <img id="modal-img" src="" alt="圖片" onclick="event.stopPropagation()">
+    <div id="modal-caption" onclick="event.stopPropagation()"></div>
 </div>
 
 <div class="container" id="quiz-container">
@@ -116,7 +161,6 @@
         <span id="quiz-title">載入中...</span>
         <span>進度: <span id="cur">1</span>/<span id="total">0</span> | 得分: <span id="score">0</span></span>
     </div>
-    
     <div id="img-wrapper">
         <img id="quiz-img" src="">
         <div id="mask"></div>
@@ -140,7 +184,6 @@
 </div>
 
 <script>
-    // 💡 資料庫跟原本一模一樣，直接貼過來
     const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
     const colorLibrary = [
         { url: "colors/120A.png", ans: "120A", maskT: 44, maskL: 60, maskW: 18, maskH: 11, opts: colorOptions },
@@ -192,6 +235,78 @@
 
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
 
+    // --- 📱 手機版專屬：列表題庫渲染邏輯 ---
+    function showGallery() {
+        document.getElementById('mode-screen').style.display = 'none';
+        document.getElementById('gallery-screen').style.display = 'flex';
+        renderGallery('color'); // 預設顯示色卡
+    }
+
+    function renderGallery(type) {
+        document.getElementById('tab-color').classList.remove('active', 'exam-tab');
+        document.getElementById('tab-standard').classList.remove('active', 'exam-tab');
+        if (type === 'color') document.getElementById('tab-color').classList.add('active');
+        else document.getElementById('tab-standard').classList.add('active', 'exam-tab');
+
+        const list = document.getElementById('gallery-list');
+        list.innerHTML = ""; 
+        const dataToRender = (type === 'color') ? colorLibrary : standardLibrary;
+        
+        dataToRender.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = "gallery-list-btn";
+            
+            // 💡 智慧抓取檔名作為按鈕文字
+            let displayName = "";
+            if (type === 'color') {
+                displayName = "🎨 " + item.ans;
+            } else {
+                if (item.type === "text") {
+                    displayName = "📝 " + item.text;
+                } else {
+                    // 自動從網址中擷取「毛料-刮傷」這段文字
+                    let fileName = decodeURI(item.url).split('/').pop().replace(/\.(jpg|png|jpeg)$/i, '');
+                    displayName = "🖼️ " + fileName;
+                }
+            }
+            btn.innerText = displayName;
+            
+            // 綁定點擊事件，彈出圖片
+            btn.onclick = () => {
+                if (item.type === "text") {
+                    openModal("", item.ans, item.text);
+                } else {
+                    openModal(encodeURI(item.url), item.ans, "");
+                }
+            };
+            list.appendChild(btn);
+        });
+    }
+
+    // --- 圖片/文字彈出視窗 ---
+    function openModal(url, ans, textQ) {
+        const img = document.getElementById('modal-img');
+        const txt = document.getElementById('modal-text-q');
+        
+        if (url) {
+            img.src = url;
+            img.style.display = 'block';
+            txt.style.display = 'none';
+        } else {
+            img.style.display = 'none';
+            txt.innerText = textQ;
+            txt.style.display = 'block';
+        }
+        
+        document.getElementById('modal-caption').innerText = ans;
+        document.getElementById('image-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('image-modal').style.display = 'none';
+    }
+
+    // --- 測驗流程 ---
     function startQuiz(mode) {
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('quiz-container').style.display = 'flex';
@@ -241,7 +356,7 @@
             txt.style.display = 'none'; wrapper.style.display = 'block';
             img.src = encodeURI(item.url);
             
-            /* 📱 暴力定錨：直接綁定百分比，因為 wrapper 寬度是 100%，高度自動跟隨，絕不跑位 */
+            // 暴力定錨：因為 wrapper 寬度是 100%，高度自動跟隨，絕不跑位
             msk.style.top = (item.maskT || 0) + "%"; msk.style.left = (item.maskL || 0) + "%";
             msk.style.width = (item.maskW || 100) + "%"; msk.style.height = (item.maskH || 0) + "%";
             msk.style.display = (item.maskH > 0) ? 'block' : 'none';
