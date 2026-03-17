@@ -19,7 +19,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             gap: 25px; transition: opacity 0.5s;
         }
-        .mode-title { font-size: 48px; margin-bottom: 20px; color: #f8fafc; letter-spacing: 2px; }
+        .mode-title { font-size: 48px; margin-bottom: 20px; color: #f8fafc; letter-spacing: 2px; text-align: center; line-height: 1.2;}
         .mode-btn {
             padding: 20px 50px; font-size: 26px; font-weight: 900;
             background: #38bdf8; color: #0f172a; border: none; border-radius: 20px;
@@ -39,8 +39,12 @@
             display: none; flex-direction: column; height: 95vh;
         }
         .header { 
-            display: flex; justify-content: space-between; margin-bottom: 15px; 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; 
             font-size: 22px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 10px;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .header-left {
+            display: flex; align-items: center; gap: 15px; flex-wrap: wrap;
         }
         .header span { color: #38bdf8; }
         .main-content { display: flex; flex: 1; gap: 20px; min-height: 0; }
@@ -51,10 +55,10 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* 💡 核心修復：緊身衣 Wrapper，讓遮罩永遠貼合圖片 */
+        /* 緊身衣 Wrapper，讓遮罩永遠貼合圖片 */
         #img-wrapper {
             position: relative;
-            display: inline-block; /* 緊縮包覆圖片 */
+            display: inline-block; 
             max-width: 100%;
             max-height: 100%;
         }
@@ -124,6 +128,7 @@
         .gallery-header {
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 2px solid #334155; padding-bottom: 15px; margin-bottom: 20px;
+            flex-wrap: wrap; gap: 10px;
         }
         .gallery-header h2 { margin: 0; font-size: 28px; color: #f8fafc; }
         .gallery-grid {
@@ -150,9 +155,9 @@
         /* 📱 手機版專屬優化 (響應式設計) */
         @media (max-width: 768px) {
             body { padding: 10px; }
-            .mode-title { font-size: 32px; text-align: center; line-height: 1.2; }
+            .mode-title { font-size: 32px; }
             .mode-btn { width: 90%; font-size: 20px; padding: 15px; }
-            .header { font-size: 16px; margin-bottom: 10px; }
+            .header { font-size: 16px; margin-bottom: 10px; align-items: flex-start; }
             
             /* 將左右排列改為上下排列 */
             .main-content { flex-direction: column; }
@@ -163,9 +168,7 @@
             .btn-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             button.option-btn { font-size: 14px; padding: 10px 5px; }
             
-            /* 錯題與題庫手機版調整 */
             .wrong-card { flex-direction: column; text-align: center; }
-            .gallery-header { flex-direction: column; gap: 15px; }
             #final-score { font-size: 28px; }
         }
     </style>
@@ -183,7 +186,7 @@
 <div id="gallery-screen">
     <div class="gallery-header">
         <h2>📚 色卡與檢驗總題庫</h2>
-        <button class="mode-btn exam" style="font-size: 16px; padding: 8px 15px; width: auto;" onclick="location.reload()">返回首頁</button>
+        <button class="mode-btn exam" style="font-size: 16px; padding: 8px 15px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
     </div>
     <div id="gallery-grid" class="gallery-grid">
         </div>
@@ -191,7 +194,10 @@
 
 <div class="container" id="quiz-container">
     <div class="header">
-        <div id="quiz-title">模式載入中...</div>
+        <div class="header-left">
+            <div id="quiz-title">模式載入中...</div>
+            <button class="mode-btn exam" style="font-size: 14px; padding: 6px 12px; width: auto; box-shadow: none; margin: 0;" onclick="location.reload()">🏠 返回首頁</button>
+        </div>
         <div>📊 進度: <span id="cur">1</span> / <span id="total">0</span> &nbsp;|&nbsp; 🏆 得分: <span id="score">0</span></div>
     </div>
     <div class="main-content">
@@ -216,7 +222,7 @@
     
     <div id="wrong-list-container"></div>
     
-    <button class="mode-btn exam" style="font-size: 20px; padding: 15px 30px;" onclick="location.reload()">返回首頁重新測驗</button>
+    <button class="mode-btn exam" style="font-size: 20px; padding: 15px 30px;" onclick="location.reload()">🏠 返回首頁重新測驗</button>
 </div>
 
 <script>
@@ -382,7 +388,6 @@
             img.style.display = msk.style.display = 'none';
             txt.style.display = 'block'; txt.innerText = item.text;
             fbk.innerText = "請選擇正確規格";
-            // 文字題時不顯示包覆框背景，維持整潔
             document.getElementById('img-wrapper').style.background = 'transparent';
         } else {
             txt.style.display = 'none'; img.style.display = 'block';
