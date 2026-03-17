@@ -2,12 +2,13 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>清展科技-品保部 | 辨色與檢驗標準測試</title>
     <style>
         * { box-sizing: border-box; cursor: default; }
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; 
+            background: #0f172a; color: #f8fafc; margin: 0; padding: 15px; 
             display: flex; flex-direction: column; align-items: center; 
             height: 100vh; overflow: hidden;
         }
@@ -17,16 +18,16 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.98); z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 25px; transition: opacity 0.5s;
+            gap: 20px; transition: opacity 0.5s;
         }
-        .mode-title { font-size: 48px; margin-bottom: 20px; color: #f8fafc; letter-spacing: 2px; text-align: center; line-height: 1.2;}
+        .mode-title { font-size: 36px; margin-bottom: 10px; color: #f8fafc; letter-spacing: 2px; text-align: center; line-height: 1.3;}
         .mode-btn {
-            padding: 20px 50px; font-size: 26px; font-weight: 900;
-            background: #38bdf8; color: #0f172a; border: none; border-radius: 20px;
-            cursor: pointer; transition: 0.2s; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            width: 400px; text-align: center;
+            padding: 15px 40px; font-size: 22px; font-weight: 900;
+            background: #38bdf8; color: #0f172a; border: none; border-radius: 16px;
+            cursor: pointer; transition: 0.2s; box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+            width: 85%; max-width: 400px; text-align: center;
         }
-        .mode-btn:hover { transform: translateY(-5px); background: #7dd3fc; }
+        .mode-btn:hover { transform: translateY(-3px); background: #7dd3fc; }
         .mode-btn.exam { background: #fbbf24; }
         .mode-btn.exam:hover { background: #fcd34d; }
         .mode-btn.gallery { background: #c084fc; color: #fff; }
@@ -35,57 +36,50 @@
         /* ---------------- 測驗畫面樣式 ---------------- */
         .container {
             width: 100%; max-width: 1400px; background: #1e293b;
-            padding: 20px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            padding: 15px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
             display: none; flex-direction: column; height: 95vh;
         }
         .header { 
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; 
-            font-size: 22px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 10px;
-            flex-wrap: wrap; gap: 10px;
-        }
-        .header-left {
-            display: flex; align-items: center; gap: 15px; flex-wrap: wrap;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; 
+            font-size: 20px; font-weight: 800; border-bottom: 2px solid #334155; padding-bottom: 10px;
         }
         .header span { color: #38bdf8; }
-        .main-content { display: flex; flex: 1; gap: 20px; min-height: 0; }
+        
+        .main-content { display: flex; flex: 1; gap: 15px; min-height: 0; }
         
         .left-panel {
-            flex: 7; background: #000; 
+            flex: 6; background: #000; 
             border-radius: 12px; overflow: hidden; border: 1px solid #475569;
             display: flex; align-items: center; justify-content: center;
         }
 
         #img-wrapper {
-            position: relative;
-            display: inline-block; 
-            max-width: 100%;
-            max-height: 100%;
+            position: relative; display: inline-block; 
+            max-width: 100%; max-height: 100%; line-height: 0;
         }
         #quiz-img { 
-            max-width: 100%; 
-            max-height: 100%; 
-            width: auto; 
-            height: auto; 
-            display: block; 
+            max-width: 100%; max-height: 100%; 
+            width: auto; height: auto; display: block; 
         }
 
         #quiz-text {
-            display: none; font-size: 48px; font-weight: 900; color: #38bdf8;
-            text-align: center; padding: 40px; line-height: 1.4;
+            display: none; font-size: 36px; font-weight: 900; color: #38bdf8;
+            text-align: center; padding: 20px; line-height: 1.4;
         }
         #mask { position: absolute; background: #000; z-index: 10; border: 1px solid #334155; border-radius: 4px; }
         
         .right-panel {
-            flex: 3; display: flex; flex-direction: column; background: #334155;
-            padding: 20px; border-radius: 12px; overflow-y: auto;
+            flex: 4; display: flex; flex-direction: column; background: #334155;
+            padding: 15px; border-radius: 12px; overflow-y: auto;
         }
         #feedback { 
-            font-size: 22px; font-weight: 700; margin-bottom: 20px; 
-            min-height: 60px; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 700; margin-bottom: 15px; 
+            min-height: 50px; display: flex; align-items: center; justify-content: center;
             text-align: center; border-radius: 8px;
         }
         .feedback-correct { background: #064e3b; color: #4ade80; }
         .feedback-wrong { background: #7f1d1d; color: #f87171; }
+        
         .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         button.option-btn { 
             padding: 12px 5px; border: 1px solid #475569; background: #1e293b; 
@@ -95,95 +89,102 @@
         button.option-btn:hover:not(:disabled) { background: #38bdf8; color: #0f172a; }
         .selected-correct { background: #22c55e !important; color: white !important; }
         .selected-wrong { background: #ef4444 !important; color: white !important; }
+        
+        /* 底部返回按鈕區塊 */
+        .bottom-actions {
+            margin-top: auto; /* 將按鈕推到最底下 */
+            display: flex; justify-content: flex-end; /* 靠右對齊 */
+            padding-top: 15px;
+        }
+
         #preload-status { color: #94a3b8; font-size: 14px; margin-top: 15px; }
 
         /* ---------------- 結算與錯題回顧畫面 ---------------- */
         #result-screen {
             width: 100%; max-width: 1000px; background: #1e293b;
-            padding: 40px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            padding: 30px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
             display: none; flex-direction: column; align-items: center; height: 90vh;
         }
-        #final-score { font-size: 42px; font-weight: 900; color: #fbbf24; margin-bottom: 20px; }
+        #final-score { font-size: 36px; font-weight: 900; color: #fbbf24; margin-bottom: 20px; }
         #wrong-list-container {
             width: 100%; flex: 1; overflow-y: auto; background: #0f172a; 
-            border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155;
+            border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155;
         }
         .wrong-card {
-            background: #334155; border-radius: 8px; padding: 15px;
-            margin-bottom: 15px; display: flex; align-items: center; gap: 20px;
+            background: #334155; border-radius: 8px; padding: 12px;
+            margin-bottom: 12px; display: flex; align-items: center; gap: 15px;
         }
-        .wrong-img { width: 140px; height: 90px; object-fit: contain; background: #000; border-radius: 6px; border: 1px solid #475569; }
-        .wrong-text-q { width: 140px; font-size: 14px; color: #38bdf8; font-weight: bold; line-height: 1.3; text-align: center; }
-        .wrong-info { flex: 1; font-size: 20px; font-weight: 700; line-height: 1.6; }
+        .wrong-img { width: 120px; height: 80px; object-fit: contain; background: #000; border-radius: 6px; border: 1px solid #475569; }
+        .wrong-text-q { width: 120px; font-size: 14px; color: #38bdf8; font-weight: bold; line-height: 1.3; text-align: center; }
+        .wrong-info { flex: 1; font-size: 18px; font-weight: 700; line-height: 1.6; }
         .wrong-ans { color: #f87171; }
         .correct-ans { color: #4ade80; }
 
         /* ---------------- 題庫總覽畫面 ---------------- */
         #gallery-screen {
             width: 100%; max-width: 1400px; background: #1e293b;
-            padding: 20px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            padding: 15px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
             display: none; flex-direction: column; height: 95vh;
         }
         .gallery-header {
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #334155; padding-bottom: 15px; margin-bottom: 15px;
+            border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 15px;
             flex-wrap: wrap; gap: 10px;
         }
-        .gallery-header h2 { margin: 0; font-size: 28px; color: #f8fafc; }
-        
-        /* 題庫分類導覽列 */
+        .gallery-header h2 { margin: 0; font-size: 24px; color: #f8fafc; }
         .gallery-nav {
-            display: flex; gap: 15px; margin-bottom: 20px;
+            display: flex; gap: 10px; margin-bottom: 15px;
             justify-content: center; flex-wrap: wrap;
         }
         .gallery-nav-btn {
             background: #334155; color: #cbd5e1; border: 2px solid #475569;
-            padding: 10px 30px; border-radius: 30px; font-size: 18px; font-weight: 700;
+            padding: 8px 20px; border-radius: 30px; font-size: 16px; font-weight: 700;
             cursor: pointer; transition: 0.3s;
         }
-        .gallery-nav-btn.active {
-            background: #38bdf8; color: #0f172a; border-color: #38bdf8;
-        }
-        .gallery-nav-btn.active.exam-tab {
-            background: #fbbf24; border-color: #fbbf24;
-        }
-
+        .gallery-nav-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
+        .gallery-nav-btn.active.exam-tab { background: #fbbf24; border-color: #fbbf24; }
         .gallery-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px; overflow-y: auto; padding-right: 10px; flex: 1; /* flex: 1 確保它佔滿剩餘空間並可滾動 */
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 15px; overflow-y: auto; padding-right: 5px; flex: 1; 
         }
         .gallery-card {
             background: #0f172a; border: 1px solid #334155; border-radius: 12px;
             overflow: hidden; display: flex; flex-direction: column; align-items: center;
-            padding-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            padding-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
         .gallery-img-wrapper {
-            width: 100%; height: 200px; background: #000;
+            width: 100%; height: 180px; background: #000;
             display: flex; justify-content: center; align-items: center; overflow: hidden;
-            border-bottom: 1px solid #334155; padding: 10px;
+            border-bottom: 1px solid #334155; padding: 5px;
         }
         .gallery-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
-        .gallery-text { padding: 20px; text-align: center; color: #38bdf8; font-weight: bold; font-size: 18px; }
+        .gallery-text { padding: 15px; text-align: center; color: #38bdf8; font-weight: bold; font-size: 16px; }
         .gallery-ans {
-            margin-top: 15px; font-size: 22px; font-weight: 900; color: #4ade80;
-            background: #064e3b; padding: 6px 20px; border-radius: 20px;
+            margin-top: 10px; font-size: 20px; font-weight: 900; color: #4ade80;
+            background: #064e3b; padding: 5px 15px; border-radius: 20px;
         }
 
-        /* 📱 手機版專屬優化 */
+        /* 📱 手機版專屬優化 (排版自適應) */
         @media (max-width: 768px) {
-            body { padding: 10px; }
-            .mode-title { font-size: 32px; }
-            .mode-btn { width: 90%; font-size: 20px; padding: 15px; }
-            .header { font-size: 16px; margin-bottom: 10px; align-items: flex-start; }
+            body { padding: 8px; }
+            .header { font-size: 16px; }
+            
+            /* 將左右畫面改成上下排列，去除黑邊 */
             .main-content { flex-direction: column; }
-            .left-panel { flex: none; height: 40vh; }
-            .right-panel { flex: 1; padding: 15px; }
-            #feedback { font-size: 18px; min-height: 50px; margin-bottom: 10px; }
-            .btn-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-            button.option-btn { font-size: 14px; padding: 10px 5px; }
+            .left-panel { flex: none; height: auto; background: transparent; border: none; }
+            
+            /* 限制圖片高度，避免把下面的按鈕擠出螢幕 */
+            #quiz-img { max-height: 40vh; border-radius: 8px; }
+            
+            .right-panel { flex: 1; padding: 12px; display: flex; flex-direction: column; }
+            
+            #feedback { font-size: 18px; min-height: 40px; margin-bottom: 10px; }
+            .btn-grid { gap: 8px; }
+            button.option-btn { font-size: 16px; padding: 14px 5px; }
+            
             .wrong-card { flex-direction: column; text-align: center; }
             #final-score { font-size: 28px; }
-            .gallery-nav-btn { font-size: 16px; padding: 8px 20px; width: 45%; text-align: center; }
+            .gallery-nav-btn { font-size: 16px; padding: 8px 15px; width: 48%; text-align: center; }
         }
     </style>
 </head>
@@ -202,22 +203,16 @@
         <h2>📚 題庫預習區</h2>
         <button class="mode-btn exam" style="font-size: 14px; padding: 8px 15px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
     </div>
-    
     <div class="gallery-nav">
         <button id="tab-color" class="gallery-nav-btn active" onclick="renderGallery('color')">🎨 色卡題庫</button>
         <button id="tab-standard" class="gallery-nav-btn" onclick="renderGallery('standard')">🔍 檢驗標準題庫</button>
     </div>
-
-    <div id="gallery-grid" class="gallery-grid">
-        </div>
+    <div id="gallery-grid" class="gallery-grid"></div>
 </div>
 
 <div class="container" id="quiz-container">
     <div class="header">
-        <div class="header-left">
-            <div id="quiz-title">模式載入中...</div>
-            <button class="mode-btn exam" style="font-size: 14px; padding: 6px 12px; width: auto; box-shadow: none; margin: 0;" onclick="location.reload()">🏠 返回首頁</button>
-        </div>
+        <div id="quiz-title">模式載入中...</div>
         <div>📊 進度: <span id="cur">1</span> / <span id="total">0</span> &nbsp;|&nbsp; 🏆 得分: <span id="score">0</span></div>
     </div>
     <div class="main-content">
@@ -231,23 +226,25 @@
         <div class="right-panel">
             <div id="feedback">請根據圖片或題目選擇正確答案</div>
             <div class="btn-grid" id="btns"></div>
+            <div class="bottom-actions">
+                <button class="mode-btn exam" style="font-size: 14px; padding: 8px 16px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="result-screen">
-    <div style="font-size: 32px; font-weight: 900; color: #f8fafc; margin-bottom: 10px;">測驗結束</div>
+    <div style="font-size: 28px; font-weight: 900; color: #f8fafc; margin-bottom: 10px;">測驗結束</div>
     <div id="final-score">總得分：0 / 0</div>
-    <div style="width: 100%; font-size: 20px; color: #94a3b8; margin-bottom: 10px; font-weight: 700;">📝 錯題回顧清單：</div>
-    
+    <div style="width: 100%; font-size: 18px; color: #94a3b8; margin-bottom: 10px; font-weight: 700;">📝 錯題回顧清單：</div>
     <div id="wrong-list-container"></div>
-    
-    <button class="mode-btn exam" style="font-size: 20px; padding: 15px 30px;" onclick="location.reload()">🏠 返回首頁重新測驗</button>
+    <button class="mode-btn exam" style="font-size: 18px; padding: 12px 30px; width: auto;" onclick="location.reload()">🏠 返回首頁重新測驗</button>
 </div>
 
 <script>
     const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
     
+    // 遮罩精準座標資料庫
     const colorLibrary = [
         { url: "colors/120A.png", ans: "120A", maskT: 34, maskL: 60, maskW: 18, maskH: 11, opts: colorOptions },
         { url: "colors/121A.jpg", ans: "121A", maskT: 34, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
@@ -296,165 +293,4 @@
         { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
 
         { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
-        { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
-        { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
-    ];
-
-    let currentData = [], idx = 0, score = 0;
-    let wrongAnswers = [];
-
-    // --- 預先載入圖片 ---
-    function preloadImages() {
-        const all = [...colorLibrary, ...standardLibrary].filter(i => i.url);
-        let loaded = 0;
-        all.forEach(item => {
-            const img = new Image();
-            img.onload = img.onerror = () => {
-                loaded++;
-                if (loaded === all.length) document.getElementById('preload-status').innerText = "✅ 資源已備妥";
-            };
-            img.src = encodeURI(item.url);
-        });
-    }
-
-    window.onload = preloadImages;
-
-    // --- 顯示總題庫 ---
-    function showGallery() {
-        document.getElementById('mode-screen').style.display = 'none';
-        document.getElementById('gallery-screen').style.display = 'flex';
-        renderGallery('color'); // 預設顯示色卡題庫
-    }
-
-    // --- 渲染特定類別的題庫 ---
-    function renderGallery(type) {
-        // 更新按鈕的 Active 狀態
-        document.getElementById('tab-color').classList.remove('active', 'exam-tab');
-        document.getElementById('tab-standard').classList.remove('active', 'exam-tab');
-        
-        if (type === 'color') {
-            document.getElementById('tab-color').classList.add('active');
-        } else {
-            document.getElementById('tab-standard').classList.add('active', 'exam-tab');
-        }
-
-        const grid = document.getElementById('gallery-grid');
-        grid.innerHTML = ""; // 清空現有卡片
-        
-        // 根據選擇載入不同資料庫
-        const dataToRender = (type === 'color') ? colorLibrary : standardLibrary;
-        
-        dataToRender.forEach(item => {
-            const card = document.createElement('div');
-            card.className = "gallery-card";
-            
-            let mediaHtml = "";
-            if (item.type === "text") {
-                mediaHtml = `<div class="gallery-img-wrapper" style="background:#1e293b;"><div class="gallery-text">${item.text}</div></div>`;
-            } else {
-                mediaHtml = `<div class="gallery-img-wrapper"><img src="${encodeURI(item.url)}" alt="圖片"></div>`;
-            }
-
-            card.innerHTML = `
-                ${mediaHtml}
-                <div class="gallery-ans">${item.ans}</div>
-            `;
-            grid.appendChild(card);
-        });
-    }
-
-    // --- 測驗流程 ---
-    function startQuiz(mode) {
-        document.getElementById('mode-screen').style.display = 'none';
-        document.getElementById('quiz-container').style.display = 'flex';
-        currentData = (mode === 'color') ? [...colorLibrary] : [...standardLibrary];
-        document.getElementById('quiz-title').innerText = (mode === 'color') ? "🎨 一般色卡辨識" : "🔍 檢驗標準測試";
-        currentData.sort(() => Math.random() - 0.5);
-        idx = 0; score = 0;
-        wrongAnswers = [];
-        document.getElementById('total').innerText = currentData.length;
-        init();
-    }
-
-    // 顯示結算與錯題回顧
-    function showResultScreen() {
-        document.getElementById('quiz-container').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'flex';
-        document.getElementById('final-score').innerText = `總得分：${score} / ${currentData.length}`;
-        
-        const listContainer = document.getElementById('wrong-list-container');
-        listContainer.innerHTML = "";
-
-        if (wrongAnswers.length === 0) {
-            listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 28px; color: #4ade80; font-weight: 900;">🎉 太棒了！全部答對，完美通關！</div>`;
-        } else {
-            wrongAnswers.forEach(wrong => {
-                const card = document.createElement('div');
-                card.className = "wrong-card";
-                
-                let mediaHtml = "";
-                if (wrong.item.type === "text") {
-                    mediaHtml = `<div class="wrong-text-q">${wrong.item.text}</div>`;
-                } else {
-                    mediaHtml = `<img src="${encodeURI(wrong.item.url)}" class="wrong-img">`;
-                }
-
-                card.innerHTML = `
-                    ${mediaHtml}
-                    <div class="wrong-info">
-                        <div style="color: #94a3b8; font-size: 16px; margin-bottom: 5px;">你的選擇：<span class="wrong-ans">${wrong.userAns}</span></div>
-                        <div>正確答案：<span class="correct-ans">${wrong.item.ans}</span></div>
-                    </div>
-                `;
-                listContainer.appendChild(card);
-            });
-        }
-    }
-
-    function init() {
-        if (idx >= currentData.length) {
-            showResultScreen();
-            return;
-        }
-        const item = currentData[idx];
-        const img = document.getElementById('quiz-img'), txt = document.getElementById('quiz-text'), msk = document.getElementById('mask'), fbk = document.getElementById('feedback');
-        
-        if (item.type === "text") {
-            img.style.display = msk.style.display = 'none';
-            txt.style.display = 'block'; txt.innerText = item.text;
-            fbk.innerText = "請選擇正確規格";
-            document.getElementById('img-wrapper').style.background = 'transparent';
-        } else {
-            txt.style.display = 'none'; img.style.display = 'block';
-            img.src = encodeURI(item.url);
-            msk.style.top = (item.maskT || 0) + "%"; msk.style.left = (item.maskL || 0) + "%";
-            msk.style.width = (item.maskW || 100) + "%"; msk.style.height = (item.maskH || 0) + "%";
-            msk.style.display = (item.maskH > 0) ? 'block' : 'none';
-            fbk.innerText = "請判斷答案";
-        }
-        fbk.className = ""; document.getElementById('cur').innerText = idx + 1;
-        const area = document.getElementById('btns'); area.innerHTML = "";
-        item.opts.forEach(c => {
-            const b = document.createElement('button'); b.className = "option-btn"; b.innerText = c;
-            b.onclick = () => checkAnswer(c, item.ans, b, (item.type !== "text" && item.maskH > 0));
-            area.appendChild(b);
-        });
-    }
-
-    function checkAnswer(selected, correct, btn, hasMask) {
-        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
-        if(hasMask) document.getElementById('mask').style.display = 'none';
-        const fbk = document.getElementById('feedback');
-        if (selected === correct) {
-            score++; document.getElementById('score').innerText = score;
-            fbk.innerText = "✔ 正確！"; fbk.className = "feedback-correct"; btn.classList.add('selected-correct');
-            setTimeout(() => { idx++; init(); }, 400); 
-        } else {
-            wrongAnswers.push({ item: currentData[idx], userAns: selected });
-            fbk.innerText = "✘ 錯誤！"; fbk.className = "feedback-wrong"; btn.classList.add('selected-wrong');
-            setTimeout(() => { alert("【判斷提醒】\n\n正確答案為：" + correct); idx++; init(); }, 100);
-        }
-    }
-</script>
-</body>
-</html>
+        { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150
