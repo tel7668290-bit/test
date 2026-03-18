@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>清展科技-品保部 | 辨色與檢驗標準測試</title>
+    
+    <script>
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768) {
+            window.location.replace("mobile.html");
+        }
+    </script>
+
     <style>
         * { box-sizing: border-box; cursor: default; }
         body { 
@@ -47,7 +54,6 @@
         
         .main-content { display: flex; flex: 1; gap: 15px; min-height: 0; }
         
-        /* 左側圖片區塊 (直接作為定位基準) */
         .left-panel {
             flex: 6; background: #000; 
             border-radius: 12px; overflow: hidden; border: 1px solid #475569;
@@ -64,7 +70,6 @@
             text-align: center; padding: 20px; line-height: 1.4; width: 100%;
         }
         
-        /* 遮罩加了微弱光暈，讓它看起來更自然 */
         #mask { 
             position: absolute; background: #000; z-index: 10; 
             border: 1px solid #1e293b; border-radius: 4px; box-shadow: 0 0 5px rgba(0,0,0,0.8);
@@ -148,10 +153,16 @@
         .gallery-nav-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
         .gallery-nav-btn.active.exam-tab { background: #fbbf24; border-color: #fbbf24; }
         
+        /* 💡 兩種不同的題庫排版模式 */
         .gallery-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 15px; overflow-y: auto; padding-right: 5px; flex: 1; 
         }
+        .gallery-list {
+            display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 15px; flex: 1;
+        }
+
+        /* 色卡題庫卡片 */
         .gallery-card {
             background: #0f172a; border: 1px solid #334155; border-radius: 12px;
             overflow: hidden; display: flex; flex-direction: column; align-items: center;
@@ -170,6 +181,17 @@
             background: #064e3b; padding: 5px 15px; border-radius: 20px;
         }
 
+        /* 檢驗標準題庫列表按鈕 (新增) */
+        .gallery-list-btn {
+            width: 100%; padding: 18px 25px; background: #1e293b; border: 1px solid #334155;
+            border-radius: 12px; color: #f8fafc; font-size: 20px; font-weight: 700;
+            text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer;
+            transition: 0.2s; display: flex; align-items: center;
+        }
+        .gallery-list-btn:hover {
+            background: #334155; border-color: #38bdf8; transform: translateX(8px);
+        }
+
         /* ---------------- 圖片放大視窗 (Modal) ---------------- */
         #image-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -183,6 +205,13 @@
         #modal-img {
             max-width: 100%; max-height: 70vh; object-fit: contain; 
             border-radius: 8px; border: 2px solid #475569;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: none;
+        }
+        /* 新增：文字題在 Modal 的顯示樣式 */
+        #modal-text-q {
+            display: none; font-size: 28px; color: #38bdf8; text-align: center; 
+            margin-bottom: 20px; font-weight: 900; background: #1e293b; 
+            padding: 30px; border-radius: 12px; border: 1px solid #475569;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         #modal-caption {
@@ -195,7 +224,6 @@
         }
         .modal-close:hover { color: #fff; }
 
-        /* 📱 手機版專屬優化 */
         @media (max-width: 768px) {
             body { padding: 8px; }
             .header { font-size: 16px; }
@@ -223,8 +251,7 @@
     <button class="mode-btn" onclick="startQuiz('color')">🎨 一般色卡辨識</button>
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
     <button class="mode-btn gallery" onclick="showGallery()">📚 題庫預習區</button>
-    <button class="mode-btn" style="background: #10b981; color: #fff;" onclick="window.location.href='mobile.html'">📱 手機版專屬入口(測試中未完成)</button>
-      <div id="preload-status">⏳ 圖片資源預先載入中...</div>
+    <div id="preload-status">⏳ 圖片資源預先載入中...</div>
 </div>
 
 <div id="gallery-screen">
@@ -236,12 +263,13 @@
         <button id="tab-color" class="gallery-nav-btn active" onclick="renderGallery('color')">🎨 色卡題庫</button>
         <button id="tab-standard" class="gallery-nav-btn" onclick="renderGallery('standard')">🔍 檢驗標準題庫</button>
     </div>
-    <div id="gallery-grid" class="gallery-grid"></div>
+    <div id="gallery-container"></div>
 </div>
 
 <div id="image-modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div id="modal-text-q"></div>
         <img id="modal-img" src="" alt="放大圖片">
         <div id="modal-caption"></div>
     </div>
@@ -260,7 +288,7 @@
             <div id="mask"></div>
         </div>
         <div class="right-panel">
-            <div id="feedback">請根據圖片選擇正確答案 (方向鍵可微調遮罩)</div>
+            <div id="feedback">請根據圖片選擇正確答案 (方向鍵可微調)</div>
             <div class="btn-grid" id="btns"></div>
             <div class="bottom-actions">
                 <button class="mode-btn exam" style="font-size: 14px; padding: 8px 16px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
@@ -280,22 +308,21 @@
 <script>
     const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
     
-    // 💡 因為計算邏輯升級為極致精準，所以座標參數也自動為你修正到位了！
     const colorLibrary = [
-        { url: "colors/120A.png", ans: "120A", maskT: 34, maskL: 60, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/121A.jpg", ans: "121A", maskT: 34, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/220B.jpg", ans: "220B", maskT: 30, maskL: 65, maskW: 18, maskH: 12, opts: colorOptions },
-        { url: "colors/231B.png", ans: "231B", maskT: 21, maskL: 73, maskW: 20, maskH: 16, opts: colorOptions },
-        { url: "colors/292K.png", ans: "292K", maskT: 25, maskL: 14, maskW: 35, maskH: 15, opts: colorOptions },            //  maskT (Top): 數字越小越往上，越大越往下。
-        { url: "colors/801K.jpg", ans: "801K", maskT: 20, maskL: 60, maskW: 20, maskH: 18, opts: colorOptions },            //  maskL (Left): 數字越小越往左，越大越往右。
-        { url: "colors/813B.jpg", ans: "813B", maskT: 40, maskL: 69, maskW: 22, maskH: 15, opts: colorOptions },            //  maskW (Width): 遮罩的寬度（數字越大遮得越寬）。
-        { url: "colors/870B.jpg", ans: "870B", maskT: 39, maskL: 73, maskW: 18, maskH: 14, opts: colorOptions },            //  maskH (Height): 遮罩的高度（數字越大遮得越高）。
-        { url: "colors/877K.png", ans: "877K", maskT: 18, maskL: 65, maskW: 20, maskH: 18, opts: colorOptions },
-        { url: "colors/882C.jpg", ans: "882C", maskT: 30, maskL: 68, maskW: 19, maskH: 14, opts: colorOptions },
-        { url: "colors/920A.jpg", ans: "920A", maskT: 34, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/921B.jpg", ans: "921B", maskT: 34, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/923K.jpg", ans: "923K", maskT: 20, maskL: 68, maskW: 20, maskH: 18, opts: colorOptions },
-        { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
+        { url: "colors/120A.png", ans: "120A", maskT: 44, maskL: 60, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/121A.jpg", ans: "121A", maskT: 44, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/220B.jpg", ans: "220B", maskT: 40, maskL: 65, maskW: 18, maskH: 12, opts: colorOptions },
+        { url: "colors/231B.png", ans: "231B", maskT: 31, maskL: 73, maskW: 20, maskH: 16, opts: colorOptions },
+        { url: "colors/292K.png", ans: "292K", maskT: 35, maskL: 14, maskW: 35, maskH: 15, opts: colorOptions },
+        { url: "colors/801K.jpg", ans: "801K", maskT: 30, maskL: 60, maskW: 20, maskH: 18, opts: colorOptions },
+        { url: "colors/813B.jpg", ans: "813B", maskT: 50, maskL: 69, maskW: 22, maskH: 15, opts: colorOptions },
+        { url: "colors/870B.jpg", ans: "870B", maskT: 46.5, maskL: 72.5, maskW: 18, maskH: 14, opts: colorOptions },
+        { url: "colors/877K.png", ans: "877K", maskT: 28, maskL: 65, maskW: 20, maskH: 18, opts: colorOptions },
+        { url: "colors/882C.jpg", ans: "882C", maskT: 40, maskL: 68, maskW: 19, maskH: 14, opts: colorOptions },
+        { url: "colors/920A.jpg", ans: "920A", maskT: 44, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/921B.jpg", ans: "921B", maskT: 44, maskL: 65, maskW: 18, maskH: 11, opts: colorOptions },
+        { url: "colors/923K.jpg", ans: "923K", maskT: 30, maskL: 68, maskW: 20, maskH: 18, opts: colorOptions },
+        { url: "colors/926C.jpg", ans: "926C", maskT: 32, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
     const standardLibrary = [
@@ -332,10 +359,8 @@
         { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] }
     ];
 
-    let currentData = [], idx = 0, score = 0;
-    let wrongAnswers = [];
+    let currentData = [], idx = 0, score = 0, wrongAnswers = [];
 
-    // --- 👑 全新：JS 像素級精準導彈定位系統 ---
     function placeMask() {
         const img = document.getElementById('quiz-img');
         const msk = document.getElementById('mask');
@@ -346,13 +371,11 @@
             return;
         }
 
-        // 讀取圖片「當下」在螢幕上真實佔用的像素與座標
         const imgW = img.clientWidth;
         const imgH = img.clientHeight;
         const offsetX = img.offsetLeft;
         const offsetY = img.offsetTop;
 
-        // 計算絕對像素並強制釘死
         msk.style.top = (offsetY + (imgH * item.maskT / 100)) + "px";
         msk.style.left = (offsetX + (imgW * item.maskL / 100)) + "px";
         msk.style.width = (imgW * item.maskW / 100) + "px";
@@ -360,14 +383,10 @@
         msk.style.display = 'block';
     }
 
-    // 螢幕旋轉或改變大小時，重新計算一次導彈座標
     window.addEventListener('resize', () => {
-        if(document.getElementById('quiz-container').style.display === 'flex') {
-            placeMask();
-        }
+        if(document.getElementById('quiz-container').style.display === 'flex') placeMask();
     });
 
-    // --- 鍵盤微調系統 (配合新座標引擎) ---
     document.addEventListener('keydown', (e) => {
         if(document.getElementById('quiz-container').style.display === 'none') return;
         const item = currentData[idx];
@@ -381,18 +400,32 @@
 
         if(changed) {
             e.preventDefault();
-            placeMask(); // 立即套用新座標
+            placeMask(); 
             const dbg = document.getElementById('debug-coords');
             dbg.style.display = 'block';
             dbg.innerHTML = `微調完成請更新程式碼：<br>maskT: <span style="color:#fbbf24">${item.maskT}</span><br>maskL: <span style="color:#fbbf24">${item.maskL}</span>`;
         }
     });
 
-    function openModal(url, text) {
-        document.getElementById('modal-img').src = url;
-        document.getElementById('modal-caption').innerText = text;
+    // 💡 修改了 openModal 支援文字題的顯示
+    function openModal(url, ans, textQ) {
+        const img = document.getElementById('modal-img');
+        const txt = document.getElementById('modal-text-q');
+        
+        if (url) {
+            img.src = url;
+            img.style.display = 'block';
+            txt.style.display = 'none';
+        } else {
+            img.style.display = 'none';
+            txt.innerText = textQ;
+            txt.style.display = 'block';
+        }
+        
+        document.getElementById('modal-caption').innerText = ans;
         document.getElementById('image-modal').style.display = 'flex';
     }
+
     function closeModal() { document.getElementById('image-modal').style.display = 'none'; }
 
     function preloadImages() {
@@ -415,39 +448,58 @@
         renderGallery('color'); 
     }
 
+    // 💡 電腦版的檢驗標準題庫改成清單顯示
     function renderGallery(type) {
         document.getElementById('tab-color').classList.remove('active', 'exam-tab');
         document.getElementById('tab-standard').classList.remove('active', 'exam-tab');
-        if (type === 'color') document.getElementById('tab-color').classList.add('active');
-        else document.getElementById('tab-standard').classList.add('active', 'exam-tab');
-
-        const grid = document.getElementById('gallery-grid');
-        grid.innerHTML = ""; 
-        const dataToRender = (type === 'color') ? colorLibrary : standardLibrary;
         
-        dataToRender.forEach(item => {
-            const card = document.createElement('div');
-            card.className = "gallery-card";
-            if (item.type === "text") {
-                card.innerHTML = `
-                    <div style="width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center; padding: 20px; background: #1e293b; border-bottom: 1px solid #334155;">
-                        <div style="color: #38bdf8; font-weight: bold; font-size: 18px; text-align: center; line-height: 1.4;">${item.text}</div>
-                    </div>
-                    <div style="width: 100%; padding: 15px; display: flex; justify-content: center; align-items: center; flex: 1;">
-                        <div style="font-size: 20px; font-weight: 900; color: #4ade80; background: #064e3b; padding: 6px 25px; border-radius: 20px; margin-top: 5px;">${item.ans}</div>
-                    </div>
-                `;
-            } else {
+        const container = document.getElementById('gallery-container');
+        container.innerHTML = ""; 
+        
+        if (type === 'color') {
+            document.getElementById('tab-color').classList.add('active');
+            container.className = 'gallery-grid';
+            
+            colorLibrary.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "gallery-card";
                 const safeUrl = encodeURI(item.url);
                 card.innerHTML = `
-                    <div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}')">
+                    <div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}', '')">
                         <img src="${safeUrl}" alt="圖片">
                     </div>
-                    <div style="margin-top: 15px; margin-bottom: 5px; font-size: 22px; font-weight: 900; color: #4ade80; background: #064e3b; padding: 6px 20px; border-radius: 20px;">${item.ans}</div>
+                    <div class="gallery-ans">${item.ans}</div>
                 `;
-            }
-            grid.appendChild(card);
-        });
+                container.appendChild(card);
+            });
+            
+        } else {
+            document.getElementById('tab-standard').classList.add('active', 'exam-tab');
+            container.className = 'gallery-list'; // 變更為列表排版
+            
+            standardLibrary.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = "gallery-list-btn";
+                
+                let displayName = "";
+                if (item.type === "text") {
+                    displayName = "📝 " + item.text;
+                } else {
+                    let fileName = decodeURI(item.url).split('/').pop().replace(/\.(jpg|png|jpeg)$/i, '');
+                    displayName = "🖼️ " + fileName;
+                }
+                btn.innerText = displayName;
+                
+                btn.onclick = () => {
+                    if (item.type === "text") {
+                        openModal("", item.ans, item.text);
+                    } else {
+                        openModal(encodeURI(item.url), item.ans, "");
+                    }
+                };
+                container.appendChild(btn);
+            });
+        }
     }
 
     function startQuiz(mode) {
@@ -502,11 +554,10 @@
             txt.style.display = 'none'; 
             img.style.display = 'block';
             
-            // 💡 關鍵：圖片載入完成後，立刻啟動導彈定位系統
             img.onload = () => { placeMask(); };
             img.src = encodeURI(item.url);
             
-            fbk.innerText = "請根據圖片選擇正確答案 (方向鍵可微調遮罩)";
+            fbk.innerText = "請根據圖片選擇正確答案 (方向鍵可微調)";
         }
         fbk.className = ""; document.getElementById('cur').innerText = idx + 1;
         const area = document.getElementById('btns'); area.innerHTML = "";
