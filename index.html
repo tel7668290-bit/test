@@ -20,6 +20,18 @@
             height: 100vh; overflow: hidden;
         }
 
+        /* ---------------- 版本號標示 ---------------- */
+#app-version {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    color: #64748b; /* 低調的灰藍色 */
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    z-index: 9999; /* 確保它會浮在最上層 */
+    pointer-events: none; /* 重要：讓滑鼠點擊可以穿透它，避免擋到其他按鈕 */
+}
         /* ---------------- 首頁樣式 ---------------- */
         #mode-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -615,5 +627,6 @@
         }
     }
 </script>
+<div id="app-version">v2.0</div>
 </body>
 </html>
