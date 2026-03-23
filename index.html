@@ -21,17 +21,12 @@
         }
 
         /* ---------------- 版本號標示 ---------------- */
-#app-version {
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
-    color: #64748b; /* 低調的灰藍色 */
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    z-index: 9999; /* 確保它會浮在最上層 */
-    pointer-events: none; /* 重要：讓滑鼠點擊可以穿透它，避免擋到其他按鈕 */
-}
+        #app-version {
+            position: fixed; bottom: 15px; right: 15px;
+            color: #64748b; font-size: 14px; font-weight: 700;
+            letter-spacing: 1px; z-index: 9999; pointer-events: none; 
+        }
+
         /* ---------------- 首頁樣式 ---------------- */
         #mode-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -47,6 +42,11 @@
             width: 85%; max-width: 400px; text-align: center;
         }
         .mode-btn:hover { transform: translateY(-3px); background: #7dd3fc; }
+        
+        /* 💡 新增：異常辨認按鈕樣式 */
+        .mode-btn.anomaly { background: #f97316; color: #fff; }
+        .mode-btn.anomaly:hover { background: #fb923c; }
+        
         .mode-btn.exam { background: #fbbf24; }
         .mode-btn.exam:hover { background: #fcd34d; }
         .mode-btn.gallery { background: #c084fc; color: #fff; }
@@ -72,27 +72,19 @@
             display: flex; align-items: center; justify-content: center; position: relative;
         }
 
-        #quiz-img { 
-            max-width: 100%; max-height: 100%; 
-            width: auto; height: auto; display: block; 
-        }
-
+        #quiz-img { max-width: 100%; max-height: 100%; width: auto; height: auto; display: block; }
         #quiz-text {
             display: none; font-size: 36px; font-weight: 900; color: #38bdf8;
             text-align: center; padding: 20px; line-height: 1.4; width: 100%;
         }
-        
         #mask { 
             position: absolute; background: #000; z-index: 10; 
-            border: 1px solid #1e293b; border-radius: 4px; box-shadow: 0 0 5px rgba(0,0,0,0.8);
-            display: none; 
+            border: 1px solid #1e293b; border-radius: 4px; box-shadow: 0 0 5px rgba(0,0,0,0.8); display: none; 
         }
-        
         #debug-coords {
             display: none; position: absolute; top: 15px; left: 15px;
             background: rgba(255, 0, 0, 0.9); color: #fff; font-weight: 900;
-            padding: 10px 15px; border-radius: 8px; z-index: 100; font-size: 18px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); letter-spacing: 1px;
+            padding: 10px 15px; border-radius: 8px; z-index: 100; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); letter-spacing: 1px;
         }
 
         .right-panel {
@@ -126,7 +118,7 @@
             padding: 30px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
             display: none; flex-direction: column; align-items: center; height: 90vh;
         }
-        #final-score { font-size: 36px; font-weight: 900; color: #fbbf24; margin-bottom: 20px; }
+        #final-score { text-align: center; font-size: 24px; font-weight: 900; color: #fbbf24; margin-bottom: 20px; line-height: 1.5; }
         #wrong-list-container {
             width: 100%; flex: 1; overflow-y: auto; background: #0f172a; 
             border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155;
@@ -149,32 +141,26 @@
         }
         .gallery-header {
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 15px;
-            flex-wrap: wrap; gap: 10px;
+            border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;
         }
         .gallery-header h2 { margin: 0; font-size: 24px; color: #f8fafc; }
-        .gallery-nav {
-            display: flex; gap: 10px; margin-bottom: 15px;
-            justify-content: center; flex-wrap: wrap;
-        }
+        .gallery-nav { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap; }
         .gallery-nav-btn {
             background: #334155; color: #cbd5e1; border: 2px solid #475569;
-            padding: 8px 20px; border-radius: 30px; font-size: 16px; font-weight: 700;
-            cursor: pointer; transition: 0.3s;
+            padding: 8px 20px; border-radius: 30px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s;
         }
         .gallery-nav-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
-        .gallery-nav-btn.active.exam-tab { background: #fbbf24; border-color: #fbbf24; }
         
-        /* 💡 兩種不同的題庫排版模式 */
+        /* 💡 新增：異常辨認分頁被選中的顏色 */
+        .gallery-nav-btn.active.anomaly-tab { background: #f97316; border-color: #f97316; color: #fff; }
+        .gallery-nav-btn.active.exam-tab { background: #fbbf24; border-color: #fbbf24; color: #0f172a;}
+        
         .gallery-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 15px; overflow-y: auto; padding-right: 5px; flex: 1; 
         }
-        .gallery-list {
-            display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 15px; flex: 1;
-        }
+        .gallery-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 15px; flex: 1; }
 
-        /* 色卡題庫卡片 */
         .gallery-card {
             background: #0f172a; border: 1px solid #334155; border-radius: 12px;
             overflow: hidden; display: flex; flex-direction: column; align-items: center;
@@ -183,8 +169,7 @@
         .gallery-img-wrapper {
             width: 100%; height: 180px; background: #000;
             display: flex; justify-content: center; align-items: center; overflow: hidden;
-            border-bottom: 1px solid #334155; padding: 5px; 
-            cursor: pointer; transition: 0.2s; 
+            border-bottom: 1px solid #334155; padding: 5px; cursor: pointer; transition: 0.2s; 
         }
         .gallery-img-wrapper:hover { opacity: 0.8; }
         .gallery-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
@@ -192,17 +177,13 @@
             margin-top: auto; margin-bottom: 15px; font-size: 20px; font-weight: 900; color: #4ade80;
             background: #064e3b; padding: 5px 15px; border-radius: 20px;
         }
-
-        /* 檢驗標準題庫列表按鈕 */
         .gallery-list-btn {
             width: 100%; padding: 18px 25px; background: #1e293b; border: 1px solid #334155;
             border-radius: 12px; color: #f8fafc; font-size: 20px; font-weight: 700;
             text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer;
             transition: 0.2s; display: flex; align-items: center;
         }
-        .gallery-list-btn:hover {
-            background: #334155; border-color: #38bdf8; transform: translateX(8px);
-        }
+        .gallery-list-btn:hover { background: #334155; border-color: #38bdf8; transform: translateX(8px); }
 
         /* ---------------- 圖片放大視窗 (Modal) ---------------- */
         #image-modal {
@@ -210,20 +191,12 @@
             background: rgba(0, 0, 0, 0.92); z-index: 999; 
             justify-content: center; align-items: center; flex-direction: column; cursor: pointer;
         }
-        .modal-content {
-            position: relative; max-width: 95%; max-height: 90%;
-            display: flex; flex-direction: column; align-items: center; cursor: default;
-        }
-        #modal-img {
-            max-width: 100%; max-height: 70vh; object-fit: contain; 
-            border-radius: 8px; border: 2px solid #475569;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: none;
-        }
+        .modal-content { position: relative; max-width: 95%; max-height: 90%; display: flex; flex-direction: column; align-items: center; cursor: default; }
+        #modal-img { max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px; border: 2px solid #475569; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: none; }
         #modal-text-q {
             display: none; font-size: 28px; color: #38bdf8; text-align: center; 
             margin-bottom: 20px; font-weight: 900; background: #1e293b; 
-            padding: 30px; border-radius: 12px; border: 1px solid #475569;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            padding: 30px; border-radius: 12px; border: 1px solid #475569; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         #modal-caption {
             margin-top: 20px; font-size: 28px; font-weight: 900; color: #4ade80;
@@ -246,8 +219,8 @@
             .btn-grid { gap: 8px; }
             button.option-btn { font-size: 16px; padding: 14px 5px; }
             .wrong-card { flex-direction: column; text-align: center; }
-            #final-score { font-size: 28px; }
-            .gallery-nav-btn { font-size: 16px; padding: 8px 15px; width: 48%; text-align: center; }
+            #final-score { font-size: 22px; }
+            .gallery-nav-btn { font-size: 16px; padding: 8px 10px; width: 30%; text-align: center; }
             #modal-img { max-height: 65vh; }
             #modal-caption { font-size: 24px; padding: 6px 25px; }
             .modal-close { top: -45px; right: -10px; font-size: 50px; }
@@ -260,6 +233,7 @@
 <div id="mode-screen">
     <div class="mode-title">清展科技-品保部<br>教育訓練系統</div>
     <button class="mode-btn" onclick="startQuiz('color')">🎨 一般色卡辨識</button>
+    <button class="mode-btn anomaly" onclick="startQuiz('defect')">🚨 異常辨認測試</button>
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
     <button class="mode-btn gallery" onclick="showGallery()">📚 題庫預習區</button>
     <div id="preload-status">⏳ 圖片資源預先載入中...</div>
@@ -271,8 +245,9 @@
         <button class="mode-btn exam" style="font-size: 14px; padding: 8px 15px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
     </div>
     <div class="gallery-nav">
-        <button id="tab-color" class="gallery-nav-btn active" onclick="renderGallery('color')">🎨 色卡題庫</button>
-        <button id="tab-standard" class="gallery-nav-btn" onclick="renderGallery('standard')">🔍 檢驗標準題庫</button>
+        <button id="tab-color" class="gallery-nav-btn active" onclick="renderGallery('color')">🎨 色卡</button>
+        <button id="tab-defect" class="gallery-nav-btn" onclick="renderGallery('defect')">🚨 異常</button>
+        <button id="tab-standard" class="gallery-nav-btn" onclick="renderGallery('standard')">🔍 規格</button>
     </div>
     <div id="gallery-container"></div>
 </div>
@@ -317,7 +292,6 @@
 </div>
 
 <script>
-    // 💡 新增：標準 Fisher-Yates 洗牌演算法
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -328,7 +302,8 @@
 
     const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
     
-     const colorLibrary = [
+    // 1. 色卡題庫 (維持不變)
+    const colorLibrary = [
         { url: "colors/120A.png", ans: "120A", maskT: 36, maskL: 68, maskW: 18, maskH: 11, opts: colorOptions },
         { url: "colors/121A.jpg", ans: "121A", maskT: 34, maskL: 70, maskW: 18, maskH: 11, opts: colorOptions },
         { url: "colors/220B.jpg", ans: "220B", maskT: 30, maskL: 75, maskW: 18, maskH: 12, opts: colorOptions },
@@ -345,17 +320,8 @@
         { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
-    const standardLibrary = [
-        { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「消光」的代表號是？", ans: "C", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「混合白點」的代表號是？", ans: "Q", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「混合金點」的代表號是？", ans: "Y", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「砂紋」的代表號是？", ans: "K", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
-        { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
-        { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
-        
+    // 2. 💡 拆分後的新陣列：純粹的「異常辨認」照片題庫
+    const defectLibrary = [
         { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
         { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
         { url: "standards/毛料-撞傷撞凹.jpg", ans: "撞傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
@@ -377,6 +343,19 @@
         { url: "standards/陽極-色差.jpg", ans: "色差", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
         { url: "standards/陽極-電鍍不全.jpg", ans: "電鍍不全", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
         { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] }
+    ];
+
+    // 3. 💡 拆分後的陣列：純粹的「文字檢驗標準」題庫
+    const standardLibrary = [
+        { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「消光」的代表號是？", ans: "C", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「混合白點」的代表號是？", ans: "Q", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「混合金點」的代表號是？", ans: "Y", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「砂紋」的代表號是？", ans: "K", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
+        { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
+        { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
     ];
 
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
@@ -448,7 +427,8 @@
     function closeModal() { document.getElementById('image-modal').style.display = 'none'; }
 
     function preloadImages() {
-        const all = [...colorLibrary, ...standardLibrary].filter(i => i.url);
+        // 💡 預載時加入 defectLibrary
+        const all = [...colorLibrary, ...defectLibrary, ...standardLibrary].filter(i => i.url);
         let loaded = 0;
         all.forEach(item => {
             const img = new Image();
@@ -468,8 +448,9 @@
     }
 
     function renderGallery(type) {
-        document.getElementById('tab-color').classList.remove('active', 'exam-tab');
-        document.getElementById('tab-standard').classList.remove('active', 'exam-tab');
+        document.getElementById('tab-color').classList.remove('active', 'exam-tab', 'anomaly-tab');
+        document.getElementById('tab-standard').classList.remove('active', 'exam-tab', 'anomaly-tab');
+        document.getElementById('tab-defect').classList.remove('active', 'exam-tab', 'anomaly-tab');
         
         const container = document.getElementById('gallery-container');
         container.innerHTML = ""; 
@@ -491,6 +472,24 @@
                 container.appendChild(card);
             });
             
+        } else if (type === 'defect') {
+            // 💡 新增：異常辨認題庫的渲染邏輯 (與色卡一樣採用圖片方格排列)
+            document.getElementById('tab-defect').classList.add('active', 'anomaly-tab');
+            container.className = 'gallery-grid'; 
+            
+            defectLibrary.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "gallery-card";
+                const safeUrl = encodeURI(item.url);
+                card.innerHTML = `
+                    <div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}', '')">
+                        <img src="${safeUrl}" alt="圖片">
+                    </div>
+                    <div class="gallery-ans" style="font-size:18px;">${item.ans}</div>
+                `;
+                container.appendChild(card);
+            });
+
         } else {
             document.getElementById('tab-standard').classList.add('active', 'exam-tab');
             container.className = 'gallery-list'; 
@@ -520,29 +519,54 @@
         }
     }
 
-    // 💡 修改：使用新的 shuffle() 函式打亂陣列，確保機率公平
     function startQuiz(mode) {
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('quiz-container').style.display = 'flex';
         
-        let data = (mode === 'color') ? [...colorLibrary] : [...standardLibrary];
+        // 💡 根據點擊按鈕的不同，載入對應的題庫
+        let data;
+        let titleText = "";
+        
+        if (mode === 'color') {
+            data = [...colorLibrary];
+            titleText = "🎨 一般色卡辨識";
+        } else if (mode === 'defect') {
+            data = [...defectLibrary];
+            titleText = "🚨 異常辨認測試";
+        } else {
+            data = [...standardLibrary];
+            titleText = "🔍 檢驗標準測試";
+        }
+        
         currentData = shuffle(data); 
         
-        document.getElementById('quiz-title').innerText = (mode === 'color') ? "🎨 一般色卡辨識" : "🔍 檢驗標準測試";
+        document.getElementById('quiz-title').innerText = titleText;
         idx = 0; score = 0; wrongAnswers = [];
         document.getElementById('total').innerText = currentData.length;
         init();
     }
 
+    // 💡 新增：具備及格標準 (80%) 的結果畫面結算系統
     function showResultScreen() {
         document.getElementById('quiz-container').style.display = 'none';
         document.getElementById('result-screen').style.display = 'flex';
-        document.getElementById('final-score').innerText = `總得分：${score} / ${currentData.length}`;
+        
+        const passRate = score / currentData.length;
+        const finalScoreDiv = document.getElementById('final-score');
+        
+        if (passRate === 1) {
+            finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #4ade80; font-size: 32px;">🏆 滿分完美通關！</span>`;
+        } else if (passRate >= 0.8) {
+            finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #22c55e; font-size: 32px;">🎉 測驗合格！</span>`;
+        } else {
+            finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #f87171; font-size: 32px;">⚠️ 未達 80% 及格標準，請重新訓練</span>`;
+        }
+
         const listContainer = document.getElementById('wrong-list-container');
         listContainer.innerHTML = "";
 
         if (wrongAnswers.length === 0) {
-            listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 24px; color: #4ade80; font-weight: 900;">🎉 太棒了！全部答對，完美通關！</div>`;
+            listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 20px; color: #94a3b8; font-weight: 700;">本次測驗無錯題紀錄。</div>`;
         } else {
             wrongAnswers.forEach(wrong => {
                 const card = document.createElement('div');
@@ -589,9 +613,7 @@
         });
     }
 
-    // 💡 修改：移除 alert，改用文字提示與 setTimeout 營造順暢的過場
     function checkAnswer(selected, correct, btn, hasMask) {
-        // 立即鎖定所有選項按鈕
         const allBtns = document.querySelectorAll('.option-btn');
         allBtns.forEach(b => b.disabled = true);
         
@@ -605,24 +627,20 @@
             fbk.className = "feedback-correct"; 
             btn.classList.add('selected-correct');
             
-            // 答對時停頓 0.6 秒進入下一題
             setTimeout(() => { idx++; init(); }, 600); 
         } else {
             wrongAnswers.push({ item: currentData[idx], userAns: selected });
             
-            // 答錯時直接在面板顯示正確答案
             fbk.innerHTML = `✘ 判斷錯誤！<span style="font-size: 18px; color: #fbbf24; display: block; margin-top: 5px;">正確答案應為：${correct}</span>`; 
             fbk.className = "feedback-wrong"; 
             btn.classList.add('selected-wrong');
             
-            // 把正確答案的按鈕特別標示成綠色，引導員工記憶
             allBtns.forEach(b => {
                 if (b.innerText === correct) {
                     b.classList.add('selected-correct');
                 }
             });
             
-            // 答錯時停頓久一點 (1.5秒) 讓員工看清楚
             setTimeout(() => { idx++; init(); }, 1500);
         }
     }
