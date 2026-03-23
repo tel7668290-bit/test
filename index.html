@@ -285,6 +285,7 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統更新日誌</h3>
         <ul class="changelog-list">
+            <li><strong>v2.2</strong> - 增加異常辦認圖片/恢復檢驗標準題庫</li>
             <li><strong>v2.1</strong> - 新增異常辨認</li>
             <li><strong>v2.0</strong> - 完善色卡辨識/檢測測試/題庫</li>
             <li><strong>v1.0</strong> - 規劃練習項目/整理圖片</li>
@@ -350,7 +351,33 @@
         { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
+    // 💡 替換：全新的異常辨認圖庫與選項
+    const defectOpts = ["塗裝不全", "掛勾痕", "擦刮傷", "橘皮", "毛刺", "毛損", "汙染", "異物附著", "附著力不良"];
     const defectLibrary = [
+        { url: "defects/塗裝不全.jpg", ans: "塗裝不全", maskH: 0, opts: defectOpts },
+        { url: "defects/掛勾痕.jpg", ans: "掛勾痕", maskH: 0, opts: defectOpts },
+        { url: "defects/擦刮傷.jpg", ans: "擦刮傷", maskH: 0, opts: defectOpts },
+        { url: "defects/橘皮.jpg", ans: "橘皮", maskH: 0, opts: defectOpts },
+        { url: "defects/毛刺.jpg", ans: "毛刺", maskH: 0, opts: defectOpts },
+        { url: "defects/毛損.jpg", ans: "毛損", maskH: 0, opts: defectOpts },
+        { url: "defects/汙染.jpg", ans: "汙染", maskH: 0, opts: defectOpts },
+        { url: "defects/汙染1.jpg", ans: "汙染", maskH: 0, opts: defectOpts },
+        { url: "defects/異物附著.jpg", ans: "異物附著", maskH: 0, opts: defectOpts },
+        { url: "defects/附著力不良.jpg", ans: "附著力不良", maskH: 0, opts: defectOpts }
+    ];
+
+    // 💡 恢復：檢驗標準測試復原為文字題 + 圖片題的版本
+    const standardLibrary = [
+        { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「消光」的代表號是？", ans: "C", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「混合白點」的代表號是？", ans: "Q", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「混合金點」的代表號是？", ans: "Y", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「砂紋」的代表號是？", ans: "K", opts: ["A", "B", "C", "K", "Q", "Y"] },
+        { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
+        { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
+        { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
+        
         { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
         { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
         { url: "standards/毛料-撞傷撞凹.jpg", ans: "撞傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
@@ -374,42 +401,19 @@
         { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] }
     ];
 
-    const standardLibrary = [
-        { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「消光」的代表號是？", ans: "C", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「混合白點」的代表號是？", ans: "Q", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「混合金點」的代表號是？", ans: "Y", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「砂紋」的代表號是？", ans: "K", opts: ["A", "B", "C", "K", "Q", "Y"] },
-        { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
-        { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
-        { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
-    ];
-
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
 
-    // 💡 新增：打開與關閉更新日誌的函數
-    function openChangelog() {
-        document.getElementById('changelog-modal').style.display = 'flex';
-    }
-    function closeChangelog() {
-        document.getElementById('changelog-modal').style.display = 'none';
-    }
+    function openChangelog() { document.getElementById('changelog-modal').style.display = 'flex'; }
+    function closeChangelog() { document.getElementById('changelog-modal').style.display = 'none'; }
 
     function placeMask() {
         const img = document.getElementById('quiz-img');
         const msk = document.getElementById('mask');
         const item = currentData[idx];
         
-        if (!item || item.type === "text" || !item.maskH) {
-            msk.style.display = 'none';
-            return;
-        }
-
-        const imgW = img.clientWidth;
-        const imgH = img.clientHeight;
-        const offsetX = img.offsetLeft;
-        const offsetY = img.offsetTop;
+        if (!item || item.type === "text" || !item.maskH) { msk.style.display = 'none'; return; }
+        const imgW = img.clientWidth, imgH = img.clientHeight;
+        const offsetX = img.offsetLeft, offsetY = img.offsetTop;
 
         msk.style.top = (offsetY + (imgH * item.maskT / 100)) + "px";
         msk.style.left = (offsetX + (imgW * item.maskL / 100)) + "px";
@@ -418,9 +422,7 @@
         msk.style.display = 'block';
     }
 
-    window.addEventListener('resize', () => {
-        if(document.getElementById('quiz-container').style.display === 'flex') placeMask();
-    });
+    window.addEventListener('resize', () => { if(document.getElementById('quiz-container').style.display === 'flex') placeMask(); });
 
     document.addEventListener('keydown', (e) => {
         if(document.getElementById('quiz-container').style.display === 'none') return;
@@ -434,8 +436,7 @@
         if(e.key === 'd' || e.key === 'ArrowRight') { item.maskL += 0.5; changed = true; }
 
         if(changed) {
-            e.preventDefault();
-            placeMask(); 
+            e.preventDefault(); placeMask(); 
             const dbg = document.getElementById('debug-coords');
             dbg.style.display = 'block';
             dbg.innerHTML = `微調完成請更新程式碼：<br>maskT: <span style="color:#fbbf24">${item.maskT}</span><br>maskL: <span style="color:#fbbf24">${item.maskL}</span>`;
@@ -443,19 +444,9 @@
     });
 
     function openModal(url, ans, textQ) {
-        const img = document.getElementById('modal-img');
-        const txt = document.getElementById('modal-text-q');
-        
-        if (url) {
-            img.src = url;
-            img.style.display = 'block';
-            txt.style.display = 'none';
-        } else {
-            img.style.display = 'none';
-            txt.innerText = textQ;
-            txt.style.display = 'block';
-        }
-        
+        const img = document.getElementById('modal-img'), txt = document.getElementById('modal-text-q');
+        if (url) { img.src = url; img.style.display = 'block'; txt.style.display = 'none'; } 
+        else { img.style.display = 'none'; txt.innerText = textQ; txt.style.display = 'block'; }
         document.getElementById('modal-caption').innerText = ans;
         document.getElementById('image-modal').style.display = 'flex';
     }
@@ -493,60 +484,35 @@
         if (type === 'color') {
             document.getElementById('tab-color').classList.add('active');
             container.className = 'gallery-grid';
-            
             colorLibrary.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "gallery-card";
+                const card = document.createElement('div'); card.className = "gallery-card";
                 const safeUrl = encodeURI(item.url);
-                card.innerHTML = `
-                    <div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}', '')">
-                        <img src="${safeUrl}" alt="圖片">
-                    </div>
-                    <div class="gallery-ans">${item.ans}</div>
-                `;
+                card.innerHTML = `<div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}', '')"><img src="${safeUrl}" alt="圖片"></div><div class="gallery-ans">${item.ans}</div>`;
                 container.appendChild(card);
             });
             
         } else if (type === 'defect') {
             document.getElementById('tab-defect').classList.add('active', 'anomaly-tab');
             container.className = 'gallery-grid'; 
-            
             defectLibrary.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "gallery-card";
+                const card = document.createElement('div'); card.className = "gallery-card";
                 const safeUrl = encodeURI(item.url);
-                card.innerHTML = `
-                    <div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}', '')">
-                        <img src="${safeUrl}" alt="圖片">
-                    </div>
-                    <div class="gallery-ans" style="font-size:18px;">${item.ans}</div>
-                `;
+                card.innerHTML = `<div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}', '')"><img src="${safeUrl}" alt="圖片"></div><div class="gallery-ans" style="font-size:18px;">${item.ans}</div>`;
                 container.appendChild(card);
             });
 
         } else {
             document.getElementById('tab-standard').classList.add('active', 'exam-tab');
             container.className = 'gallery-list'; 
-            
             standardLibrary.forEach(item => {
-                const btn = document.createElement('button');
-                btn.className = "gallery-list-btn";
-                
+                const btn = document.createElement('button'); btn.className = "gallery-list-btn";
                 let displayName = "";
-                if (item.type === "text") {
-                    displayName = "📝 " + item.text;
-                } else {
-                    let fileName = decodeURI(item.url).split('/').pop().replace(/\.(jpg|png|jpeg)$/i, '');
-                    displayName = "🖼️ " + fileName;
-                }
+                if (item.type === "text") { displayName = "📝 " + item.text; } 
+                else { let fileName = decodeURI(item.url).split('/').pop().replace(/\.(jpg|png|jpeg)$/i, ''); displayName = "🖼️ " + fileName; }
                 btn.innerText = displayName;
-                
                 btn.onclick = () => {
-                    if (item.type === "text") {
-                        openModal("", item.ans, item.text);
-                    } else {
-                        openModal(encodeURI(item.url), item.ans, "");
-                    }
+                    if (item.type === "text") { openModal("", item.ans, item.text); } 
+                    else { openModal(encodeURI(item.url), item.ans, ""); }
                 };
                 container.appendChild(btn);
             });
@@ -557,22 +523,12 @@
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('quiz-container').style.display = 'flex';
         
-        let data;
-        let titleText = "";
-        
-        if (mode === 'color') {
-            data = [...colorLibrary];
-            titleText = "🎨 一般色卡辨識";
-        } else if (mode === 'defect') {
-            data = [...defectLibrary];
-            titleText = "🚨 異常辨認測試";
-        } else {
-            data = [...standardLibrary];
-            titleText = "🔍 檢驗標準測試";
-        }
+        let data, titleText = "";
+        if (mode === 'color') { data = [...colorLibrary]; titleText = "🎨 一般色卡辨識"; } 
+        else if (mode === 'defect') { data = [...defectLibrary]; titleText = "🚨 異常辨認測試"; } 
+        else { data = [...standardLibrary]; titleText = "🔍 檢驗標準測試"; }
         
         currentData = shuffle(data); 
-        
         document.getElementById('quiz-title').innerText = titleText;
         idx = 0; score = 0; wrongAnswers = [];
         document.getElementById('total').innerText = currentData.length;
@@ -586,13 +542,9 @@
         const passRate = score / currentData.length;
         const finalScoreDiv = document.getElementById('final-score');
         
-        if (passRate === 1) {
-            finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #4ade80; font-size: 32px;">🏆 滿分完美通關！</span>`;
-        } else if (passRate >= 0.8) {
-            finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #22c55e; font-size: 32px;">🎉 測驗合格！</span>`;
-        } else {
-            finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #f87171; font-size: 32px;">⚠️ 未達 80% 及格標準，請重新訓練</span>`;
-        }
+        if (passRate === 1) { finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #4ade80; font-size: 32px;">🏆 滿分完美通關！</span>`; } 
+        else if (passRate >= 0.8) { finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #22c55e; font-size: 32px;">🎉 測驗合格！</span>`; } 
+        else { finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #f87171; font-size: 32px;">⚠️ 未達 80% 及格標準，請重新訓練</span>`; }
 
         const listContainer = document.getElementById('wrong-list-container');
         listContainer.innerHTML = "";
@@ -601,16 +553,9 @@
             listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 20px; color: #94a3b8; font-weight: 700;">本次測驗無錯題紀錄。</div>`;
         } else {
             wrongAnswers.forEach(wrong => {
-                const card = document.createElement('div');
-                card.className = "wrong-card";
+                const card = document.createElement('div'); card.className = "wrong-card";
                 let mediaHtml = wrong.item.type === "text" ? `<div class="wrong-text-q">${wrong.item.text}</div>` : `<img src="${encodeURI(wrong.item.url)}" class="wrong-img">`;
-                card.innerHTML = `
-                    ${mediaHtml}
-                    <div class="wrong-info">
-                        <div style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">你的選擇：<span class="wrong-ans">${wrong.userAns}</span></div>
-                        <div style="font-size: 16px;">正確答案：<span class="correct-ans">${wrong.item.ans}</span></div>
-                    </div>
-                `;
+                card.innerHTML = `${mediaHtml}<div class="wrong-info"><div style="color: #94a3b8; font-size: 14px; margin-bottom: 5px;">你的選擇：<span class="wrong-ans">${wrong.userAns}</span></div><div style="font-size: 16px;">正確答案：<span class="correct-ans">${wrong.item.ans}</span></div></div>`;
                 listContainer.appendChild(card);
             });
         }
@@ -622,18 +567,14 @@
         const img = document.getElementById('quiz-img'), txt = document.getElementById('quiz-text'), msk = document.getElementById('mask'), fbk = document.getElementById('feedback'), dbg = document.getElementById('debug-coords');
         
         dbg.style.display = 'none'; 
-
         if (item.type === "text") {
             img.style.display = msk.style.display = 'none';
             txt.style.display = 'block'; txt.innerText = item.text;
             fbk.innerText = "請選擇正確規格";
         } else {
-            txt.style.display = 'none'; 
-            img.style.display = 'block';
-            
+            txt.style.display = 'none'; img.style.display = 'block';
             img.onload = () => { placeMask(); };
             img.src = encodeURI(item.url);
-            
             fbk.innerText = "請根據圖片選擇正確答案 (方向鍵可微調)";
         }
         fbk.className = ""; document.getElementById('cur').innerText = idx + 1;
@@ -648,37 +589,24 @@
     function checkAnswer(selected, correct, btn, hasMask) {
         const allBtns = document.querySelectorAll('.option-btn');
         allBtns.forEach(b => b.disabled = true);
-        
         if(hasMask) document.getElementById('mask').style.display = 'none';
         const fbk = document.getElementById('feedback');
         
         if (selected === correct) {
-            score++; 
-            document.getElementById('score').innerText = score;
-            fbk.innerText = "✔ 太棒了，判斷正確！"; 
-            fbk.className = "feedback-correct"; 
-            btn.classList.add('selected-correct');
-            
+            score++; document.getElementById('score').innerText = score;
+            fbk.innerText = "✔ 太棒了，判斷正確！"; fbk.className = "feedback-correct"; btn.classList.add('selected-correct');
             setTimeout(() => { idx++; init(); }, 600); 
         } else {
             wrongAnswers.push({ item: currentData[idx], userAns: selected });
-            
             fbk.innerHTML = `✘ 判斷錯誤！<span style="font-size: 18px; color: #fbbf24; display: block; margin-top: 5px;">正確答案應為：${correct}</span>`; 
-            fbk.className = "feedback-wrong"; 
-            btn.classList.add('selected-wrong');
-            
-            allBtns.forEach(b => {
-                if (b.innerText === correct) {
-                    b.classList.add('selected-correct');
-                }
-            });
-            
+            fbk.className = "feedback-wrong"; btn.classList.add('selected-wrong');
+            allBtns.forEach(b => { if (b.innerText === correct) { b.classList.add('selected-correct'); } });
             setTimeout(() => { idx++; init(); }, 1500);
         }
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.1</div>
+<div id="app-version" onclick="openChangelog()">v2.2</div>
 
 </body>
 </html>
