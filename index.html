@@ -20,12 +20,32 @@
             height: 100vh; overflow: hidden;
         }
 
-        /* ---------------- 版本號標示 ---------------- */
+        /* ---------------- 版本號與更新日誌標示 ---------------- */
         #app-version {
             position: fixed; bottom: 15px; right: 15px;
-            color: #64748b; font-size: 14px; font-weight: 700;
-            letter-spacing: 1px; z-index: 9999; pointer-events: none; 
+            color: #94a3b8; font-size: 14px; font-weight: 700;
+            letter-spacing: 1px; z-index: 9998; 
+            cursor: pointer; background: rgba(30, 41, 59, 0.8);
+            padding: 6px 12px; border-radius: 20px; border: 1px solid #334155;
+            transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
+        #app-version:hover { background: #38bdf8; color: #0f172a; border-color: #38bdf8; transform: translateY(-2px); }
+
+        #changelog-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); z-index: 10000; 
+            justify-content: center; align-items: center; flex-direction: column; cursor: pointer;
+        }
+        .changelog-content {
+            background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #475569;
+            width: 90%; max-width: 450px; color: #f8fafc; cursor: default; position: relative;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.8);
+        }
+        .changelog-content h3 { margin-top: 0; color: #38bdf8; border-bottom: 2px solid #334155; padding-bottom: 15px; text-align: center; font-size: 24px;}
+        .changelog-list { list-style: none; padding: 0; margin: 0; line-height: 1.8; font-size: 16px; }
+        .changelog-list li { margin-bottom: 12px; border-bottom: 1px dashed #334155; padding-bottom: 10px;}
+        .changelog-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .changelog-list strong { color: #fbbf24; display: inline-block; width: 55px; }
 
         /* ---------------- 首頁樣式 ---------------- */
         #mode-screen {
@@ -43,10 +63,8 @@
         }
         .mode-btn:hover { transform: translateY(-3px); background: #7dd3fc; }
         
-        /* 💡 新增：異常辨認按鈕樣式 */
         .mode-btn.anomaly { background: #f97316; color: #fff; }
         .mode-btn.anomaly:hover { background: #fb923c; }
-        
         .mode-btn.exam { background: #fbbf24; }
         .mode-btn.exam:hover { background: #fcd34d; }
         .mode-btn.gallery { background: #c084fc; color: #fff; }
@@ -150,8 +168,6 @@
             padding: 8px 20px; border-radius: 30px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s;
         }
         .gallery-nav-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
-        
-        /* 💡 新增：異常辨認分頁被選中的顏色 */
         .gallery-nav-btn.active.anomaly-tab { background: #f97316; border-color: #f97316; color: #fff; }
         .gallery-nav-btn.active.exam-tab { background: #fbbf24; border-color: #fbbf24; color: #0f172a;}
         
@@ -225,6 +241,9 @@
             #modal-caption { font-size: 24px; padding: 6px 25px; }
             .modal-close { top: -45px; right: -10px; font-size: 50px; }
             #debug-coords { font-size: 14px; top: 5px; left: 5px; padding: 5px 10px; }
+            .changelog-content { width: 95%; padding: 20px; }
+            .changelog-content h3 { font-size: 20px; }
+            .changelog-list { font-size: 14px; }
         }
     </style>
 </head>
@@ -258,6 +277,18 @@
         <div id="modal-text-q"></div>
         <img id="modal-img" src="" alt="放大圖片">
         <div id="modal-caption"></div>
+    </div>
+</div>
+
+<div id="changelog-modal" onclick="closeChangelog()">
+    <div class="changelog-content" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeChangelog()">&times;</button>
+        <h3>🔄 系統更新日誌</h3>
+        <ul class="changelog-list">
+            <li><strong>v2.1</strong> - 新增異常辨認</li>
+            <li><strong>v2.0</strong> - 完善色卡辨識/檢測測試/題庫</li>
+            <li><strong>v1.0</strong> - 規劃練習項目/整理圖片</li>
+        </ul>
     </div>
 </div>
 
@@ -302,7 +333,6 @@
 
     const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
     
-    // 1. 色卡題庫 (維持不變)
     const colorLibrary = [
         { url: "colors/120A.png", ans: "120A", maskT: 36, maskL: 68, maskW: 18, maskH: 11, opts: colorOptions },
         { url: "colors/121A.jpg", ans: "121A", maskT: 34, maskL: 70, maskW: 18, maskH: 11, opts: colorOptions },
@@ -320,7 +350,6 @@
         { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
-    // 2. 💡 拆分後的新陣列：純粹的「異常辨認」照片題庫
     const defectLibrary = [
         { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
         { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
@@ -345,7 +374,6 @@
         { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] }
     ];
 
-    // 3. 💡 拆分後的陣列：純粹的「文字檢驗標準」題庫
     const standardLibrary = [
         { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
         { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
@@ -359,6 +387,14 @@
     ];
 
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
+
+    // 💡 新增：打開與關閉更新日誌的函數
+    function openChangelog() {
+        document.getElementById('changelog-modal').style.display = 'flex';
+    }
+    function closeChangelog() {
+        document.getElementById('changelog-modal').style.display = 'none';
+    }
 
     function placeMask() {
         const img = document.getElementById('quiz-img');
@@ -427,7 +463,6 @@
     function closeModal() { document.getElementById('image-modal').style.display = 'none'; }
 
     function preloadImages() {
-        // 💡 預載時加入 defectLibrary
         const all = [...colorLibrary, ...defectLibrary, ...standardLibrary].filter(i => i.url);
         let loaded = 0;
         all.forEach(item => {
@@ -473,7 +508,6 @@
             });
             
         } else if (type === 'defect') {
-            // 💡 新增：異常辨認題庫的渲染邏輯 (與色卡一樣採用圖片方格排列)
             document.getElementById('tab-defect').classList.add('active', 'anomaly-tab');
             container.className = 'gallery-grid'; 
             
@@ -523,7 +557,6 @@
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('quiz-container').style.display = 'flex';
         
-        // 💡 根據點擊按鈕的不同，載入對應的題庫
         let data;
         let titleText = "";
         
@@ -546,7 +579,6 @@
         init();
     }
 
-    // 💡 新增：具備及格標準 (80%) 的結果畫面結算系統
     function showResultScreen() {
         document.getElementById('quiz-container').style.display = 'none';
         document.getElementById('result-screen').style.display = 'flex';
@@ -645,6 +677,8 @@
         }
     }
 </script>
-<div id="app-version">v2.0</div>
+
+<div id="app-version" onclick="openChangelog()">v2.1</div>
+
 </body>
 </html>
