@@ -69,6 +69,10 @@
         .mode-btn.exam:hover { background: #fcd34d; }
         .mode-btn.gallery { background: #c084fc; color: #fff; }
         .mode-btn.gallery:hover { background: #d8b4fe; }
+        
+        /* 💡 新增：資料輸入練習按鈕樣式 (綠色系) */
+        .mode-btn.data-entry { background: #10b981; color: #fff; }
+        .mode-btn.data-entry:hover { background: #34d399; }
 
         /* ---------------- 測驗畫面樣式 ---------------- */
         .container {
@@ -170,7 +174,6 @@
         .gallery-nav-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
         .gallery-nav-btn.active.combined-tab { background: #fbbf24; border-color: #fbbf24; color: #0f172a;}
         
-        /* 💡 v2.3 修改：讓外層容器負責捲動，並加入區塊標題樣式 */
         #gallery-container { flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; }
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
         .gallery-list { display: flex; flex-direction: column; gap: 10px; }
@@ -227,6 +230,35 @@
         }
         .modal-close:hover { color: #fff; }
 
+        /* ---------------- 💡 新增：試算表練習畫面樣式 ---------------- */
+        #spreadsheet-screen {
+            width: 100%; max-width: 1400px; background: #1e293b;
+            padding: 15px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            display: none; flex-direction: column; height: 95vh;
+        }
+        .spreadsheet-container {
+            flex: 1; overflow: auto; background: #fff; color: #000;
+            border-radius: 8px; border: 1px solid #475569; margin-top: 10px;
+        }
+        #spreadsheet-table { border-collapse: collapse; min-width: 100%; }
+        #spreadsheet-table th, #spreadsheet-table td {
+            border: 1px solid #cbd5e1; padding: 0; margin: 0;
+            min-width: 100px; height: 35px; text-align: center;
+        }
+        #spreadsheet-table th {
+            background: #f1f5f9; font-weight: bold; color: #334155;
+            position: sticky; top: 0; z-index: 2; user-select: none;
+        }
+        #spreadsheet-table th.row-header {
+            left: 0; z-index: 3; background: #f1f5f9; width: 50px; min-width: 50px;
+        }
+        #spreadsheet-table input {
+            width: 100%; height: 100%; border: none; padding: 4px 8px;
+            outline: none; font-size: 15px; font-family: sans-serif;
+            background: transparent; cursor: text;
+        }
+        #spreadsheet-table input:focus { box-shadow: inset 0 0 0 2px #38bdf8; background: #f0f9ff; }
+
         @media (max-width: 768px) {
             body { padding: 8px; }
             .header { font-size: 16px; }
@@ -257,6 +289,7 @@
     <button class="mode-btn" onclick="startQuiz('color')">🎨 一般色卡辨識</button>
     <button class="mode-btn anomaly" onclick="startQuiz('defect')">🚨 異常辨認測試</button>
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
+    <button class="mode-btn data-entry" onclick="startDataEntry()">📊 資料輸入練習</button>
     <button class="mode-btn gallery" onclick="showGallery()">📚 題庫預習區</button>
     <div id="preload-status">⏳ 圖片資源預先載入中...</div>
 </div>
@@ -287,6 +320,7 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統更新日誌</h3>
         <ul class="changelog-list">
+            <li><strong>v2.4</strong> - 新增試算表介面：資料輸入練習</li>
             <li><strong>v2.3</strong> - 整合題庫預習區/重新分類規格與異常題庫</li>
             <li><strong>v2.2</strong> - 增加異常辦認圖片/恢復檢驗標準題庫</li>
             <li><strong>v2.1</strong> - 新增異常辨認</li>
@@ -326,6 +360,20 @@
     <button class="mode-btn exam" style="font-size: 18px; padding: 12px 30px; width: auto;" onclick="location.reload()">🏠 返回首頁重新測驗</button>
 </div>
 
+<div id="spreadsheet-screen">
+    <div class="header">
+        <div style="display:flex; align-items:center; gap: 15px;">
+            <div style="font-size:24px;">📊 資料輸入練習</div>
+            <button class="mode-btn exam" style="font-size: 12px; padding: 6px 12px; width: auto; box-shadow: none;" onclick="clearSpreadsheet()">🧹 清空表格</button>
+        </div>
+        <button class="mode-btn exam" style="font-size: 14px; padding: 8px 16px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
+    </div>
+    <div class="spreadsheet-container">
+        <table id="spreadsheet-table">
+            </table>
+    </div>
+</div>
+
 <script>
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -335,7 +383,6 @@
         return array;
     }
 
-    // 1. 色卡題庫 (保持不變，共14題)
     const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
     const colorLibrary = [
         { url: "colors/120A.png", ans: "120A", maskT: 36, maskL: 68, maskW: 18, maskH: 11, opts: colorOptions },
@@ -354,10 +401,8 @@
         { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
-    // 2. 💡 v2.3 修改：異常圖片題庫 (結合舊版圖片與新上傳圖片，共29題，純圖片考題)
     const defectOpts = ["塗裝不全", "掛勾痕", "擦刮傷", "橘皮", "毛刺", "毛損", "汙染", "異物附著", "附著力不良"];
     const defectLibrary = [
-        // --- 舊有毛料異常 ---
         { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
         { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
         { url: "standards/毛料-撞傷撞凹.jpg", ans: "撞傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
@@ -365,21 +410,18 @@
         { url: "standards/毛料-氧化1.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
         { url: "standards/毛料-破洞or氣孔.jpg", ans: "破洞氣孔", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
         { url: "standards/毛料-變形.jpg", ans: "變形", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
-        // --- 舊有粉體異常 ---
         { url: "standards/粉體-掛勾痕.jpg", ans: "掛勾痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
         { url: "standards/粉體-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
         { url: "standards/粉體-模厚過厚.jpg", ans: "模厚過厚", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
         { url: "standards/粉體-橘皮.jpg", ans: "橘皮", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
         { url: "standards/粉體-火山口.jpg", ans: "火山口", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
         { url: "standards/粉體-髒污.jpg", ans: "髒污", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        // --- 舊有陽極異常 ---
         { url: "standards/陽極-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
         { url: "standards/陽極-氣泡.jpg", ans: "氣泡", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
         { url: "standards/陽極-氧化.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
         { url: "standards/陽極-色差.jpg", ans: "色差", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
         { url: "standards/陽極-電鍍不全.jpg", ans: "電鍍不全", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
         { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        // --- 新上傳的異常圖片 ---
         { url: "defects/defects塗裝不全.jpg", ans: "塗裝不全", maskH: 0, opts: defectOpts },
         { url: "defects/defects掛勾痕.jpg", ans: "掛勾痕", maskH: 0, opts: defectOpts },
         { url: "defects/defects擦刮傷.jpg", ans: "擦刮傷", maskH: 0, opts: defectOpts },
@@ -392,7 +434,6 @@
         { url: "defects/defects附著力不良.jpg", ans: "附著力不良", maskH: 0, opts: defectOpts }
     ];
 
-    // 3. 💡 v2.3 修改：純文字規格題庫 (只留下純文字題，共9題)
     const standardLibrary = [
         { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
         { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
@@ -477,7 +518,6 @@
         renderGallery('color'); 
     }
 
-    // 💡 v2.3 修改：重寫題庫預習區的渲染邏輯 (整合文字與圖片)
     function renderGallery(type) {
         document.getElementById('tab-color').classList.remove('active');
         document.getElementById('tab-combined').classList.remove('active', 'combined-tab');
@@ -501,7 +541,6 @@
         } else if (type === 'combined') {
             document.getElementById('tab-combined').classList.add('active', 'combined-tab');
             
-            // 區塊 1：文字規格題
             const textTitle = document.createElement('h3');
             textTitle.className = 'section-title';
             textTitle.innerHTML = '📝 檢驗規格 <span>(純文字題)</span>';
@@ -517,10 +556,9 @@
             });
             container.appendChild(listDiv);
 
-            // 區塊 2：異常圖片題 (包含舊有與新增的)
             const imgTitle = document.createElement('h3');
             imgTitle.className = 'section-title';
-            imgTitle.style.marginTop = '20px'; // 稍微拉開距離
+            imgTitle.style.marginTop = '20px';
             imgTitle.innerHTML = '🚨 異常辨認 <span>(圖片瑕疵)</span>';
             container.appendChild(imgTitle);
 
@@ -621,9 +659,59 @@
             setTimeout(() => { idx++; init(); }, 1500);
         }
     }
+
+    // 💡 新增：啟動試算表功能與渲染邏輯
+    function startDataEntry() {
+        document.getElementById('mode-screen').style.display = 'none';
+        document.getElementById('spreadsheet-screen').style.display = 'flex';
+        renderSpreadsheet(20, 10); // 預設產生 20 列, 10 欄 (A-J)
+    }
+
+    function renderSpreadsheet(rows, cols) {
+        const table = document.getElementById('spreadsheet-table');
+        table.innerHTML = '';
+        
+        // 產生欄位標題 (A, B, C...)
+        let thead = document.createElement('tr');
+        let thEmpty = document.createElement('th');
+        thEmpty.className = 'row-header';
+        thead.appendChild(thEmpty);
+        
+        for(let c = 0; c < cols; c++) {
+            let th = document.createElement('th');
+            th.innerText = String.fromCharCode(65 + c); 
+            thead.appendChild(th);
+        }
+        table.appendChild(thead);
+        
+        // 產生儲存格 (列 1, 2, 3...)
+        for(let r = 1; r <= rows; r++) {
+            let tr = document.createElement('tr');
+            let thRow = document.createElement('th');
+            thRow.className = 'row-header';
+            thRow.innerText = r;
+            tr.appendChild(thRow);
+            
+            for(let c = 0; c < cols; c++) {
+                let td = document.createElement('td');
+                let input = document.createElement('input');
+                input.type = 'text';
+                td.appendChild(input);
+                tr.appendChild(td);
+            }
+            table.appendChild(tr);
+        }
+    }
+
+    function clearSpreadsheet() {
+        if(confirm("確定要清空表格內所有輸入的資料嗎？")) {
+            const inputs = document.querySelectorAll('#spreadsheet-table input');
+            inputs.forEach(input => input.value = '');
+        }
+    }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.3</div>
+<div id="app-version" onclick="openChangelog()">v2.4</div>
 
 </body>
 </html>
