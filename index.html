@@ -168,14 +168,17 @@
             padding: 8px 20px; border-radius: 30px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s;
         }
         .gallery-nav-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
-        .gallery-nav-btn.active.anomaly-tab { background: #f97316; border-color: #f97316; color: #fff; }
-        .gallery-nav-btn.active.exam-tab { background: #fbbf24; border-color: #fbbf24; color: #0f172a;}
+        .gallery-nav-btn.active.combined-tab { background: #fbbf24; border-color: #fbbf24; color: #0f172a;}
         
-        .gallery-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 15px; overflow-y: auto; padding-right: 5px; flex: 1; 
+        /* 💡 v2.3 修改：讓外層容器負責捲動，並加入區塊標題樣式 */
+        #gallery-container { flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
+        .gallery-list { display: flex; flex-direction: column; gap: 10px; }
+        .section-title {
+            color: #fbbf24; font-size: 22px; font-weight: 900;
+            border-bottom: 2px solid #334155; padding-bottom: 10px; margin: 0 0 15px 0;
         }
-        .gallery-list { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 15px; flex: 1; }
+        .section-title span { color: #94a3b8; font-size: 16px; font-weight: normal; margin-left: 10px;}
 
         .gallery-card {
             background: #0f172a; border: 1px solid #334155; border-radius: 12px;
@@ -236,7 +239,7 @@
             button.option-btn { font-size: 16px; padding: 14px 5px; }
             .wrong-card { flex-direction: column; text-align: center; }
             #final-score { font-size: 22px; }
-            .gallery-nav-btn { font-size: 16px; padding: 8px 10px; width: 30%; text-align: center; }
+            .gallery-nav-btn { font-size: 16px; padding: 8px 10px; width: 40%; text-align: center; }
             #modal-img { max-height: 65vh; }
             #modal-caption { font-size: 24px; padding: 6px 25px; }
             .modal-close { top: -45px; right: -10px; font-size: 50px; }
@@ -264,9 +267,8 @@
         <button class="mode-btn exam" style="font-size: 14px; padding: 8px 15px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
     </div>
     <div class="gallery-nav">
-        <button id="tab-color" class="gallery-nav-btn active" onclick="renderGallery('color')">🎨 色卡</button>
-        <button id="tab-defect" class="gallery-nav-btn" onclick="renderGallery('defect')">🚨 異常</button>
-        <button id="tab-standard" class="gallery-nav-btn" onclick="renderGallery('standard')">🔍 規格</button>
+        <button id="tab-color" class="gallery-nav-btn active" onclick="renderGallery('color')">🎨 色卡區</button>
+        <button id="tab-combined" class="gallery-nav-btn" onclick="renderGallery('combined')">📋 規格與異常區</button>
     </div>
     <div id="gallery-container"></div>
 </div>
@@ -285,6 +287,7 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統更新日誌</h3>
         <ul class="changelog-list">
+            <li><strong>v2.3</strong> - 整合題庫預習區/重新分類規格與異常題庫</li>
             <li><strong>v2.2</strong> - 增加異常辦認圖片/恢復檢驗標準題庫</li>
             <li><strong>v2.1</strong> - 新增異常辨認</li>
             <li><strong>v2.0</strong> - 完善色卡辨識/檢測測試/題庫</li>
@@ -332,8 +335,8 @@
         return array;
     }
 
+    // 1. 色卡題庫 (保持不變，共14題)
     const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
-    
     const colorLibrary = [
         { url: "colors/120A.png", ans: "120A", maskT: 36, maskL: 68, maskW: 18, maskH: 11, opts: colorOptions },
         { url: "colors/121A.jpg", ans: "121A", maskT: 34, maskL: 70, maskW: 18, maskH: 11, opts: colorOptions },
@@ -351,9 +354,32 @@
         { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
-    // 💡 替換：全新的異常辨認圖庫與選項
+    // 2. 💡 v2.3 修改：異常圖片題庫 (結合舊版圖片與新上傳圖片，共29題，純圖片考題)
     const defectOpts = ["塗裝不全", "掛勾痕", "擦刮傷", "橘皮", "毛刺", "毛損", "汙染", "異物附著", "附著力不良"];
     const defectLibrary = [
+        // --- 舊有毛料異常 ---
+        { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "standards/毛料-撞傷撞凹.jpg", ans: "撞傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "standards/毛料-擦傷.jpg", ans: "擦傷", maskH: 0, opts: ["擦傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "standards/毛料-氧化1.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
+        { url: "standards/毛料-破洞or氣孔.jpg", ans: "破洞氣孔", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
+        { url: "standards/毛料-變形.jpg", ans: "變形", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
+        // --- 舊有粉體異常 ---
+        { url: "standards/粉體-掛勾痕.jpg", ans: "掛勾痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "standards/粉體-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "standards/粉體-模厚過厚.jpg", ans: "模厚過厚", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "standards/粉體-橘皮.jpg", ans: "橘皮", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "standards/粉體-火山口.jpg", ans: "火山口", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        { url: "standards/粉體-髒污.jpg", ans: "髒污", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
+        // --- 舊有陽極異常 ---
+        { url: "standards/陽極-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "standards/陽極-氣泡.jpg", ans: "氣泡", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "standards/陽極-氧化.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "standards/陽極-色差.jpg", ans: "色差", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "standards/陽極-電鍍不全.jpg", ans: "電鍍不全", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
+        // --- 新上傳的異常圖片 ---
         { url: "defects/defects塗裝不全.jpg", ans: "塗裝不全", maskH: 0, opts: defectOpts },
         { url: "defects/defects掛勾痕.jpg", ans: "掛勾痕", maskH: 0, opts: defectOpts },
         { url: "defects/defects擦刮傷.jpg", ans: "擦刮傷", maskH: 0, opts: defectOpts },
@@ -366,7 +392,7 @@
         { url: "defects/defects附著力不良.jpg", ans: "附著力不良", maskH: 0, opts: defectOpts }
     ];
 
-    // 💡 恢復：檢驗標準測試復原為文字題 + 圖片題的版本
+    // 3. 💡 v2.3 修改：純文字規格題庫 (只留下純文字題，共9題)
     const standardLibrary = [
         { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
         { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
@@ -376,29 +402,7 @@
         { type: "text", text: "📝 請問「砂紋」的代表號是？", ans: "K", opts: ["A", "B", "C", "K", "Q", "Y"] },
         { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
         { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
-        { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
-        
-        { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "standards/毛料-撞傷撞凹.jpg", ans: "撞傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "standards/毛料-擦傷.jpg", ans: "擦傷", maskH: 0, opts: ["擦傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "standards/毛料-氧化1.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "standards/毛料-破洞or氣孔.jpg", ans: "破洞氣孔", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
-        { url: "standards/毛料-變形.jpg", ans: "變形", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
-        
-        { url: "standards/粉體-掛勾痕.jpg", ans: "掛勾痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/粉體-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/粉體-模厚過厚.jpg", ans: "模厚過厚", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/粉體-橘皮.jpg", ans: "橘皮", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/粉體-火山口.jpg", ans: "火山口", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/粉體-髒污.jpg", ans: "髒污", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        
-        { url: "standards/陽極-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-氣泡.jpg", ans: "氣泡", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-氧化.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-色差.jpg", ans: "色差", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-電鍍不全.jpg", ans: "電鍍不全", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] }
+        { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
     ];
 
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
@@ -473,49 +477,62 @@
         renderGallery('color'); 
     }
 
+    // 💡 v2.3 修改：重寫題庫預習區的渲染邏輯 (整合文字與圖片)
     function renderGallery(type) {
-        document.getElementById('tab-color').classList.remove('active', 'exam-tab', 'anomaly-tab');
-        document.getElementById('tab-standard').classList.remove('active', 'exam-tab', 'anomaly-tab');
-        document.getElementById('tab-defect').classList.remove('active', 'exam-tab', 'anomaly-tab');
+        document.getElementById('tab-color').classList.remove('active');
+        document.getElementById('tab-combined').classList.remove('active', 'combined-tab');
         
         const container = document.getElementById('gallery-container');
         container.innerHTML = ""; 
         
         if (type === 'color') {
             document.getElementById('tab-color').classList.add('active');
-            container.className = 'gallery-grid';
+            const gridDiv = document.createElement('div');
+            gridDiv.className = 'gallery-grid';
+
             colorLibrary.forEach(item => {
                 const card = document.createElement('div'); card.className = "gallery-card";
                 const safeUrl = encodeURI(item.url);
                 card.innerHTML = `<div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}', '')"><img src="${safeUrl}" alt="圖片"></div><div class="gallery-ans">${item.ans}</div>`;
-                container.appendChild(card);
+                gridDiv.appendChild(card);
             });
+            container.appendChild(gridDiv);
             
-        } else if (type === 'defect') {
-            document.getElementById('tab-defect').classList.add('active', 'anomaly-tab');
-            container.className = 'gallery-grid'; 
+        } else if (type === 'combined') {
+            document.getElementById('tab-combined').classList.add('active', 'combined-tab');
+            
+            // 區塊 1：文字規格題
+            const textTitle = document.createElement('h3');
+            textTitle.className = 'section-title';
+            textTitle.innerHTML = '📝 檢驗規格 <span>(純文字題)</span>';
+            container.appendChild(textTitle);
+
+            const listDiv = document.createElement('div');
+            listDiv.className = 'gallery-list';
+            standardLibrary.forEach(item => {
+                const btn = document.createElement('button'); btn.className = "gallery-list-btn";
+                btn.innerText = "📝 " + item.text;
+                btn.onclick = () => { openModal("", item.ans, item.text); };
+                listDiv.appendChild(btn);
+            });
+            container.appendChild(listDiv);
+
+            // 區塊 2：異常圖片題 (包含舊有與新增的)
+            const imgTitle = document.createElement('h3');
+            imgTitle.className = 'section-title';
+            imgTitle.style.marginTop = '20px'; // 稍微拉開距離
+            imgTitle.innerHTML = '🚨 異常辨認 <span>(圖片瑕疵)</span>';
+            container.appendChild(imgTitle);
+
+            const gridDiv = document.createElement('div');
+            gridDiv.className = 'gallery-grid';
             defectLibrary.forEach(item => {
                 const card = document.createElement('div'); card.className = "gallery-card";
                 const safeUrl = encodeURI(item.url);
                 card.innerHTML = `<div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}', '')"><img src="${safeUrl}" alt="圖片"></div><div class="gallery-ans" style="font-size:18px;">${item.ans}</div>`;
-                container.appendChild(card);
+                gridDiv.appendChild(card);
             });
-
-        } else {
-            document.getElementById('tab-standard').classList.add('active', 'exam-tab');
-            container.className = 'gallery-list'; 
-            standardLibrary.forEach(item => {
-                const btn = document.createElement('button'); btn.className = "gallery-list-btn";
-                let displayName = "";
-                if (item.type === "text") { displayName = "📝 " + item.text; } 
-                else { let fileName = decodeURI(item.url).split('/').pop().replace(/\.(jpg|png|jpeg)$/i, ''); displayName = "🖼️ " + fileName; }
-                btn.innerText = displayName;
-                btn.onclick = () => {
-                    if (item.type === "text") { openModal("", item.ans, item.text); } 
-                    else { openModal(encodeURI(item.url), item.ans, ""); }
-                };
-                container.appendChild(btn);
-            });
+            container.appendChild(gridDiv);
         }
     }
 
@@ -606,7 +623,7 @@
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.2</div>
+<div id="app-version" onclick="openChangelog()">v2.3</div>
 
 </body>
 </html>
