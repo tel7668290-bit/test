@@ -70,11 +70,11 @@
         .mode-btn.gallery { background: #c084fc; color: #fff; }
         .mode-btn.gallery:hover { background: #d8b4fe; }
         
-        /* 💡 新增：資料輸入練習按鈕樣式 (綠色系) */
+        /* 游標卡尺按鈕樣式 (綠色系) */
         .mode-btn.data-entry { background: #10b981; color: #fff; }
         .mode-btn.data-entry:hover { background: #34d399; }
 
-        /* ---------------- 測驗畫面樣式 ---------------- */
+        /* ---------------- 共用測驗畫面樣式 ---------------- */
         .container {
             width: 100%; max-width: 1400px; background: #1e293b;
             padding: 15px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -230,34 +230,23 @@
         }
         .modal-close:hover { color: #fff; }
 
-        /* ---------------- 💡 新增：試算表練習畫面樣式 ---------------- */
-        #spreadsheet-screen {
-            width: 100%; max-width: 1400px; background: #1e293b;
-            padding: 15px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-            display: none; flex-direction: column; height: 95vh;
+        /* ---------------- 💡 新增：游標卡尺輸入區樣式 ---------------- */
+        .caliper-input-group {
+            display: flex; align-items: center; margin-bottom: 20px; gap: 15px;
+            background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #475569;
         }
-        .spreadsheet-container {
-            flex: 1; overflow: auto; background: #fff; color: #000;
-            border-radius: 8px; border: 1px solid #475569; margin-top: 10px;
+        .caliper-input-group label {
+            color: #38bdf8; font-size: 18px; font-weight: 900; width: 85px; text-align: center;
         }
-        #spreadsheet-table { border-collapse: collapse; min-width: 100%; }
-        #spreadsheet-table th, #spreadsheet-table td {
-            border: 1px solid #cbd5e1; padding: 0; margin: 0;
-            min-width: 100px; height: 35px; text-align: center;
+        .caliper-input-group input {
+            flex: 1; padding: 12px; border-radius: 8px; border: 2px solid #334155;
+            background: #0f172a; color: #f8fafc; font-size: 20px; font-weight: 700;
+            outline: none; text-align: center; transition: 0.2s;
         }
-        #spreadsheet-table th {
-            background: #f1f5f9; font-weight: bold; color: #334155;
-            position: sticky; top: 0; z-index: 2; user-select: none;
+        .caliper-input-group input:focus { border-color: #10b981; background: #1e293b; }
+        .caliper-feedback {
+            width: 40px; font-size: 24px; text-align: center; font-weight: bold;
         }
-        #spreadsheet-table th.row-header {
-            left: 0; z-index: 3; background: #f1f5f9; width: 50px; min-width: 50px;
-        }
-        #spreadsheet-table input {
-            width: 100%; height: 100%; border: none; padding: 4px 8px;
-            outline: none; font-size: 15px; font-family: sans-serif;
-            background: transparent; cursor: text;
-        }
-        #spreadsheet-table input:focus { box-shadow: inset 0 0 0 2px #38bdf8; background: #f0f9ff; }
 
         @media (max-width: 768px) {
             body { padding: 8px; }
@@ -279,6 +268,8 @@
             .changelog-content { width: 95%; padding: 20px; }
             .changelog-content h3 { font-size: 20px; }
             .changelog-list { font-size: 14px; }
+            .caliper-input-group label { font-size: 16px; width: 70px; }
+            .caliper-input-group input { font-size: 16px; padding: 10px; }
         }
     </style>
 </head>
@@ -289,7 +280,7 @@
     <button class="mode-btn" onclick="startQuiz('color')">🎨 一般色卡辨識</button>
     <button class="mode-btn anomaly" onclick="startQuiz('defect')">🚨 異常辨認測試</button>
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
-    <button class="mode-btn data-entry" onclick="startDataEntry()">📊 資料輸入練習</button>
+    <button class="mode-btn data-entry" onclick="startCaliper()">📏 游標卡尺練習</button>
     <button class="mode-btn gallery" onclick="showGallery()">📚 題庫預習區</button>
     <div id="preload-status">⏳ 圖片資源預先載入中...</div>
 </div>
@@ -320,6 +311,7 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統更新日誌</h3>
         <ul class="changelog-list">
+            <li><strong>v2.5</strong> - 替換為游標卡尺(公差判斷)實境練習</li>
             <li><strong>v2.4</strong> - 新增試算表介面：資料輸入練習</li>
             <li><strong>v2.3</strong> - 整合題庫預習區/重新分類規格與異常題庫</li>
             <li><strong>v2.2</strong> - 增加異常辦認圖片/恢復檢驗標準題庫</li>
@@ -360,17 +352,46 @@
     <button class="mode-btn exam" style="font-size: 18px; padding: 12px 30px; width: auto;" onclick="location.reload()">🏠 返回首頁重新測驗</button>
 </div>
 
-<div id="spreadsheet-screen">
+<div class="container" id="caliper-screen" style="display: none;">
     <div class="header">
         <div style="display:flex; align-items:center; gap: 15px;">
-            <div style="font-size:24px;">📊 資料輸入練習</div>
-            <button class="mode-btn exam" style="font-size: 12px; padding: 6px 12px; width: auto; box-shadow: none;" onclick="clearSpreadsheet()">🧹 清空表格</button>
+            <div style="font-size:20px; font-weight:800; color:#f8fafc;">📏 游標卡尺練習 (TEST-G304A)</div>
         </div>
         <button class="mode-btn exam" style="font-size: 14px; padding: 8px 16px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
     </div>
-    <div class="spreadsheet-container">
-        <table id="spreadsheet-table">
-            </table>
+    <div class="main-content">
+        <div class="left-panel" style="background: #1e293b;">
+            <img src="TEST-Vernier calipers/TEST-G304A.jpg" alt="游標卡尺考題" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        </div>
+        <div class="right-panel" style="justify-content: center; padding: 25px;">
+            <div style="font-size: 22px; font-weight: 900; color: #10b981; margin-bottom: 25px; text-align: center; line-height: 1.4;">
+                請讀取左圖各點尺寸<br>並輸入測量結果
+            </div>
+            
+            <div class="caliper-input-group">
+                <label>測量點 1</label>
+                <input type="number" id="caliper-q1" step="0.01" placeholder="公差: 25 ~ 25.5">
+                <span id="caliper-f1" class="caliper-feedback"></span>
+            </div>
+            <div class="caliper-input-group">
+                <label>測量點 2</label>
+                <input type="number" id="caliper-q2" step="0.01" placeholder="公差: 25 ~ 25.4">
+                <span id="caliper-f2" class="caliper-feedback"></span>
+            </div>
+            <div class="caliper-input-group">
+                <label>測量點 3</label>
+                <input type="number" id="caliper-q3" step="0.01" placeholder="公差: 7.8 ~ 8.1">
+                <span id="caliper-f3" class="caliper-feedback"></span>
+            </div>
+            <div class="caliper-input-group">
+                <label>測量點 4</label>
+                <input type="number" id="caliper-q4" step="0.01" placeholder="公差: 25.8 ~ 26.1">
+                <span id="caliper-f4" class="caliper-feedback"></span>
+            </div>
+
+            <button class="mode-btn data-entry" style="width: 100%; max-width: none; margin-top: 20px;" onclick="checkCaliperAnswers()">送出批改</button>
+            <div id="caliper-final-msg" style="text-align: center; font-size: 18px; font-weight: bold; margin-top: 15px; min-height: 25px;"></div>
+        </div>
     </div>
 </div>
 
@@ -660,58 +681,64 @@
         }
     }
 
-    // 💡 新增：啟動試算表功能與渲染邏輯
-    function startDataEntry() {
+    // 💡 新增：啟動游標卡尺實境練習
+    function startCaliper() {
         document.getElementById('mode-screen').style.display = 'none';
-        document.getElementById('spreadsheet-screen').style.display = 'flex';
-        renderSpreadsheet(20, 10); // 預設產生 20 列, 10 欄 (A-J)
+        document.getElementById('caliper-screen').style.display = 'flex';
+        
+        // 進入時清空先前的輸入與提示
+        for (let i = 1; i <= 4; i++) {
+            document.getElementById('caliper-q' + i).value = '';
+            document.getElementById('caliper-f' + i).innerText = '';
+        }
+        document.getElementById('caliper-final-msg').innerText = '';
     }
 
-    function renderSpreadsheet(rows, cols) {
-        const table = document.getElementById('spreadsheet-table');
-        table.innerHTML = '';
-        
-        // 產生欄位標題 (A, B, C...)
-        let thead = document.createElement('tr');
-        let thEmpty = document.createElement('th');
-        thEmpty.className = 'row-header';
-        thead.appendChild(thEmpty);
-        
-        for(let c = 0; c < cols; c++) {
-            let th = document.createElement('th');
-            th.innerText = String.fromCharCode(65 + c); 
-            thead.appendChild(th);
-        }
-        table.appendChild(thead);
-        
-        // 產生儲存格 (列 1, 2, 3...)
-        for(let r = 1; r <= rows; r++) {
-            let tr = document.createElement('tr');
-            let thRow = document.createElement('th');
-            thRow.className = 'row-header';
-            thRow.innerText = r;
-            tr.appendChild(thRow);
+    // 💡 新增：判斷卡尺輸入數值是否在公差範圍內
+    function checkCaliperAnswers() {
+        // 設定各測量點的標準公差範圍
+        const ranges = [
+            { min: 25.0, max: 25.5 }, // 測量點 1: 25 到 25.5 (25+0.5)
+            { min: 25.0, max: 25.4 }, // 測量點 2
+            { min: 7.8,  max: 8.1  }, // 測量點 3
+            { min: 25.8, max: 26.1 }  // 測量點 4
+        ];
+
+        let allCorrect = true;
+
+        for (let i = 1; i <= 4; i++) {
+            let inputVal = parseFloat(document.getElementById('caliper-q' + i).value);
+            let feedbackElement = document.getElementById('caliper-f' + i);
             
-            for(let c = 0; c < cols; c++) {
-                let td = document.createElement('td');
-                let input = document.createElement('input');
-                input.type = 'text';
-                td.appendChild(input);
-                tr.appendChild(td);
+            if (isNaN(inputVal)) {
+                // 未輸入或輸入非數字
+                feedbackElement.innerText = '⚠️';
+                feedbackElement.style.color = '#fbbf24';
+                allCorrect = false;
+            } else if (inputVal >= ranges[i-1].min && inputVal <= ranges[i-1].max) {
+                // 落在公差範圍內
+                feedbackElement.innerText = '✔';
+                feedbackElement.style.color = '#4ade80';
+            } else {
+                // 超出公差範圍
+                feedbackElement.innerText = '✘';
+                feedbackElement.style.color = '#f87171';
+                allCorrect = false;
             }
-            table.appendChild(tr);
         }
-    }
 
-    function clearSpreadsheet() {
-        if(confirm("確定要清空表格內所有輸入的資料嗎？")) {
-            const inputs = document.querySelectorAll('#spreadsheet-table input');
-            inputs.forEach(input => input.value = '');
+        const finalMsg = document.getElementById('caliper-final-msg');
+        if (allCorrect) {
+            finalMsg.innerText = "🎉 恭喜！四個測量點數值皆符合公差標準！";
+            finalMsg.style.color = "#4ade80";
+        } else {
+            finalMsg.innerText = "⚠️ 有部分測量點未達標或未輸入，請重新確認！";
+            finalMsg.style.color = "#f87171";
         }
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.4</div>
+<div id="app-version" onclick="openChangelog()">v2.5</div>
 
 </body>
 </html>
