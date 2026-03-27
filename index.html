@@ -132,7 +132,7 @@
         .bottom-actions { margin-top: auto; display: flex; justify-content: flex-end; padding-top: 15px; }
         #preload-status { color: #94a3b8; font-size: 14px; margin-top: 15px; }
 
-        /* ---------------- 結算畫面 ---------------- */
+        /* ---------------- 結算與錯題回顧畫面 ---------------- */
         #result-screen {
             width: 100%; max-width: 1000px; background: #1e293b;
             padding: 30px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -152,7 +152,7 @@
         .wrong-ans { color: #f87171; }
         .correct-ans { color: #4ade80; }
 
-        /* ---------------- 題庫預習畫面 ---------------- */
+        /* ---------------- 題庫總覽畫面 ---------------- */
         #gallery-screen {
             width: 100%; max-width: 1400px; background: #1e293b;
             padding: 15px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -257,7 +257,7 @@
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
     <button class="mode-btn data-entry" onclick="startCaliper()">📏 游標卡尺練習</button>
     <button class="mode-btn gallery" onclick="showGallery()">📚 題庫預習區</button>
-    <div id="preload-status">⏳ 圖片資源預先載入中...</div>
+    <div id="preload-status">⏳ 正在從 Google 試算表載入題庫...</div>
 </div>
 
 <div id="gallery-screen">
@@ -286,6 +286,7 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統更新日誌</h3>
         <ul class="changelog-list">
+            <li><strong>v2.7</strong> - 串接 Google 試算表，異常辨認題庫雲端動態化</li>
             <li><strong>v2.6</strong> - 游標卡尺升級為「陣列題庫模式」，支援擴充圖紙</li>
             <li><strong>v2.5</strong> - 替換為游標卡尺(公差判斷)實境練習</li>
             <li><strong>v2.4</strong> - 新增試算表介面：資料輸入練習</li>
@@ -380,38 +381,8 @@
         { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
-    const defectOpts = ["塗裝不全", "掛勾痕", "擦刮傷", "橘皮", "毛刺", "毛損", "汙染", "異物附著", "附著力不良"];
-    const defectLibrary = [
-        { url: "standards/毛料-刮傷.jpg", ans: "刮傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "standards/毛料-尺寸不良.jpg", ans: "尺寸不良", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "standards/毛料-撞傷撞凹.jpg", ans: "撞傷", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "standards/毛料-擦傷.jpg", ans: "擦傷", maskH: 0, opts: ["擦傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "standards/毛料-氧化1.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良"] },
-        { url: "standards/毛料-破洞or氣孔.jpg", ans: "破洞氣孔", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
-        { url: "standards/毛料-變形.jpg", ans: "變形", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "氧化", "氣泡", "模具痕", "變形", "髒汙", "尺寸不良", "破洞氣孔"] },
-        { url: "standards/粉體-掛勾痕.jpg", ans: "掛勾痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/粉體-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/粉體-模厚過厚.jpg", ans: "模厚過厚", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/粉體-橘皮.jpg", ans: "橘皮", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/粉體-火山口.jpg", ans: "火山口", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/粉體-髒污.jpg", ans: "髒污", maskH: 0, opts: ["撞傷", "刮傷", "毛刺", "異物附著", "氣泡", "模具痕", "尺寸不良", "破洞氣孔", "火山口", "模厚過厚", "塗裝不全", "橘皮", "掛勾痕", "髒污"] },
-        { url: "standards/陽極-模具痕.jpg", ans: "模具痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-氣泡.jpg", ans: "氣泡", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-氧化.jpg", ans: "氧化", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-色差.jpg", ans: "色差", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-電鍍不全.jpg", ans: "電鍍不全", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "standards/陽極-電鍍流痕.jpg", ans: "電鍍流痕", maskH: 0, opts: ["撞傷", "刮傷", "氧化", "異物附著", "氣泡", "模具痕", "電鍍流痕", "電鍍不全", "變形", "髒汙", "模厚", "色差"] },
-        { url: "defects/defects塗裝不全.jpg", ans: "塗裝不全", maskH: 0, opts: defectOpts },
-        { url: "defects/defects掛勾痕.jpg", ans: "掛勾痕", maskH: 0, opts: defectOpts },
-        { url: "defects/defects擦刮傷.jpg", ans: "擦刮傷", maskH: 0, opts: defectOpts },
-        { url: "defects/defects橘皮.jpg", ans: "橘皮", maskH: 0, opts: defectOpts },
-        { url: "defects/defects毛刺.jpg", ans: "毛刺", maskH: 0, opts: defectOpts },
-        { url: "defects/defects毛損.jpg", ans: "毛損", maskH: 0, opts: defectOpts },
-        { url: "defects/defects汙染.jpg", ans: "汙染", maskH: 0, opts: defectOpts },
-        { url: "defects/defects汙染1.jpg", ans: "汙染", maskH: 0, opts: defectOpts },
-        { url: "defects/defects異物附著.jpg", ans: "異物附著", maskH: 0, opts: defectOpts },
-        { url: "defects/defects附著力不良.jpg", ans: "附著力不良", maskH: 0, opts: defectOpts }
-    ];
+    // 💡 v2.7 修改：將 defectLibrary 從 const 改為 let，並清空預設資料
+    let defectLibrary = [];
 
     const standardLibrary = [
         { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
@@ -425,10 +396,9 @@
         { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
     ];
 
-    // 💡 新增：游標卡尺的專屬題庫陣列 (支援無限擴充圖紙)
     const caliperLibrary = [
         {
-            id: "TEST-G304A", // 第一張圖
+            id: "TEST-G304A",
             url: "TEST-Vernier calipers/TEST-G304A.jpg",
             points: [
                 { label: "測量點 1", min: 25.0, max: 25.5, placeholder: "公差: 25~25.5 (25+0.5)" },
@@ -436,24 +406,51 @@
                 { label: "測量點 3", min: 7.8,  max: 8.1,  placeholder: "公差: 7.8~8.1" },
                 { label: "測量點 4", min: 25.8, max: 26.1, placeholder: "公差: 25.8~26.1" }
             ]
-        },
-        {
-            id: "TEST-G302", // ⬇️ 這是你未來新增的第二張圖！
-            url: "TEST-Vernier calipers/TEST-G302.jpg",
-                        points: [
-                { label: "測量點 1", min: 25.0, max: 25.5, placeholder: "公差: 25.2~25.5" },
-                { label: "測量點 2", min: 25.0, max: 25.4, placeholder: "公差: 25.8~26.2" },
-                { label: "測量點 3", min: 7.8,  max: 8.1,  placeholder: "公差: 12.2~12.4" },
-                // 就算只有兩個測量點，系統也會自動只生出兩個輸入框！
-            ]
         }
     ];
 
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
-    
-    // 用於卡尺模式的專屬變數
     let currentCaliperData = [];
     let caliperIdx = 0;
+
+    // 💡 v2.7 新增：從 Google 試算表讀取資料的函數
+    async function loadDefectDataFromGoogle() {
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?output=csv";
+        
+        try {
+            const response = await fetch(sheetUrl);
+            const csvText = await response.text();
+            
+            // 解析 CSV 格式 (過濾掉空白列)
+            const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0);
+            const dataRows = rows.slice(1); // 跳過第一列標題
+            
+            defectLibrary = dataRows.map(row => {
+                const cols = row.split(','); 
+                if (cols.length >= 3) {
+                    return {
+                        url: cols[0].trim(),
+                        ans: cols[1].trim(),
+                        maskH: 0, // 異常題不需要遮罩
+                        opts: cols[2].trim().split('|') // 用 | 符號切出多個選項
+                    };
+                }
+            }).filter(item => item !== undefined); 
+            
+            console.log("✅ 成功從 Google Sheets 載入異常題庫:", defectLibrary);
+            
+            // 資料抓完後，觸發預先載入圖片的流程
+            preloadImages();
+            
+        } catch (error) {
+            console.error("載入 Google 試算表失敗:", error);
+            document.getElementById('preload-status').innerText = "❌ 題庫連線失敗";
+            alert("題庫載入失敗，請檢查網路連線或 CSV 網址是否正確！");
+        }
+    }
+
+    // 💡 網頁一打開，第一件事就是去抓取試算表資料
+    window.addEventListener('DOMContentLoaded', loadDefectDataFromGoogle);
 
     function openChangelog() { document.getElementById('changelog-modal').style.display = 'flex'; }
     function closeChangelog() { document.getElementById('changelog-modal').style.display = 'none'; }
@@ -505,20 +502,19 @@
 
     function closeModal() { document.getElementById('image-modal').style.display = 'none'; }
 
+    // 💡 預載圖片函數移到資料抓取完畢後才執行
     function preloadImages() {
-        // 💡 預載圖片陣列加入卡尺圖庫
         const all = [...colorLibrary, ...defectLibrary, ...standardLibrary, ...caliperLibrary].filter(i => i.url);
         let loaded = 0;
         all.forEach(item => {
             const img = new Image();
             img.onload = img.onerror = () => {
                 loaded++;
-                if (loaded === all.length) document.getElementById('preload-status').innerText = "✅ 資源已備妥";
+                if (loaded === all.length) document.getElementById('preload-status').innerText = "✅ 資源與雲端題庫已備妥";
             };
             img.src = encodeURI(item.url);
         });
     }
-    window.onload = preloadImages;
 
     function showGallery() {
         document.getElementById('mode-screen').style.display = 'none';
@@ -668,12 +664,10 @@
         }
     }
 
-    // 💡 修改：啟動動態游標卡尺測驗
     function startCaliper() {
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('caliper-screen').style.display = 'flex';
         
-        // 每次進入時打亂圖紙順序 (如果未來有多張)
         currentCaliperData = shuffle([...caliperLibrary]);
         caliperIdx = 0;
         document.getElementById('caliper-total').innerText = currentCaliperData.length;
@@ -681,7 +675,6 @@
         renderCaliperTest();
     }
 
-    // 💡 新增：渲染卡尺圖紙與動態產生輸入框
     function renderCaliperTest() {
         if (caliperIdx >= currentCaliperData.length) {
             alert("🎉 太棒了！游標卡尺圖紙已全部測量完畢！");
@@ -695,9 +688,8 @@
         document.getElementById('caliper-test-img').src = encodeURI(item.url);
 
         const container = document.getElementById('caliper-inputs-container');
-        container.innerHTML = ""; // 清空上一題的輸入框
+        container.innerHTML = ""; 
         
-        // 根據該圖紙設定的 points 動態產生 html
         item.points.forEach((p, index) => {
             const group = document.createElement('div');
             group.className = 'caliper-input-group';
@@ -709,13 +701,11 @@
             container.appendChild(group);
         });
 
-        // 隱藏「下一題」按鈕，清空訊息，顯示「送出批改」按鈕
         document.getElementById('caliper-submit-btn').style.display = 'block';
         document.getElementById('caliper-next-btn').style.display = 'none';
         document.getElementById('caliper-final-msg').innerText = '';
     }
 
-    // 💡 修改：動態檢查當前圖紙的答案
     function checkCaliperAnswers() {
         const item = currentCaliperData[caliperIdx];
         let allCorrect = true;
@@ -751,14 +741,13 @@
         }
     }
 
-    // 💡 新增：前往下一張圖紙
     function nextCaliperTest() {
         caliperIdx++;
         renderCaliperTest();
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.6</div>
+<div id="app-version" onclick="openChangelog()">v2.7</div>
 
 </body>
 </html>
