@@ -428,25 +428,26 @@
     // 💡 新增：游標卡尺的專屬題庫陣列 (支援無限擴充圖紙)
     const caliperLibrary = [
         {
-            id: "TEST-G304A", // 顯示的圖紙名稱
-            url: "TEST-Vernier calipers/TEST-G304A.jpg", // 圖紙路徑
+            id: "TEST-G304A", // 第一張圖
+            url: "TEST-Vernier calipers/TEST-G304A.jpg",
             points: [
                 { label: "測量點 1", min: 25.0, max: 25.5, placeholder: "公差: 25~25.5 (25+0.5)" },
                 { label: "測量點 2", min: 25.0, max: 25.4, placeholder: "公差: 25~25.4" },
                 { label: "測量點 3", min: 7.8,  max: 8.1,  placeholder: "公差: 7.8~8.1" },
                 { label: "測量點 4", min: 25.8, max: 26.1, placeholder: "公差: 25.8~26.1" }
             ]
-        }
+        },
         {
-            id: "TEST-G302", // 顯示的圖紙名稱
-            url: "TEST-Vernier calipers/TEST-G304A.jpg", // 圖紙路徑
-            points: [
-                { label: "測量點 1", min: 25.0, max: 25.5, placeholder: "公差: 25.2~25.5 " },
+            id: "TEST-G302", // ⬇️ 這是你未來新增的第二張圖！
+            url: "TEST-Vernier calipers/TEST-G305.jpg",
+                        points: [
+                { label: "測量點 1", min: 25.0, max: 25.5, placeholder: "公差: 25.2~25.5" },
                 { label: "測量點 2", min: 25.0, max: 25.4, placeholder: "公差: 25.8~26.2" },
-                { label: "測量點 3", min: 7.8,  max: 8.1,  placeholder: "公差: 12.2~12.6" },
-                
+                { label: "測量點 3", min: 7.8,  max: 8.1,  placeholder: "公差: 12.2~12.4" },
+                // 就算只有兩個測量點，系統也會自動只生出兩個輸入框！
             ]
         }
+    ];
 
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
     
