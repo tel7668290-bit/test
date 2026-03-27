@@ -69,8 +69,6 @@
         .mode-btn.exam:hover { background: #fcd34d; }
         .mode-btn.gallery { background: #c084fc; color: #fff; }
         .mode-btn.gallery:hover { background: #d8b4fe; }
-        
-        /* 游標卡尺按鈕樣式 (綠色系) */
         .mode-btn.data-entry { background: #10b981; color: #fff; }
         .mode-btn.data-entry:hover { background: #34d399; }
 
@@ -134,7 +132,7 @@
         .bottom-actions { margin-top: auto; display: flex; justify-content: flex-end; padding-top: 15px; }
         #preload-status { color: #94a3b8; font-size: 14px; margin-top: 15px; }
 
-        /* ---------------- 結算與錯題回顧畫面 ---------------- */
+        /* ---------------- 結算畫面 ---------------- */
         #result-screen {
             width: 100%; max-width: 1000px; background: #1e293b;
             padding: 30px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -146,8 +144,7 @@
             border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155;
         }
         .wrong-card {
-            background: #334155; border-radius: 8px; padding: 12px;
-            margin-bottom: 12px; display: flex; align-items: center; gap: 15px;
+            background: #334155; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px;
         }
         .wrong-img { width: 120px; height: 80px; object-fit: contain; background: #000; border-radius: 6px; border: 1px solid #475569; }
         .wrong-text-q { width: 120px; font-size: 14px; color: #38bdf8; font-weight: bold; line-height: 1.3; text-align: center; }
@@ -155,7 +152,7 @@
         .wrong-ans { color: #f87171; }
         .correct-ans { color: #4ade80; }
 
-        /* ---------------- 題庫總覽畫面 ---------------- */
+        /* ---------------- 題庫預習畫面 ---------------- */
         #gallery-screen {
             width: 100%; max-width: 1400px; background: #1e293b;
             padding: 15px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -185,68 +182,46 @@
 
         .gallery-card {
             background: #0f172a; border: 1px solid #334155; border-radius: 12px;
-            overflow: hidden; display: flex; flex-direction: column; align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3); height: 100%;
+            overflow: hidden; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); height: 100%;
         }
         .gallery-img-wrapper {
             width: 100%; height: 180px; background: #000;
-            display: flex; justify-content: center; align-items: center; overflow: hidden;
-            border-bottom: 1px solid #334155; padding: 5px; cursor: pointer; transition: 0.2s; 
+            display: flex; justify-content: center; align-items: center; overflow: hidden; border-bottom: 1px solid #334155; padding: 5px; cursor: pointer; transition: 0.2s; 
         }
         .gallery-img-wrapper:hover { opacity: 0.8; }
         .gallery-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
-        .gallery-ans {
-            margin-top: auto; margin-bottom: 15px; font-size: 20px; font-weight: 900; color: #4ade80;
-            background: #064e3b; padding: 5px 15px; border-radius: 20px;
-        }
+        .gallery-ans { margin-top: auto; margin-bottom: 15px; font-size: 20px; font-weight: 900; color: #4ade80; background: #064e3b; padding: 5px 15px; border-radius: 20px; }
+        
         .gallery-list-btn {
-            width: 100%; padding: 18px 25px; background: #1e293b; border: 1px solid #334155;
-            border-radius: 12px; color: #f8fafc; font-size: 20px; font-weight: 700;
-            text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer;
-            transition: 0.2s; display: flex; align-items: center;
+            width: 100%; padding: 18px 25px; background: #1e293b; border: 1px solid #334155; border-radius: 12px; color: #f8fafc; font-size: 20px; font-weight: 700; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; transition: 0.2s; display: flex; align-items: center;
         }
         .gallery-list-btn:hover { background: #334155; border-color: #38bdf8; transform: translateX(8px); }
 
-        /* ---------------- 圖片放大視窗 (Modal) ---------------- */
         #image-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.92); z-index: 999; 
-            justify-content: center; align-items: center; flex-direction: column; cursor: pointer;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.92); z-index: 999; justify-content: center; align-items: center; flex-direction: column; cursor: pointer;
         }
         .modal-content { position: relative; max-width: 95%; max-height: 90%; display: flex; flex-direction: column; align-items: center; cursor: default; }
         #modal-img { max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px; border: 2px solid #475569; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: none; }
         #modal-text-q {
-            display: none; font-size: 28px; color: #38bdf8; text-align: center; 
-            margin-bottom: 20px; font-weight: 900; background: #1e293b; 
-            padding: 30px; border-radius: 12px; border: 1px solid #475569; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: none; font-size: 28px; color: #38bdf8; text-align: center; margin-bottom: 20px; font-weight: 900; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #475569; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        #modal-caption {
-            margin-top: 20px; font-size: 28px; font-weight: 900; color: #4ade80;
-            background: #064e3b; padding: 8px 30px; border-radius: 20px; text-align: center;
-        }
-        .modal-close {
-            position: absolute; top: -40px; right: 0; background: none; border: none;
-            color: #cbd5e1; font-size: 40px; cursor: pointer; line-height: 1; padding: 0;
-        }
+        #modal-caption { margin-top: 20px; font-size: 28px; font-weight: 900; color: #4ade80; background: #064e3b; padding: 8px 30px; border-radius: 20px; text-align: center; }
+        .modal-close { position: absolute; top: -40px; right: 0; background: none; border: none; color: #cbd5e1; font-size: 40px; cursor: pointer; line-height: 1; padding: 0; }
         .modal-close:hover { color: #fff; }
 
-        /* ---------------- 💡 新增：游標卡尺輸入區樣式 ---------------- */
+        /* ---------------- 游標卡尺輸入區樣式 ---------------- */
         .caliper-input-group {
-            display: flex; align-items: center; margin-bottom: 20px; gap: 15px;
-            background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #475569;
+            display: flex; align-items: center; margin-bottom: 15px; gap: 15px;
+            background: #1e293b; padding: 12px 15px; border-radius: 12px; border: 1px solid #475569;
         }
-        .caliper-input-group label {
-            color: #38bdf8; font-size: 18px; font-weight: 900; width: 85px; text-align: center;
-        }
+        .caliper-input-group label { color: #38bdf8; font-size: 18px; font-weight: 900; width: 85px; text-align: center; }
         .caliper-input-group input {
-            flex: 1; padding: 12px; border-radius: 8px; border: 2px solid #334155;
-            background: #0f172a; color: #f8fafc; font-size: 20px; font-weight: 700;
-            outline: none; text-align: center; transition: 0.2s;
+            flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #334155;
+            background: #0f172a; color: #f8fafc; font-size: 18px; font-weight: 700;
+            outline: none; text-align: center; transition: 0.2s; width: 100%;
         }
         .caliper-input-group input:focus { border-color: #10b981; background: #1e293b; }
-        .caliper-feedback {
-            width: 40px; font-size: 24px; text-align: center; font-weight: bold;
-        }
+        .caliper-feedback { width: 40px; font-size: 24px; text-align: center; font-weight: bold; }
 
         @media (max-width: 768px) {
             body { padding: 8px; }
@@ -269,7 +244,7 @@
             .changelog-content h3 { font-size: 20px; }
             .changelog-list { font-size: 14px; }
             .caliper-input-group label { font-size: 16px; width: 70px; }
-            .caliper-input-group input { font-size: 16px; padding: 10px; }
+            .caliper-input-group input { font-size: 16px; padding: 8px; }
         }
     </style>
 </head>
@@ -311,13 +286,13 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統更新日誌</h3>
         <ul class="changelog-list">
+            <li><strong>v2.6</strong> - 游標卡尺升級為「陣列題庫模式」，支援擴充圖紙</li>
             <li><strong>v2.5</strong> - 替換為游標卡尺(公差判斷)實境練習</li>
             <li><strong>v2.4</strong> - 新增試算表介面：資料輸入練習</li>
             <li><strong>v2.3</strong> - 整合題庫預習區/重新分類規格與異常題庫</li>
             <li><strong>v2.2</strong> - 增加異常辦認圖片/恢復檢驗標準題庫</li>
             <li><strong>v2.1</strong> - 新增異常辨認</li>
             <li><strong>v2.0</strong> - 完善色卡辨識/檢測測試/題庫</li>
-            <li><strong>v1.0</strong> - 規劃練習項目/整理圖片</li>
         </ul>
     </div>
 </div>
@@ -355,41 +330,24 @@
 <div class="container" id="caliper-screen" style="display: none;">
     <div class="header">
         <div style="display:flex; align-items:center; gap: 15px;">
-            <div style="font-size:20px; font-weight:800; color:#f8fafc;">📏 游標卡尺練習 (TEST-G304A)</div>
+            <div id="caliper-header-title" style="font-size:20px; font-weight:800; color:#f8fafc;">📏 游標卡尺練習</div>
+            <div style="color: #94a3b8; font-size: 16px;">📊 進度: <span id="caliper-cur">1</span> / <span id="caliper-total">1</span></div>
         </div>
         <button class="mode-btn exam" style="font-size: 14px; padding: 8px 16px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
     </div>
     <div class="main-content">
         <div class="left-panel" style="background: #1e293b;">
-            <img src="TEST-Vernier calipers/TEST-G304A.jpg" alt="游標卡尺考題" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            <img id="caliper-test-img" src="" alt="游標卡尺考題" style="max-width: 100%; max-height: 100%; object-fit: contain;">
         </div>
-        <div class="right-panel" style="justify-content: center; padding: 25px;">
+        <div class="right-panel" style="justify-content: flex-start; padding: 25px;">
             <div style="font-size: 22px; font-weight: 900; color: #10b981; margin-bottom: 25px; text-align: center; line-height: 1.4;">
                 請讀取左圖各點尺寸<br>並輸入測量結果
             </div>
             
-            <div class="caliper-input-group">
-                <label>測量點 1</label>
-                <input type="number" id="caliper-q1" step="0.01" placeholder="公差: 25 ~ 25.5">
-                <span id="caliper-f1" class="caliper-feedback"></span>
-            </div>
-            <div class="caliper-input-group">
-                <label>測量點 2</label>
-                <input type="number" id="caliper-q2" step="0.01" placeholder="公差: 25 ~ 25.4">
-                <span id="caliper-f2" class="caliper-feedback"></span>
-            </div>
-            <div class="caliper-input-group">
-                <label>測量點 3</label>
-                <input type="number" id="caliper-q3" step="0.01" placeholder="公差: 7.8 ~ 8.1">
-                <span id="caliper-f3" class="caliper-feedback"></span>
-            </div>
-            <div class="caliper-input-group">
-                <label>測量點 4</label>
-                <input type="number" id="caliper-q4" step="0.01" placeholder="公差: 25.8 ~ 26.1">
-                <span id="caliper-f4" class="caliper-feedback"></span>
-            </div>
+            <div id="caliper-inputs-container"></div>
 
-            <button class="mode-btn data-entry" style="width: 100%; max-width: none; margin-top: 20px;" onclick="checkCaliperAnswers()">送出批改</button>
+            <button id="caliper-submit-btn" class="mode-btn data-entry" style="width: 100%; max-width: none; margin-top: 15px;" onclick="checkCaliperAnswers()">送出批改</button>
+            <button id="caliper-next-btn" class="mode-btn exam" style="width: 100%; max-width: none; margin-top: 15px; display: none;" onclick="nextCaliperTest()">前往下一張圖紙 ➡️</button>
             <div id="caliper-final-msg" style="text-align: center; font-size: 18px; font-weight: bold; margin-top: 15px; min-height: 25px;"></div>
         </div>
     </div>
@@ -467,7 +425,26 @@
         { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
     ];
 
+    // 💡 新增：游標卡尺的專屬題庫陣列 (支援無限擴充圖紙)
+    const caliperLibrary = [
+        {
+            id: "TEST-G304A", // 顯示的圖紙名稱
+            url: "TEST-Vernier calipers/TEST-G304A.jpg", // 圖紙路徑
+            points: [
+                { label: "測量點 1", min: 25.0, max: 25.5, placeholder: "公差: 25~25.5 (25+0.5)" },
+                { label: "測量點 2", min: 25.0, max: 25.4, placeholder: "公差: 25~25.4" },
+                { label: "測量點 3", min: 7.8,  max: 8.1,  placeholder: "公差: 7.8~8.1" },
+                { label: "測量點 4", min: 25.8, max: 26.1, placeholder: "公差: 25.8~26.1" }
+            ]
+        }
+        // 如果未來有 TEST-G305，只要在這裡複製貼上並修改設定即可！
+    ];
+
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
+    
+    // 用於卡尺模式的專屬變數
+    let currentCaliperData = [];
+    let caliperIdx = 0;
 
     function openChangelog() { document.getElementById('changelog-modal').style.display = 'flex'; }
     function closeChangelog() { document.getElementById('changelog-modal').style.display = 'none'; }
@@ -520,7 +497,8 @@
     function closeModal() { document.getElementById('image-modal').style.display = 'none'; }
 
     function preloadImages() {
-        const all = [...colorLibrary, ...defectLibrary, ...standardLibrary].filter(i => i.url);
+        // 💡 預載圖片陣列加入卡尺圖庫
+        const all = [...colorLibrary, ...defectLibrary, ...standardLibrary, ...caliperLibrary].filter(i => i.url);
         let loaded = 0;
         all.forEach(item => {
             const img = new Image();
@@ -681,64 +659,97 @@
         }
     }
 
-    // 💡 新增：啟動游標卡尺實境練習
+    // 💡 修改：啟動動態游標卡尺測驗
     function startCaliper() {
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('caliper-screen').style.display = 'flex';
         
-        // 進入時清空先前的輸入與提示
-        for (let i = 1; i <= 4; i++) {
-            document.getElementById('caliper-q' + i).value = '';
-            document.getElementById('caliper-f' + i).innerText = '';
+        // 每次進入時打亂圖紙順序 (如果未來有多張)
+        currentCaliperData = shuffle([...caliperLibrary]);
+        caliperIdx = 0;
+        document.getElementById('caliper-total').innerText = currentCaliperData.length;
+        
+        renderCaliperTest();
+    }
+
+    // 💡 新增：渲染卡尺圖紙與動態產生輸入框
+    function renderCaliperTest() {
+        if (caliperIdx >= currentCaliperData.length) {
+            alert("🎉 太棒了！游標卡尺圖紙已全部測量完畢！");
+            location.reload();
+            return;
         }
+
+        const item = currentCaliperData[caliperIdx];
+        document.getElementById('caliper-cur').innerText = caliperIdx + 1;
+        document.getElementById('caliper-header-title').innerText = `📏 游標卡尺練習 (${item.id})`;
+        document.getElementById('caliper-test-img').src = encodeURI(item.url);
+
+        const container = document.getElementById('caliper-inputs-container');
+        container.innerHTML = ""; // 清空上一題的輸入框
+        
+        // 根據該圖紙設定的 points 動態產生 html
+        item.points.forEach((p, index) => {
+            const group = document.createElement('div');
+            group.className = 'caliper-input-group';
+            group.innerHTML = `
+                <label>${p.label}</label>
+                <input type="number" id="caliper-q${index}" step="0.01" placeholder="${p.placeholder}">
+                <span id="caliper-f${index}" class="caliper-feedback"></span>
+            `;
+            container.appendChild(group);
+        });
+
+        // 隱藏「下一題」按鈕，清空訊息，顯示「送出批改」按鈕
+        document.getElementById('caliper-submit-btn').style.display = 'block';
+        document.getElementById('caliper-next-btn').style.display = 'none';
         document.getElementById('caliper-final-msg').innerText = '';
     }
 
-    // 💡 新增：判斷卡尺輸入數值是否在公差範圍內
+    // 💡 修改：動態檢查當前圖紙的答案
     function checkCaliperAnswers() {
-        // 設定各測量點的標準公差範圍
-        const ranges = [
-            { min: 25.0, max: 25.5 }, // 測量點 1: 25 到 25.5 (25+0.5)
-            { min: 25.0, max: 25.4 }, // 測量點 2
-            { min: 7.8,  max: 8.1  }, // 測量點 3
-            { min: 25.8, max: 26.1 }  // 測量點 4
-        ];
-
+        const item = currentCaliperData[caliperIdx];
         let allCorrect = true;
 
-        for (let i = 1; i <= 4; i++) {
-            let inputVal = parseFloat(document.getElementById('caliper-q' + i).value);
-            let feedbackElement = document.getElementById('caliper-f' + i);
+        item.points.forEach((p, index) => {
+            let inputVal = parseFloat(document.getElementById(`caliper-q${index}`).value);
+            let feedbackElement = document.getElementById(`caliper-f${index}`);
             
             if (isNaN(inputVal)) {
-                // 未輸入或輸入非數字
                 feedbackElement.innerText = '⚠️';
                 feedbackElement.style.color = '#fbbf24';
                 allCorrect = false;
-            } else if (inputVal >= ranges[i-1].min && inputVal <= ranges[i-1].max) {
-                // 落在公差範圍內
+            } else if (inputVal >= p.min && inputVal <= p.max) {
                 feedbackElement.innerText = '✔';
                 feedbackElement.style.color = '#4ade80';
             } else {
-                // 超出公差範圍
                 feedbackElement.innerText = '✘';
                 feedbackElement.style.color = '#f87171';
                 allCorrect = false;
             }
-        }
+        });
 
         const finalMsg = document.getElementById('caliper-final-msg');
         if (allCorrect) {
-            finalMsg.innerText = "🎉 恭喜！四個測量點數值皆符合公差標準！";
+            finalMsg.innerText = "🎉 恭喜！所有測量點數值皆符合公差標準！";
             finalMsg.style.color = "#4ade80";
+            document.getElementById('caliper-submit-btn').style.display = 'none';
+            document.getElementById('caliper-next-btn').style.display = 'block';
         } else {
             finalMsg.innerText = "⚠️ 有部分測量點未達標或未輸入，請重新確認！";
             finalMsg.style.color = "#f87171";
+            document.getElementById('caliper-next-btn').style.display = 'none';
         }
+    }
+
+    // 💡 新增：前往下一張圖紙
+    function nextCaliperTest() {
+        caliperIdx++;
+        renderCaliperTest();
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.5</div>
+<div id="app-version" onclick="openChangelog()">v2.6</div>
 
 </body>
 </html>
