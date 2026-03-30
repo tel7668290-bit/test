@@ -225,23 +225,26 @@
         .caliper-single-input input:focus { border-color: #10b981; background: #1e293b; }
         .caliper-feedback { width: 35px; font-size: 22px; text-align: center; font-weight: bold; }
 
-        /* 💡 新增：卡尺動態標記點與座標抓取器樣式 */
+        /* 卡尺動態標記點與座標抓取器樣式 */
         .caliper-marker {
             position: absolute; width: 28px; height: 28px;
             background: #ef4444; color: #fff; border: 2px solid #fff;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 16px; z-index: 10;
             box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-            transform: translate(-50%, -50%); /* 確保座標在圈圈正中心 */
-            pointer-events: none; /* 讓滑鼠點擊穿透，不會干擾圖片點擊 */
+            transform: translate(-50%, -50%);
+            pointer-events: none;
         }
         #caliper-coord-picker {
             display: none; position: absolute; top: 15px; left: 15px;
-            background: rgba(16, 185, 129, 0.95); color: white; padding: 10px 15px;
-            border-radius: 8px; font-weight: bold; z-index: 100; pointer-events: none;
+            background: rgba(16, 185, 129, 0.95); color: white; padding: 15px 20px;
+            border-radius: 8px; font-weight: bold; z-index: 100;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-size: 16px; letter-spacing: 1px;
-            border: 1px solid #34d399; line-height: 1.5;
+            border: 1px solid #34d399; line-height: 1.6;
+            cursor: default; /* 讓它可以被滑鼠選取 */
         }
+        /* 讓文字可以被雙擊全選 */
+        .copy-friendly { user-select: all; background: #064e3b; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 5px;}
 
         @media (max-width: 768px) {
             body { padding: 8px; }
@@ -307,11 +310,11 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統更新日誌</h3>
         <ul class="changelog-list">
+            <li><strong>v2.12</strong> - 座標輸入極簡化：採用「括號自動偵測法」與「一鍵複製器」</li>
             <li><strong>v2.11</strong> - 新增「動態標記點」與「滑鼠點擊座標抓取器」，解放修圖雙手</li>
             <li><strong>v2.10</strong> - 卡尺練習升級：支援單一測量點「多格並排輸入」</li>
             <li><strong>v2.9</strong> - 串接 Google 試算表，游標卡尺題庫雲端化</li>
-            <li><strong>v2.8</strong> - 游標卡尺題庫改為可無限擴充圖紙設計</li>
-            <li><strong>v1.0 - 2.7</strong> - 題庫與系統雲端化建置</li>
+            <li><strong>v1.0 - 2.8</strong> - 題庫與系統雲端化建置</li>
         </ul>
     </div>
 </div>
@@ -420,7 +423,6 @@
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
     let currentCaliperData = [];
     let caliperIdx = 0;
-    
     let caliperLibrary = [];
 
     async function loadDefectDataFromGoogle() {
@@ -438,7 +440,7 @@
         } catch (error) { console.error("載入異常題庫失敗:", error); }
     }
 
-    // 💡 v2.11 修改：解析 Top 和 Left 座標參數
+    // 💡 v2.12 修改：解析「括號標記法」 (例如: 測量點1(X,Y))
     async function loadCaliperDataFromGoogle() {
         const caliperSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?gid=1631554971&single=true&output=csv";
         try {
@@ -455,14 +457,26 @@
                     
                     const points = pointsRaw.split('|').map(pt => {
                         const parts = pt.split(';');
-                        const label = parts[0];
-                        // 讀取座標 (如果試算表有填寫的話)
-                        const top = parts[1] ? parseFloat(parts[1]) : null;
-                        const left = parts[2] ? parseFloat(parts[2]) : null;
+                        
+                        // 處理包含座標的名稱，例如 "測量點 1(60.5,45.2)"
+                        let labelRaw = parts[0];
+                        let label = labelRaw;
+                        let left = null;
+                        let top = null;
+                        
+                        // 用正規表達式抓出括號裡的數字
+                        const coordMatch = labelRaw.match(/(.*?)\(([\d.]+),([\d.]+)\)/);
+                        if (coordMatch) {
+                            label = coordMatch[1].trim();
+                            left = parseFloat(coordMatch[2]);
+                            top = parseFloat(coordMatch[3]);
+                        } else {
+                            label = labelRaw.trim();
+                        }
                         
                         const subPoints = [];
-                        // 座標佔了 1 跟 2 的位子，所以子輸入框的資料從第 3 個位子開始讀取
-                        for (let i = 3; i < parts.length; i += 3) {
+                        // 資料從第 1 個位子開始就是 最小值、最大值、提示了！
+                        for (let i = 1; i < parts.length; i += 3) {
                             if (parts[i] !== undefined && parts[i+1] !== undefined) {
                                 subPoints.push({
                                     min: parseFloat(parts[i]),
@@ -476,7 +490,7 @@
                     return { id, url, points };
                 }
             }).filter(item => item !== undefined);
-            console.log("✅ 成功載入卡尺題庫 (支援座標系統):", caliperLibrary);
+            console.log("✅ 成功載入卡尺題庫 (括號解析模式):", caliperLibrary);
         } catch (error) {
             console.error("載入卡尺題庫失敗:", error);
         }
@@ -676,8 +690,7 @@
             group.innerHTML = labelHTML + subInputsHTML;
             container.appendChild(group);
 
-            // 💡 v2.11 新增：動態繪製圖片上的圓圈標記點
-            if (p.top && p.left) {
+            if (p.top !== null && p.left !== null) {
                 const marker = document.createElement('div');
                 marker.className = 'caliper-marker';
                 marker.innerText = pIndex + 1; // 顯示 1, 2, 3...
@@ -690,14 +703,13 @@
         document.getElementById('caliper-submit-btn').style.display = 'block'; document.getElementById('caliper-next-btn').style.display = 'none'; document.getElementById('caliper-final-msg').innerText = '';
     }
 
-    // 💡 v2.11 新增：點擊圖片抓取精準的 Top / Left 座標百分比
+    // 💡 v2.12 修改：點擊圖片後，直接產生「含有括號與座標」的文字，雙擊即可複製
     document.getElementById('caliper-test-img').addEventListener('click', function(e) {
-        // 利用 offsetX 和 offsetY 來計算滑鼠點擊位置佔整張圖片的百分比
         const xPercent = (e.offsetX / this.clientWidth) * 100;
         const yPercent = (e.offsetY / this.clientHeight) * 100;
         
         const picker = document.getElementById('caliper-coord-picker');
-        picker.innerHTML = `📍 點擊座標獲取成功！<br>請將下方數字填入試算表：<br><span style="color:#fbbf24;">Top: ${yPercent.toFixed(1)}</span><br><span style="color:#fbbf24;">Left: ${xPercent.toFixed(1)}</span>`;
+        picker.innerHTML = `📍 點擊成功！連點兩下綠色方塊複製：<br><span class="copy-friendly">測量名稱(${xPercent.toFixed(1)},${yPercent.toFixed(1)})</span>`;
         picker.style.display = 'block';
     });
 
@@ -731,13 +743,13 @@
     }
 
     function nextCaliperTest() { 
-        document.getElementById('caliper-coord-picker').style.display = 'none'; // 換題時隱藏座標面板
+        document.getElementById('caliper-coord-picker').style.display = 'none'; 
         caliperIdx++; 
         renderCaliperTest(); 
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.11</div>
+<div id="app-version" onclick="openChangelog()">v2.12</div>
 
 </body>
 </html>
