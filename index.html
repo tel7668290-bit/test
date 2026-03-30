@@ -38,14 +38,14 @@
         }
         .changelog-content {
             background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #475569;
-            width: 90%; max-width: 450px; color: #f8fafc; cursor: default; position: relative;
+            width: 90%; max-width: 500px; color: #f8fafc; cursor: default; position: relative;
             box-shadow: 0 15px 30px rgba(0,0,0,0.8);
         }
         .changelog-content h3 { margin-top: 0; color: #38bdf8; border-bottom: 2px solid #334155; padding-bottom: 15px; text-align: center; font-size: 24px;}
-        .changelog-list { list-style: none; padding: 0; margin: 0; line-height: 1.8; font-size: 16px; }
-        .changelog-list li { margin-bottom: 12px; border-bottom: 1px dashed #334155; padding-bottom: 10px;}
+        .changelog-list { list-style: none; padding: 0; margin: 0; line-height: 1.6; font-size: 15px; }
+        .changelog-list li { margin-bottom: 15px; border-bottom: 1px dashed #334155; padding-bottom: 15px;}
         .changelog-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
-        .changelog-list strong { color: #fbbf24; display: inline-block; width: 60px; }
+        .changelog-list strong { color: #fbbf24; display: block; font-size: 18px; margin-bottom: 4px; }
 
         /* ---------------- 首頁樣式 ---------------- */
         #mode-screen {
@@ -250,7 +250,7 @@
             max-width: 100%; max-height: 100%;
             transition: transform 0.1s ease-out;
             transform-origin: center center;
-            cursor: crosshair; 
+            cursor: grab;
         }
 
         @media (max-width: 768px) {
@@ -315,14 +315,12 @@
 <div id="changelog-modal" onclick="closeChangelog()">
     <div class="changelog-content" onclick="event.stopPropagation()">
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
-        <h3>🔄 系統更新日誌</h3>
+        <h3>🔄 系統開發里程碑</h3>
         <ul class="changelog-list">
-            <li><strong>v2.15</strong> - 卡尺測驗流程優化：允許錯題通關，新增「專屬卡尺錯題結算畫面」</li>
-            <li><strong>v2.14</strong> - 新增「滑鼠滾輪縮放」與「拖曳平移」，看大圖更清晰</li>
-            <li><strong>v2.13</strong> - 卡尺題庫全面改寫為「直覺式資料庫表格」結構</li>
-            <li><strong>v2.12</strong> - 座標輸入極簡化：採用「一鍵複製器」</li>
-            <li><strong>v2.11</strong> - 新增「動態標記點」與「滑鼠點擊座標抓取器」，解放修圖雙手</li>
-            <li><strong>v1.0 - 2.10</strong> - 系統雲端化建置與多項功能升級</li>
+            <li><strong>v3.0 - 游標卡尺互動實境升級</strong><br>支援滑鼠滾輪縮放、平移看圖；新增「動態座標標記圈」、「座標抓取器」與專屬錯題結算機制。</li>
+            <li><strong>v2.5 - 雲端試算表全面串接</strong><br>導入 Google Sheets API，實現免改程式碼的「無痛動態擴充題庫」，支援多格並排輸入與資料庫表格結構。</li>
+            <li><strong>v2.0 - 檢驗模組大幅擴充</strong><br>新增「異常瑕疵辨認」、「文字檢驗標準」題庫，並整合了題庫預習藝廊區。</li>
+            <li><strong>v1.0 - 系統基礎建置</strong><br>建立品保教育訓練網頁框架，完成首波「色卡辨識」模組。</li>
         </ul>
     </div>
 </div>
@@ -369,9 +367,10 @@
         <div class="left-panel" id="caliper-left-panel" style="background: #1e293b; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden;">
             <div id="caliper-coord-picker">點擊圖片獲取座標</div>
             
-            <div style="position: absolute; bottom: 15px; left: 15px; z-index: 50; display:flex; align-items:center; gap: 10px; pointer-events: auto;">
+            <div style="position: absolute; bottom: 15px; left: 15px; z-index: 50; display:flex; align-items:center; gap: 10px; flex-wrap: wrap;">
                 <div style="background: rgba(0,0,0,0.6); color: #cbd5e1; padding: 5px 10px; border-radius: 6px; font-size: 14px; font-weight: bold; pointer-events: none;">🖱️ 滾輪縮放 / 按住拖曳</div>
                 <button class="mode-btn exam" style="padding: 5px 12px; font-size: 13px; width: auto; box-shadow: none;" onclick="resetCaliperZoom()">🔍 還原大小</button>
+                <button id="coord-toggle-btn" class="mode-btn data-entry" style="padding: 5px 12px; font-size: 13px; width: auto; box-shadow: none; background: #64748b;" onclick="toggleCoordPicker()">📍 開啟座標抓取</button>
             </div>
 
             <div id="caliper-img-wrapper">
@@ -436,18 +435,37 @@
 
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
     
-    // 💡 v2.15 卡尺專屬計分與錯題紀錄
     let currentCaliperData = [];
     let caliperIdx = 0;
     let caliperLibrary = [];
     let caliperScore = 0;
-    let caliperWrongAnswers = []; // 專門存卡尺錯誤紀錄
+    let caliperWrongAnswers = [];
 
     let caliperScale = 1;
     let caliperTx = 0, caliperTy = 0;
     let isCaliperDragging = false;
     let caliperStartX, caliperStartY;
     let caliperHasDragged = false; 
+
+    let isCoordPickerActive = false;
+
+    function toggleCoordPicker() {
+        isCoordPickerActive = !isCoordPickerActive;
+        const btn = document.getElementById('coord-toggle-btn');
+        const picker = document.getElementById('caliper-coord-picker');
+        const wrapper = document.getElementById('caliper-img-wrapper');
+        
+        if (isCoordPickerActive) {
+            btn.innerText = "📍 關閉座標抓取";
+            btn.style.background = "#ef4444"; 
+            wrapper.style.cursor = 'crosshair';
+        } else {
+            btn.innerText = "📍 開啟座標抓取";
+            btn.style.background = "#64748b"; 
+            picker.style.display = 'none';
+            wrapper.style.cursor = caliperScale > 1 ? 'grab' : 'default';
+        }
+    }
 
     async function loadDefectDataFromGoogle() {
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?output=csv";
@@ -619,7 +637,6 @@
         }
     }
 
-    // 💡 v2.15 新增：專屬卡尺錯題結算畫面
     function showCaliperResultScreen() {
         document.getElementById('caliper-screen').style.display = 'none'; 
         document.getElementById('result-screen').style.display = 'flex';
@@ -733,7 +750,8 @@
 
         window.addEventListener('mouseup', () => {
             if (isCaliperDragging) {
-                isCaliperDragging = false; wrapper.style.cursor = caliperScale > 1 ? 'grab' : 'crosshair';
+                isCaliperDragging = false; 
+                wrapper.style.cursor = isCoordPickerActive ? 'crosshair' : (caliperScale > 1 ? 'grab' : 'default');
                 setTimeout(() => caliperHasDragged = false, 50); 
             }
         });
@@ -742,7 +760,7 @@
     function updateCaliperTransform() {
         const wrapper = document.getElementById('caliper-img-wrapper');
         wrapper.style.transform = `translate(${caliperTx}px, ${caliperTy}px) scale(${caliperScale})`;
-        wrapper.style.cursor = caliperScale > 1 ? (isCaliperDragging ? 'grabbing' : 'grab') : 'crosshair';
+        wrapper.style.cursor = isCoordPickerActive ? 'crosshair' : (caliperScale > 1 ? (isCaliperDragging ? 'grabbing' : 'grab') : 'default');
     }
 
     function resetCaliperZoom() {
@@ -753,15 +771,22 @@
         if(caliperLibrary.length === 0) { alert("題庫載入中或連線失敗，請稍後再試。"); return; }
         document.getElementById('mode-screen').style.display = 'none'; document.getElementById('caliper-screen').style.display = 'flex';
         
-        // 💡 初始化計分與紀錄
         currentCaliperData = shuffle([...caliperLibrary]); 
         caliperIdx = 0; caliperScore = 0; caliperWrongAnswers = []; 
         document.getElementById('caliper-total').innerText = currentCaliperData.length;
+        
+        isCoordPickerActive = false;
+        const toggleBtn = document.getElementById('coord-toggle-btn');
+        if(toggleBtn) {
+            toggleBtn.innerText = "📍 開啟座標抓取";
+            toggleBtn.style.background = "#64748b";
+        }
+        document.getElementById('caliper-coord-picker').style.display = 'none';
+        
         renderCaliperTest();
     }
 
     function renderCaliperTest() {
-        // 💡 v2.15 修改：如果圖紙測量完畢，進入專屬錯題結算畫面
         if (caliperIdx >= currentCaliperData.length) { 
             showCaliperResultScreen();
             return; 
@@ -813,6 +838,8 @@
 
     document.getElementById('caliper-img-wrapper').addEventListener('click', function(e) {
         if (caliperHasDragged) return; 
+        if (!isCoordPickerActive) return; 
+
         const rect = this.getBoundingClientRect();
         const xPercent = ((e.clientX - rect.left) / rect.width) * 100;
         const yPercent = ((e.clientY - rect.top) / rect.height) * 100;
@@ -822,11 +849,10 @@
         picker.style.display = 'block';
     });
 
-    // 💡 v2.15 核心修改：允許錯題通關，並記錄錯誤輸入
     function checkCaliperAnswers() {
         const item = currentCaliperData[caliperIdx];
         let allCorrect = true;
-        let currentUserInputs = []; // 暫存這張圖紙使用者的所有輸入
+        let currentUserInputs = []; 
 
         item.points.forEach((p, pIndex) => {
             p.subPoints.forEach((sp, spIndex) => {
@@ -834,7 +860,7 @@
                 let inputVal = parseFloat(inputEl.value);
                 let feedbackElement = document.getElementById(`caliper-f${pIndex}-${spIndex}`);
                 
-                inputEl.disabled = true; // 批改後立即鎖定輸入框，防止修改
+                inputEl.disabled = true; 
                 
                 let isCorrect = false;
                 if (isNaN(inputVal)) {
@@ -845,7 +871,6 @@
                     feedbackElement.innerText = '✘'; feedbackElement.style.color = '#f87171'; allCorrect = false;
                 }
 
-                // 記錄下來準備丟到錯題本
                 currentUserInputs.push({
                     label: p.label,
                     val: inputEl.value,
@@ -857,9 +882,9 @@
         });
 
         if (allCorrect) {
-            caliperScore++; // 這張圖紙全對才加分
+            caliperScore++; 
         } else {
-            caliperWrongAnswers.push({ item: item, inputs: currentUserInputs }); // 有錯就塞入錯題庫
+            caliperWrongAnswers.push({ item: item, inputs: currentUserInputs }); 
         }
 
         const finalMsg = document.getElementById('caliper-final-msg');
@@ -869,13 +894,12 @@
             finalMsg.innerText = "⚠️ 有部分測量點未達標準或未輸入，請檢視錯誤後前往下一題！"; finalMsg.style.color = "#f87171";
         }
         
-        // 隱藏送出按鈕，顯示下一步按鈕 (無論對錯都顯示)
         document.getElementById('caliper-submit-btn').style.display = 'none'; 
         
         const nextBtn = document.getElementById('caliper-next-btn');
         nextBtn.style.display = 'block';
         if (caliperIdx >= currentCaliperData.length - 1) {
-            nextBtn.innerText = "查看測驗結果 ➡️"; // 如果是最後一題，按鈕文字變更
+            nextBtn.innerText = "查看測驗結果 ➡️"; 
         } else {
             nextBtn.innerText = "前往下一張圖紙 ➡️";
         }
@@ -888,7 +912,7 @@
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.15</div>
+<div id="app-version" onclick="openChangelog()">v3.0</div>
 
 </body>
 </html>
