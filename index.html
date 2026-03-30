@@ -45,7 +45,7 @@
         .changelog-list { list-style: none; padding: 0; margin: 0; line-height: 1.8; font-size: 16px; }
         .changelog-list li { margin-bottom: 12px; border-bottom: 1px dashed #334155; padding-bottom: 10px;}
         .changelog-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
-        .changelog-list strong { color: #fbbf24; display: inline-block; width: 55px; }
+        .changelog-list strong { color: #fbbf24; display: inline-block; width: 60px; }
 
         /* ---------------- 首頁樣式 ---------------- */
         #mode-screen {
@@ -132,7 +132,7 @@
         .bottom-actions { margin-top: auto; display: flex; justify-content: flex-end; padding-top: 15px; }
         #preload-status { color: #94a3b8; font-size: 14px; margin-top: 15px; }
 
-        /* ---------------- 結算畫面 ---------------- */
+        /* ---------------- 結算與錯題回顧畫面 ---------------- */
         #result-screen {
             width: 100%; max-width: 1000px; background: #1e293b;
             padding: 30px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -150,7 +150,7 @@
         .wrong-ans { color: #f87171; }
         .correct-ans { color: #4ade80; }
 
-        /* ---------------- 題庫預習畫面 ---------------- */
+        /* ---------------- 題庫總覽畫面 ---------------- */
         #gallery-screen {
             width: 100%; max-width: 1400px; background: #1e293b;
             padding: 15px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -207,17 +207,41 @@
 
         /* ---------------- 游標卡尺輸入區樣式 ---------------- */
         .caliper-input-group {
-            display: flex; align-items: center; margin-bottom: 15px; gap: 15px;
+            display: flex; align-items: stretch; margin-bottom: 15px; gap: 10px;
             background: #1e293b; padding: 12px 15px; border-radius: 12px; border: 1px solid #475569;
+            flex-wrap: wrap; 
         }
-        .caliper-input-group label { color: #38bdf8; font-size: 18px; font-weight: 900; width: 85px; text-align: center; }
-        .caliper-input-group input {
+        .caliper-input-group > label { 
+            color: #38bdf8; font-size: 18px; font-weight: 900; width: 85px; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .caliper-sub-inputs-wrapper { display: flex; flex: 1; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .caliper-single-input { display: flex; flex: 1; min-width: 160px; align-items: center; gap: 5px; }
+        .caliper-single-input input {
             flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #334155;
             background: #0f172a; color: #f8fafc; font-size: 18px; font-weight: 700;
             outline: none; text-align: center; transition: 0.2s; width: 100%;
         }
-        .caliper-input-group input:focus { border-color: #10b981; background: #1e293b; }
-        .caliper-feedback { width: 40px; font-size: 24px; text-align: center; font-weight: bold; }
+        .caliper-single-input input:focus { border-color: #10b981; background: #1e293b; }
+        .caliper-feedback { width: 35px; font-size: 22px; text-align: center; font-weight: bold; }
+
+        /* 💡 新增：卡尺動態標記點與座標抓取器樣式 */
+        .caliper-marker {
+            position: absolute; width: 28px; height: 28px;
+            background: #ef4444; color: #fff; border: 2px solid #fff;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 16px; z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+            transform: translate(-50%, -50%); /* 確保座標在圈圈正中心 */
+            pointer-events: none; /* 讓滑鼠點擊穿透，不會干擾圖片點擊 */
+        }
+        #caliper-coord-picker {
+            display: none; position: absolute; top: 15px; left: 15px;
+            background: rgba(16, 185, 129, 0.95); color: white; padding: 10px 15px;
+            border-radius: 8px; font-weight: bold; z-index: 100; pointer-events: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-size: 16px; letter-spacing: 1px;
+            border: 1px solid #34d399; line-height: 1.5;
+        }
 
         @media (max-width: 768px) {
             body { padding: 8px; }
@@ -239,8 +263,9 @@
             .changelog-content { width: 95%; padding: 20px; }
             .changelog-content h3 { font-size: 20px; }
             .changelog-list { font-size: 14px; }
-            .caliper-input-group label { font-size: 16px; width: 70px; }
-            .caliper-input-group input { font-size: 16px; padding: 8px; }
+            .caliper-input-group > label { font-size: 16px; width: 100%; justify-content: flex-start; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 5px; }
+            .caliper-single-input input { font-size: 16px; padding: 8px; }
+            .caliper-marker { width: 22px; height: 22px; font-size: 12px; border-width: 1px;}
         }
     </style>
 </head>
@@ -282,16 +307,11 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統更新日誌</h3>
         <ul class="changelog-list">
-            <li><strong>v2.9</strong> - 串接 Google 試算表，游標卡尺題庫雲端動態化</li>
-            <li><strong>v2.8</strong> - 游標卡尺題庫全面雲端化，支援試算表串接</li>
-            <li><strong>v2.7</strong> - 串接 Google 試算表，異常辨認題庫動態化</li>
-            <li><strong>v2.6</strong> - 游標卡尺升級為「陣列題庫模式」</li>
-            <li><strong>v2.5</strong> - 替換為游標卡尺(公差判斷)實境練習</li>
-            <li><strong>v2.4</strong> - 新增試算表介面：資料輸入練習</li>
-            <li><strong>v2.3</strong> - 整合題庫預習區/重新分類規格與異常題庫</li>
-            <li><strong>v2.2</strong> - 增加異常辦認圖片/恢復檢驗標準題庫</li>
-            <li><strong>v2.1</strong> - 新增異常辨認</li>
-            <li><strong>v1.0</strong> - 系統建置</li>
+            <li><strong>v2.11</strong> - 新增「動態標記點」與「滑鼠點擊座標抓取器」，解放修圖雙手</li>
+            <li><strong>v2.10</strong> - 卡尺練習升級：支援單一測量點「多格並排輸入」</li>
+            <li><strong>v2.9</strong> - 串接 Google 試算表，游標卡尺題庫雲端化</li>
+            <li><strong>v2.8</strong> - 游標卡尺題庫改為可無限擴充圖紙設計</li>
+            <li><strong>v1.0 - 2.7</strong> - 題庫與系統雲端化建置</li>
         </ul>
     </div>
 </div>
@@ -335,8 +355,12 @@
         <button class="mode-btn exam" style="font-size: 14px; padding: 8px 16px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
     </div>
     <div class="main-content">
-        <div class="left-panel" style="background: #1e293b;">
-            <img id="caliper-test-img" src="" alt="游標卡尺考題" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        <div class="left-panel" style="background: #1e293b; display: flex; justify-content: center; align-items: center; position: relative;">
+            <div id="caliper-coord-picker">點擊圖片獲取座標</div>
+            <div id="caliper-img-wrapper" style="position: relative; display: inline-block; max-width: 100%; max-height: 100%;">
+                <img id="caliper-test-img" src="" alt="游標卡尺考題" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block; cursor: crosshair;">
+                <div id="caliper-markers-container" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none;"></div>
+            </div>
         </div>
         <div class="right-panel" style="justify-content: flex-start; padding: 25px;">
             <div style="font-size: 22px; font-weight: 900; color: #10b981; margin-bottom: 25px; text-align: center; line-height: 1.4;">
@@ -399,7 +423,6 @@
     
     let caliperLibrary = [];
 
-    // 從 Google Sheets 抓取「異常題庫」
     async function loadDefectDataFromGoogle() {
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?output=csv";
         try {
@@ -409,20 +432,15 @@
             defectLibrary = rows.map(row => {
                 const cols = row.split(','); 
                 if (cols.length >= 3) {
-                    return {
-                        url: cols[0].trim(), ans: cols[1].trim(), maskH: 0, opts: cols[2].trim().split('|')
-                    };
+                    return { url: cols[0].trim(), ans: cols[1].trim(), maskH: 0, opts: cols[2].trim().split('|') };
                 }
             }).filter(item => item !== undefined); 
-        } catch (error) {
-            console.error("載入異常題庫失敗:", error);
-        }
+        } catch (error) { console.error("載入異常題庫失敗:", error); }
     }
 
-    // 💡 從 Google Sheets 抓取「卡尺題庫」 (已換上新的 CSV 連結)
+    // 💡 v2.11 修改：解析 Top 和 Left 座標參數
     async function loadCaliperDataFromGoogle() {
         const caliperSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?gid=1631554971&single=true&output=csv";
-        
         try {
             const response = await fetch(caliperSheetUrl);
             const csvText = await response.text();
@@ -434,42 +452,39 @@
                     const id = cols[0].trim();
                     const url = cols[1].trim();
                     const pointsRaw = cols[2].trim();
+                    
                     const points = pointsRaw.split('|').map(pt => {
                         const parts = pt.split(';');
-                        return {
-                            label: parts[0],
-                            min: parseFloat(parts[1]),
-                            max: parseFloat(parts[2]),
-                            placeholder: parts[3] || ""
-                        };
+                        const label = parts[0];
+                        // 讀取座標 (如果試算表有填寫的話)
+                        const top = parts[1] ? parseFloat(parts[1]) : null;
+                        const left = parts[2] ? parseFloat(parts[2]) : null;
+                        
+                        const subPoints = [];
+                        // 座標佔了 1 跟 2 的位子，所以子輸入框的資料從第 3 個位子開始讀取
+                        for (let i = 3; i < parts.length; i += 3) {
+                            if (parts[i] !== undefined && parts[i+1] !== undefined) {
+                                subPoints.push({
+                                    min: parseFloat(parts[i]),
+                                    max: parseFloat(parts[i+1]),
+                                    placeholder: parts[i+2] || ""
+                                });
+                            }
+                        }
+                        return { label, top, left, subPoints };
                     });
                     return { id, url, points };
                 }
             }).filter(item => item !== undefined);
-            
-            console.log("✅ 成功載入卡尺題庫:", caliperLibrary);
+            console.log("✅ 成功載入卡尺題庫 (支援座標系統):", caliperLibrary);
         } catch (error) {
             console.error("載入卡尺題庫失敗:", error);
-            caliperLibrary = [
-                {
-                    id: "TEST-G304A", url: "TEST-Vernier calipers/TEST-G304A.jpg",
-                    points: [
-                        { label: "測量點 1", min: 25.0, max: 25.5, placeholder: "公差: 25~25.5 (25+0.5)" },
-                        { label: "測量點 2", min: 25.0, max: 25.4, placeholder: "公差: 25~25.4" },
-                        { label: "測量點 3", min: 7.8,  max: 8.1,  placeholder: "公差: 7.8~8.1" },
-                        { label: "測量點 4", min: 25.8, max: 26.1, placeholder: "公差: 25.8~26.1" }
-                    ]
-                }
-            ];
         }
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('preload-status').innerText = "⏳ 正在連線至 Google 雲端雙題庫...";
-        await Promise.all([
-            loadDefectDataFromGoogle(),
-            loadCaliperDataFromGoogle()
-        ]);
+        await Promise.all([ loadDefectDataFromGoogle(), loadCaliperDataFromGoogle() ]);
         preloadImages();
     });
 
@@ -477,19 +492,11 @@
     function closeChangelog() { document.getElementById('changelog-modal').style.display = 'none'; }
 
     function placeMask() {
-        const img = document.getElementById('quiz-img');
-        const msk = document.getElementById('mask');
-        const item = currentData[idx];
-        
+        const img = document.getElementById('quiz-img'), msk = document.getElementById('mask'), item = currentData[idx];
         if (!item || item.type === "text" || !item.maskH) { msk.style.display = 'none'; return; }
-        const imgW = img.clientWidth, imgH = img.clientHeight;
-        const offsetX = img.offsetLeft, offsetY = img.offsetTop;
-
-        msk.style.top = (offsetY + (imgH * item.maskT / 100)) + "px";
-        msk.style.left = (offsetX + (imgW * item.maskL / 100)) + "px";
-        msk.style.width = (imgW * item.maskW / 100) + "px";
-        msk.style.height = (imgH * item.maskH / 100) + "px";
-        msk.style.display = 'block';
+        const imgW = img.clientWidth, imgH = img.clientHeight, offsetX = img.offsetLeft, offsetY = img.offsetTop;
+        msk.style.top = (offsetY + (imgH * item.maskT / 100)) + "px"; msk.style.left = (offsetX + (imgW * item.maskL / 100)) + "px";
+        msk.style.width = (imgW * item.maskW / 100) + "px"; msk.style.height = (imgH * item.maskH / 100) + "px"; msk.style.display = 'block';
     }
 
     window.addEventListener('resize', () => { if(document.getElementById('quiz-container').style.display === 'flex') placeMask(); });
@@ -498,7 +505,6 @@
         if(document.getElementById('quiz-container').style.display === 'none') return;
         const item = currentData[idx];
         if(!item || item.type === 'text' || !item.maskH) return;
-
         let changed = false;
         if(e.key === 'w' || e.key === 'ArrowUp') { item.maskT -= 0.5; changed = true; }
         if(e.key === 's' || e.key === 'ArrowDown') { item.maskT += 0.5; changed = true; }
@@ -507,8 +513,7 @@
 
         if(changed) {
             e.preventDefault(); placeMask(); 
-            const dbg = document.getElementById('debug-coords');
-            dbg.style.display = 'block';
+            const dbg = document.getElementById('debug-coords'); dbg.style.display = 'block';
             dbg.innerHTML = `微調完成請更新程式碼：<br>maskT: <span style="color:#fbbf24">${item.maskT}</span><br>maskL: <span style="color:#fbbf24">${item.maskL}</span>`;
         }
     });
@@ -517,10 +522,8 @@
         const img = document.getElementById('modal-img'), txt = document.getElementById('modal-text-q');
         if (url) { img.src = url; img.style.display = 'block'; txt.style.display = 'none'; } 
         else { img.style.display = 'none'; txt.innerText = textQ; txt.style.display = 'block'; }
-        document.getElementById('modal-caption').innerText = ans;
-        document.getElementById('image-modal').style.display = 'flex';
+        document.getElementById('modal-caption').innerText = ans; document.getElementById('image-modal').style.display = 'flex';
     }
-
     function closeModal() { document.getElementById('image-modal').style.display = 'none'; }
 
     function preloadImages() {
@@ -529,109 +532,67 @@
         if(all.length === 0) { document.getElementById('preload-status').innerText = "✅ 資源與雲端題庫已備妥"; return; }
         all.forEach(item => {
             const img = new Image();
-            img.onload = img.onerror = () => {
-                loaded++;
-                if (loaded === all.length) document.getElementById('preload-status').innerText = "✅ 資源與雲端題庫已備妥";
-            };
+            img.onload = img.onerror = () => { loaded++; if (loaded === all.length) document.getElementById('preload-status').innerText = "✅ 資源與雲端題庫已備妥"; };
             img.src = encodeURI(item.url);
         });
     }
 
-    function showGallery() {
-        document.getElementById('mode-screen').style.display = 'none';
-        document.getElementById('gallery-screen').style.display = 'flex';
-        renderGallery('color'); 
-    }
+    function showGallery() { document.getElementById('mode-screen').style.display = 'none'; document.getElementById('gallery-screen').style.display = 'flex'; renderGallery('color'); }
 
     function renderGallery(type) {
-        document.getElementById('tab-color').classList.remove('active');
-        document.getElementById('tab-combined').classList.remove('active', 'combined-tab');
-        
-        const container = document.getElementById('gallery-container');
-        container.innerHTML = ""; 
+        document.getElementById('tab-color').classList.remove('active'); document.getElementById('tab-combined').classList.remove('active', 'combined-tab');
+        const container = document.getElementById('gallery-container'); container.innerHTML = ""; 
         
         if (type === 'color') {
             document.getElementById('tab-color').classList.add('active');
-            const gridDiv = document.createElement('div');
-            gridDiv.className = 'gallery-grid';
-
+            const gridDiv = document.createElement('div'); gridDiv.className = 'gallery-grid';
             colorLibrary.forEach(item => {
-                const card = document.createElement('div'); card.className = "gallery-card";
-                const safeUrl = encodeURI(item.url);
+                const card = document.createElement('div'); card.className = "gallery-card"; const safeUrl = encodeURI(item.url);
                 card.innerHTML = `<div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}', '')"><img src="${safeUrl}" alt="圖片"></div><div class="gallery-ans">${item.ans}</div>`;
                 gridDiv.appendChild(card);
-            });
-            container.appendChild(gridDiv);
+            }); container.appendChild(gridDiv);
             
         } else if (type === 'combined') {
             document.getElementById('tab-combined').classList.add('active', 'combined-tab');
-            
-            const textTitle = document.createElement('h3');
-            textTitle.className = 'section-title';
-            textTitle.innerHTML = '📝 檢驗規格 <span>(純文字題)</span>';
-            container.appendChild(textTitle);
-
-            const listDiv = document.createElement('div');
-            listDiv.className = 'gallery-list';
+            const textTitle = document.createElement('h3'); textTitle.className = 'section-title'; textTitle.innerHTML = '📝 檢驗規格 <span>(純文字題)</span>'; container.appendChild(textTitle);
+            const listDiv = document.createElement('div'); listDiv.className = 'gallery-list';
             standardLibrary.forEach(item => {
-                const btn = document.createElement('button'); btn.className = "gallery-list-btn";
-                btn.innerText = "📝 " + item.text;
-                btn.onclick = () => { openModal("", item.ans, item.text); };
-                listDiv.appendChild(btn);
-            });
-            container.appendChild(listDiv);
+                const btn = document.createElement('button'); btn.className = "gallery-list-btn"; btn.innerText = "📝 " + item.text;
+                btn.onclick = () => { openModal("", item.ans, item.text); }; listDiv.appendChild(btn);
+            }); container.appendChild(listDiv);
 
-            const imgTitle = document.createElement('h3');
-            imgTitle.className = 'section-title';
-            imgTitle.style.marginTop = '20px';
-            imgTitle.innerHTML = '🚨 異常辨認 <span>(圖片瑕疵)</span>';
-            container.appendChild(imgTitle);
-
-            const gridDiv = document.createElement('div');
-            gridDiv.className = 'gallery-grid';
+            const imgTitle = document.createElement('h3'); imgTitle.className = 'section-title'; imgTitle.style.marginTop = '20px'; imgTitle.innerHTML = '🚨 異常辨認 <span>(圖片瑕疵)</span>'; container.appendChild(imgTitle);
+            const gridDiv = document.createElement('div'); gridDiv.className = 'gallery-grid';
             defectLibrary.forEach(item => {
-                const card = document.createElement('div'); card.className = "gallery-card";
-                const safeUrl = encodeURI(item.url);
+                const card = document.createElement('div'); card.className = "gallery-card"; const safeUrl = encodeURI(item.url);
                 card.innerHTML = `<div class="gallery-img-wrapper" onclick="openModal('${safeUrl}', '${item.ans}', '')"><img src="${safeUrl}" alt="圖片"></div><div class="gallery-ans" style="font-size:18px;">${item.ans}</div>`;
                 gridDiv.appendChild(card);
-            });
-            container.appendChild(gridDiv);
+            }); container.appendChild(gridDiv);
         }
     }
 
     function startQuiz(mode) {
-        document.getElementById('mode-screen').style.display = 'none';
-        document.getElementById('quiz-container').style.display = 'flex';
-        
+        document.getElementById('mode-screen').style.display = 'none'; document.getElementById('quiz-container').style.display = 'flex';
         let data, titleText = "";
         if (mode === 'color') { data = [...colorLibrary]; titleText = "🎨 一般色卡辨識"; } 
         else if (mode === 'defect') { data = [...defectLibrary]; titleText = "🚨 異常辨認測試"; } 
         else { data = [...standardLibrary]; titleText = "🔍 檢驗標準測試"; }
         
-        currentData = shuffle(data); 
-        document.getElementById('quiz-title').innerText = titleText;
-        idx = 0; score = 0; wrongAnswers = [];
-        document.getElementById('total').innerText = currentData.length;
-        init();
+        currentData = shuffle(data); document.getElementById('quiz-title').innerText = titleText;
+        idx = 0; score = 0; wrongAnswers = []; document.getElementById('total').innerText = currentData.length; init();
     }
 
     function showResultScreen() {
-        document.getElementById('quiz-container').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'flex';
-        
-        const passRate = score / currentData.length;
-        const finalScoreDiv = document.getElementById('final-score');
+        document.getElementById('quiz-container').style.display = 'none'; document.getElementById('result-screen').style.display = 'flex';
+        const passRate = score / currentData.length; const finalScoreDiv = document.getElementById('final-score');
         
         if (passRate === 1) { finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #4ade80; font-size: 32px;">🏆 滿分完美通關！</span>`; } 
         else if (passRate >= 0.8) { finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #22c55e; font-size: 32px;">🎉 測驗合格！</span>`; } 
         else { finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #f87171; font-size: 32px;">⚠️ 未達 80% 及格標準，請重新訓練</span>`; }
 
-        const listContainer = document.getElementById('wrong-list-container');
-        listContainer.innerHTML = "";
-
-        if (wrongAnswers.length === 0) {
-            listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 20px; color: #94a3b8; font-weight: 700;">本次測驗無錯題紀錄。</div>`;
-        } else {
+        const listContainer = document.getElementById('wrong-list-container'); listContainer.innerHTML = "";
+        if (wrongAnswers.length === 0) { listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 20px; color: #94a3b8; font-weight: 700;">本次測驗無錯題紀錄。</div>`; } 
+        else {
             wrongAnswers.forEach(wrong => {
                 const card = document.createElement('div'); card.className = "wrong-card";
                 let mediaHtml = wrong.item.type === "text" ? `<div class="wrong-text-q">${wrong.item.text}</div>` : `<img src="${encodeURI(wrong.item.url)}" class="wrong-img">`;
@@ -645,36 +606,25 @@
         if (idx >= currentData.length) { showResultScreen(); return; }
         const item = currentData[idx];
         const img = document.getElementById('quiz-img'), txt = document.getElementById('quiz-text'), msk = document.getElementById('mask'), fbk = document.getElementById('feedback'), dbg = document.getElementById('debug-coords');
-        
         dbg.style.display = 'none'; 
         if (item.type === "text") {
-            img.style.display = msk.style.display = 'none';
-            txt.style.display = 'block'; txt.innerText = item.text;
-            fbk.innerText = "請選擇正確規格";
+            img.style.display = msk.style.display = 'none'; txt.style.display = 'block'; txt.innerText = item.text; fbk.innerText = "請選擇正確規格";
         } else {
-            txt.style.display = 'none'; img.style.display = 'block';
-            img.onload = () => { placeMask(); };
-            img.src = encodeURI(item.url);
-            fbk.innerText = "請根據圖片選擇正確答案 (方向鍵可微調)";
+            txt.style.display = 'none'; img.style.display = 'block'; img.onload = () => { placeMask(); }; img.src = encodeURI(item.url); fbk.innerText = "請根據圖片選擇正確答案 (方向鍵可微調)";
         }
         fbk.className = ""; document.getElementById('cur').innerText = idx + 1;
         const area = document.getElementById('btns'); area.innerHTML = "";
         item.opts.forEach(c => {
             const b = document.createElement('button'); b.className = "option-btn"; b.innerText = c;
-            b.onclick = () => checkAnswer(c, item.ans, b, (item.type !== "text" && item.maskH > 0));
-            area.appendChild(b);
+            b.onclick = () => checkAnswer(c, item.ans, b, (item.type !== "text" && item.maskH > 0)); area.appendChild(b);
         });
     }
 
     function checkAnswer(selected, correct, btn, hasMask) {
-        const allBtns = document.querySelectorAll('.option-btn');
-        allBtns.forEach(b => b.disabled = true);
-        if(hasMask) document.getElementById('mask').style.display = 'none';
-        const fbk = document.getElementById('feedback');
-        
+        const allBtns = document.querySelectorAll('.option-btn'); allBtns.forEach(b => b.disabled = true);
+        if(hasMask) document.getElementById('mask').style.display = 'none'; const fbk = document.getElementById('feedback');
         if (selected === correct) {
-            score++; document.getElementById('score').innerText = score;
-            fbk.innerText = "✔ 太棒了，判斷正確！"; fbk.className = "feedback-correct"; btn.classList.add('selected-correct');
+            score++; document.getElementById('score').innerText = score; fbk.innerText = "✔ 太棒了，判斷正確！"; fbk.className = "feedback-correct"; btn.classList.add('selected-correct');
             setTimeout(() => { idx++; init(); }, 600); 
         } else {
             wrongAnswers.push({ item: currentData[idx], userAns: selected });
@@ -686,89 +636,108 @@
     }
 
     function startCaliper() {
-        document.getElementById('mode-screen').style.display = 'none';
-        document.getElementById('caliper-screen').style.display = 'flex';
-        
-        currentCaliperData = shuffle([...caliperLibrary]);
-        caliperIdx = 0;
-        document.getElementById('caliper-total').innerText = currentCaliperData.length;
-        
+        if(caliperLibrary.length === 0) { alert("題庫載入中或連線失敗，請稍後再試。"); return; }
+        document.getElementById('mode-screen').style.display = 'none'; document.getElementById('caliper-screen').style.display = 'flex';
+        currentCaliperData = shuffle([...caliperLibrary]); caliperIdx = 0; document.getElementById('caliper-total').innerText = currentCaliperData.length;
         renderCaliperTest();
     }
 
     function renderCaliperTest() {
-        if (caliperIdx >= currentCaliperData.length) {
-            alert("🎉 太棒了！所有游標卡尺圖紙皆已測量完畢！");
-            location.reload();
-            return;
-        }
-
+        if (caliperIdx >= currentCaliperData.length) { alert("🎉 太棒了！所有游標卡尺圖紙皆已測量完畢！"); location.reload(); return; }
         const item = currentCaliperData[caliperIdx];
         document.getElementById('caliper-cur').innerText = caliperIdx + 1;
         document.getElementById('caliper-header-title').innerText = `📏 游標卡尺練習 (${item.id})`;
-        document.getElementById('caliper-test-img').src = encodeURI(item.url);
-
-        const container = document.getElementById('caliper-inputs-container');
-        container.innerHTML = ""; 
         
-        item.points.forEach((p, index) => {
+        const img = document.getElementById('caliper-test-img');
+        img.src = encodeURI(item.url);
+
+        const container = document.getElementById('caliper-inputs-container'); container.innerHTML = ""; 
+        const markersContainer = document.getElementById('caliper-markers-container'); markersContainer.innerHTML = "";
+        
+        item.points.forEach((p, pIndex) => {
             const group = document.createElement('div');
             group.className = 'caliper-input-group';
-            group.innerHTML = `
-                <label>${p.label}</label>
-                <input type="number" id="caliper-q${index}" step="0.01" placeholder="${p.placeholder}">
-                <span id="caliper-f${index}" class="caliper-feedback"></span>
-            `;
+            
+            // 標題 Label
+            let labelHTML = `<label>${p.label}</label>`;
+            
+            // 動態產生子輸入框區域
+            let subInputsHTML = `<div class="caliper-sub-inputs-wrapper">`;
+            p.subPoints.forEach((sp, spIndex) => {
+                subInputsHTML += `
+                    <div class="caliper-single-input">
+                        <input type="number" id="caliper-q${pIndex}-${spIndex}" step="0.01" placeholder="${sp.placeholder}">
+                        <span id="caliper-f${pIndex}-${spIndex}" class="caliper-feedback"></span>
+                    </div>
+                `;
+            });
+            subInputsHTML += `</div>`;
+            
+            group.innerHTML = labelHTML + subInputsHTML;
             container.appendChild(group);
+
+            // 💡 v2.11 新增：動態繪製圖片上的圓圈標記點
+            if (p.top && p.left) {
+                const marker = document.createElement('div');
+                marker.className = 'caliper-marker';
+                marker.innerText = pIndex + 1; // 顯示 1, 2, 3...
+                marker.style.top = p.top + '%';
+                marker.style.left = p.left + '%';
+                markersContainer.appendChild(marker);
+            }
         });
 
-        document.getElementById('caliper-submit-btn').style.display = 'block';
-        document.getElementById('caliper-next-btn').style.display = 'none';
-        document.getElementById('caliper-final-msg').innerText = '';
+        document.getElementById('caliper-submit-btn').style.display = 'block'; document.getElementById('caliper-next-btn').style.display = 'none'; document.getElementById('caliper-final-msg').innerText = '';
     }
+
+    // 💡 v2.11 新增：點擊圖片抓取精準的 Top / Left 座標百分比
+    document.getElementById('caliper-test-img').addEventListener('click', function(e) {
+        // 利用 offsetX 和 offsetY 來計算滑鼠點擊位置佔整張圖片的百分比
+        const xPercent = (e.offsetX / this.clientWidth) * 100;
+        const yPercent = (e.offsetY / this.clientHeight) * 100;
+        
+        const picker = document.getElementById('caliper-coord-picker');
+        picker.innerHTML = `📍 點擊座標獲取成功！<br>請將下方數字填入試算表：<br><span style="color:#fbbf24;">Top: ${yPercent.toFixed(1)}</span><br><span style="color:#fbbf24;">Left: ${xPercent.toFixed(1)}</span>`;
+        picker.style.display = 'block';
+    });
 
     function checkCaliperAnswers() {
         const item = currentCaliperData[caliperIdx];
         let allCorrect = true;
 
-        item.points.forEach((p, index) => {
-            let inputVal = parseFloat(document.getElementById(`caliper-q${index}`).value);
-            let feedbackElement = document.getElementById(`caliper-f${index}`);
-            
-            if (isNaN(inputVal)) {
-                feedbackElement.innerText = '⚠️';
-                feedbackElement.style.color = '#fbbf24';
-                allCorrect = false;
-            } else if (inputVal >= p.min && inputVal <= p.max) {
-                feedbackElement.innerText = '✔';
-                feedbackElement.style.color = '#4ade80';
-            } else {
-                feedbackElement.innerText = '✘';
-                feedbackElement.style.color = '#f87171';
-                allCorrect = false;
-            }
+        item.points.forEach((p, pIndex) => {
+            p.subPoints.forEach((sp, spIndex) => {
+                let inputVal = parseFloat(document.getElementById(`caliper-q${pIndex}-${spIndex}`).value);
+                let feedbackElement = document.getElementById(`caliper-f${pIndex}-${spIndex}`);
+                
+                if (isNaN(inputVal)) {
+                    feedbackElement.innerText = '⚠️'; feedbackElement.style.color = '#fbbf24'; allCorrect = false;
+                } else if (inputVal >= sp.min && inputVal <= sp.max) {
+                    feedbackElement.innerText = '✔'; feedbackElement.style.color = '#4ade80';
+                } else {
+                    feedbackElement.innerText = '✘'; feedbackElement.style.color = '#f87171'; allCorrect = false;
+                }
+            });
         });
 
         const finalMsg = document.getElementById('caliper-final-msg');
         if (allCorrect) {
-            finalMsg.innerText = "🎉 恭喜！所有測量點數值皆符合公差標準！";
-            finalMsg.style.color = "#4ade80";
-            document.getElementById('caliper-submit-btn').style.display = 'none';
-            document.getElementById('caliper-next-btn').style.display = 'block';
+            finalMsg.innerText = "🎉 恭喜！所有測量點數值皆符合公差標準！"; finalMsg.style.color = "#4ade80";
+            document.getElementById('caliper-submit-btn').style.display = 'none'; document.getElementById('caliper-next-btn').style.display = 'block';
         } else {
-            finalMsg.innerText = "⚠️ 有部分測量點未達標或未輸入，請重新確認！";
-            finalMsg.style.color = "#f87171";
+            finalMsg.innerText = "⚠️ 有部分測量點未達標或未輸入，請重新確認！"; finalMsg.style.color = "#f87171";
             document.getElementById('caliper-next-btn').style.display = 'none';
         }
     }
 
-    function nextCaliperTest() {
-        caliperIdx++;
-        renderCaliperTest();
+    function nextCaliperTest() { 
+        document.getElementById('caliper-coord-picker').style.display = 'none'; // 換題時隱藏座標面板
+        caliperIdx++; 
+        renderCaliperTest(); 
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.9</div>
+<div id="app-version" onclick="openChangelog()">v2.11</div>
 
 </body>
 </html>
