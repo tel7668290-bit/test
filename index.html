@@ -223,9 +223,9 @@
             outline: none; text-align: center; transition: 0.2s; width: 100%;
         }
         .caliper-single-input input:focus { border-color: #10b981; background: #1e293b; }
+        .caliper-single-input input:disabled { background: #334155; color: #cbd5e1; border-color: #475569; }
         .caliper-feedback { width: 35px; font-size: 22px; text-align: center; font-weight: bold; }
 
-        /* 卡尺動態標記點與座標抓取器樣式 */
         .caliper-marker {
             position: absolute; width: 28px; height: 28px;
             background: #ef4444; color: #fff; border: 2px solid #fff;
@@ -244,6 +244,14 @@
             cursor: default;
         }
         .copy-friendly { user-select: all; background: #064e3b; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 5px;}
+
+        #caliper-img-wrapper {
+            position: relative; display: inline-block; 
+            max-width: 100%; max-height: 100%;
+            transition: transform 0.1s ease-out;
+            transform-origin: center center;
+            cursor: crosshair; 
+        }
 
         @media (max-width: 768px) {
             body { padding: 8px; }
@@ -309,12 +317,12 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統更新日誌</h3>
         <ul class="changelog-list">
+            <li><strong>v2.15</strong> - 卡尺測驗流程優化：允許錯題通關，新增「專屬卡尺錯題結算畫面」</li>
+            <li><strong>v2.14</strong> - 新增「滑鼠滾輪縮放」與「拖曳平移」，看大圖更清晰</li>
             <li><strong>v2.13</strong> - 卡尺題庫全面改寫為「直覺式資料庫表格」結構</li>
             <li><strong>v2.12</strong> - 座標輸入極簡化：採用「一鍵複製器」</li>
             <li><strong>v2.11</strong> - 新增「動態標記點」與「滑鼠點擊座標抓取器」，解放修圖雙手</li>
-            <li><strong>v2.10</strong> - 卡尺練習升級：支援單一測量點「多格並排輸入」</li>
-            <li><strong>v2.9</strong> - 串接 Google 試算表，游標卡尺題庫雲端化</li>
-            <li><strong>v1.0 - 2.8</strong> - 題庫與系統雲端化建置</li>
+            <li><strong>v1.0 - 2.10</strong> - 系統雲端化建置與多項功能升級</li>
         </ul>
     </div>
 </div>
@@ -358,10 +366,16 @@
         <button class="mode-btn exam" style="font-size: 14px; padding: 8px 16px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
     </div>
     <div class="main-content">
-        <div class="left-panel" style="background: #1e293b; display: flex; justify-content: center; align-items: center; position: relative;">
+        <div class="left-panel" id="caliper-left-panel" style="background: #1e293b; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden;">
             <div id="caliper-coord-picker">點擊圖片獲取座標</div>
-            <div id="caliper-img-wrapper" style="position: relative; display: inline-block; max-width: 100%; max-height: 100%;">
-                <img id="caliper-test-img" src="" alt="游標卡尺考題" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block; cursor: crosshair;">
+            
+            <div style="position: absolute; bottom: 15px; left: 15px; z-index: 50; display:flex; align-items:center; gap: 10px; pointer-events: auto;">
+                <div style="background: rgba(0,0,0,0.6); color: #cbd5e1; padding: 5px 10px; border-radius: 6px; font-size: 14px; font-weight: bold; pointer-events: none;">🖱️ 滾輪縮放 / 按住拖曳</div>
+                <button class="mode-btn exam" style="padding: 5px 12px; font-size: 13px; width: auto; box-shadow: none;" onclick="resetCaliperZoom()">🔍 還原大小</button>
+            </div>
+
+            <div id="caliper-img-wrapper">
+                <img id="caliper-test-img" src="" alt="游標卡尺考題" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block; pointer-events: none;">
                 <div id="caliper-markers-container" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none;"></div>
             </div>
         </div>
@@ -421,10 +435,19 @@
     ];
 
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
+    
+    // 💡 v2.15 卡尺專屬計分與錯題紀錄
     let currentCaliperData = [];
     let caliperIdx = 0;
-    
     let caliperLibrary = [];
+    let caliperScore = 0;
+    let caliperWrongAnswers = []; // 專門存卡尺錯誤紀錄
+
+    let caliperScale = 1;
+    let caliperTx = 0, caliperTy = 0;
+    let isCaliperDragging = false;
+    let caliperStartX, caliperStartY;
+    let caliperHasDragged = false; 
 
     async function loadDefectDataFromGoogle() {
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?output=csv";
@@ -441,7 +464,6 @@
         } catch (error) { console.error("載入異常題庫失敗:", error); }
     }
 
-    // 💡 v2.13 修改：支援讀取「直覺式資料庫表格」結構
     async function loadCaliperDataFromGoogle() {
         const caliperSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?gid=1631554971&single=true&output=csv";
         try {
@@ -450,55 +472,37 @@
             const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0).slice(1);
             
             caliperLibrary = [];
-
             rows.forEach(row => {
                 const cols = row.split(','); 
-                if (cols.length < 7) return; // 確保有足夠的欄位
+                if (cols.length < 7) return; 
 
-                const id = cols[0].trim();
-                const url = cols[1].trim();
-                const label = cols[2].trim();
+                const id = cols[0].trim(), url = cols[1].trim(), label = cols[2].trim();
                 const top = cols[3].trim() ? parseFloat(cols[3].trim()) : null;
                 const left = cols[4].trim() ? parseFloat(cols[4].trim()) : null;
-                const min = parseFloat(cols[5].trim());
-                const max = parseFloat(cols[6].trim());
+                const min = parseFloat(cols[5].trim()), max = parseFloat(cols[6].trim());
                 const placeholder = cols[7] ? cols[7].trim() : "";
 
-                // 如果還沒有這個圖紙的資料，先建一個空的
                 let drawing = caliperLibrary.find(d => d.id === id);
-                if (!drawing) {
-                    drawing = { id: id, url: url, points: [] };
-                    caliperLibrary.push(drawing);
-                }
+                if (!drawing) { drawing = { id: id, url: url, points: [] }; caliperLibrary.push(drawing); }
 
-                // 在這張圖紙裡找找看有沒有同一個「測量點名稱」
                 let point = drawing.points.find(p => p.label === label);
                 if (!point) {
-                    // 第一次出現這個名字，建一個新的點
-                    point = { label: label, top: top, left: left, subPoints: [] };
-                    drawing.points.push(point);
+                    point = { label: label, top: top, left: left, subPoints: [] }; drawing.points.push(point);
                 } else {
-                    // 如果同名測量點再次出現，而且原本沒有座標，就更新座標
                     if (top !== null && point.top === null) point.top = top;
                     if (left !== null && point.left === null) point.left = left;
                 }
 
-                // 把這行的最小值、最大值塞進去
-                if (!isNaN(min) && !isNaN(max)) {
-                    point.subPoints.push({ min: min, max: max, placeholder: placeholder });
-                }
+                if (!isNaN(min) && !isNaN(max)) { point.subPoints.push({ min: min, max: max, placeholder: placeholder }); }
             });
-
-            console.log("✅ 成功載入卡尺題庫 (直覺式表格模式):", caliperLibrary);
-        } catch (error) {
-            console.error("載入卡尺題庫失敗:", error);
-        }
+        } catch (error) { console.error("載入卡尺題庫失敗:", error); }
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('preload-status').innerText = "⏳ 正在連線至 Google 雲端雙題庫...";
         await Promise.all([ loadDefectDataFromGoogle(), loadCaliperDataFromGoogle() ]);
         preloadImages();
+        setupZoomAndPan();
     });
 
     function openChangelog() { document.getElementById('changelog-modal').style.display = 'flex'; }
@@ -615,6 +619,52 @@
         }
     }
 
+    // 💡 v2.15 新增：專屬卡尺錯題結算畫面
+    function showCaliperResultScreen() {
+        document.getElementById('caliper-screen').style.display = 'none'; 
+        document.getElementById('result-screen').style.display = 'flex';
+        
+        const passRate = caliperScore / currentCaliperData.length; 
+        const finalScoreDiv = document.getElementById('final-score');
+        
+        if (passRate === 1) { finalScoreDiv.innerHTML = `卡尺總得分：${caliperScore} / ${currentCaliperData.length}<br><span style="color: #4ade80; font-size: 32px;">🏆 游標卡尺完美通關！</span>`; } 
+        else if (passRate >= 0.8) { finalScoreDiv.innerHTML = `卡尺總得分：${caliperScore} / ${currentCaliperData.length}<br><span style="color: #22c55e; font-size: 32px;">🎉 測量合格！</span>`; } 
+        else { finalScoreDiv.innerHTML = `卡尺總得分：${caliperScore} / ${currentCaliperData.length}<br><span style="color: #f87171; font-size: 32px;">⚠️ 測量精準度不足，請重新訓練</span>`; }
+
+        const listContainer = document.getElementById('wrong-list-container'); listContainer.innerHTML = "";
+        
+        if (caliperWrongAnswers.length === 0) { 
+            listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 20px; color: #94a3b8; font-weight: 700;">本次游標卡尺無任何錯題紀錄。</div>`; 
+        } else {
+            caliperWrongAnswers.forEach(wrong => {
+                const card = document.createElement('div'); card.className = "wrong-card";
+                card.style.flexDirection = "column"; card.style.alignItems = "flex-start";
+
+                let detailsHTML = `
+                    <div style="display:flex; gap:15px; width:100%; border-bottom: 1px solid #475569; padding-bottom:10px; margin-bottom:10px;">
+                        <img src="${encodeURI(wrong.item.url)}" style="width:120px; height:80px; object-fit:contain; background:#000; border-radius:6px; border:1px solid #475569;">
+                        <div style="font-size:20px; font-weight:900; color:#fbbf24; align-self:center;">圖紙：${wrong.item.id}</div>
+                    </div>
+                    <div style="width:100%; display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:10px;">`;
+
+                wrong.inputs.forEach(input => {
+                    let color = input.isCorrect ? '#4ade80' : '#f87171';
+                    let icon = input.isCorrect ? '✔' : '✘';
+                    detailsHTML += `
+                        <div style="background:#0f172a; padding:10px; border-radius:8px; border:1px solid #334155;">
+                            <div style="color:#38bdf8; font-size:16px; font-weight:bold; margin-bottom:5px;">${input.label}</div>
+                            <div style="font-size:14px; color:#94a3b8;">你的輸入: <span style="color:${color}; font-weight:bold; font-size:18px;">${input.val || '未輸入'} ${icon}</span></div>
+                            <div style="font-size:14px; color:#cbd5e1; margin-top:3px;">正確公差: <span style="color:#4ade80;">${input.min} ~ ${input.max}</span></div>
+                        </div>`;
+                });
+
+                detailsHTML += `</div>`;
+                card.innerHTML = detailsHTML;
+                listContainer.appendChild(card);
+            });
+        }
+    }
+
     function init() {
         if (idx >= currentData.length) { showResultScreen(); return; }
         const item = currentData[idx];
@@ -648,15 +698,77 @@
         }
     }
 
+    function setupZoomAndPan() {
+        const wrapper = document.getElementById('caliper-img-wrapper');
+        const leftPanel = document.getElementById('caliper-left-panel');
+        
+        leftPanel.addEventListener('wheel', (e) => {
+            if (document.getElementById('caliper-screen').style.display === 'none') return;
+            e.preventDefault(); 
+            
+            const zoomSpeed = 0.1;
+            if (e.deltaY < 0) caliperScale += zoomSpeed; 
+            else caliperScale -= zoomSpeed; 
+            
+            caliperScale = Math.max(1, Math.min(caliperScale, 5)); 
+            
+            if (caliperScale === 1) { caliperTx = 0; caliperTy = 0; } 
+            updateCaliperTransform();
+        });
+
+        leftPanel.addEventListener('mousedown', (e) => {
+            if (caliperScale > 1) {
+                isCaliperDragging = true; caliperHasDragged = false; 
+                caliperStartX = e.clientX - caliperTx; caliperStartY = e.clientY - caliperTy;
+                wrapper.style.cursor = 'grabbing';
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isCaliperDragging) return;
+            caliperHasDragged = true; 
+            caliperTx = e.clientX - caliperStartX; caliperTy = e.clientY - caliperStartY;
+            updateCaliperTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isCaliperDragging) {
+                isCaliperDragging = false; wrapper.style.cursor = caliperScale > 1 ? 'grab' : 'crosshair';
+                setTimeout(() => caliperHasDragged = false, 50); 
+            }
+        });
+    }
+
+    function updateCaliperTransform() {
+        const wrapper = document.getElementById('caliper-img-wrapper');
+        wrapper.style.transform = `translate(${caliperTx}px, ${caliperTy}px) scale(${caliperScale})`;
+        wrapper.style.cursor = caliperScale > 1 ? (isCaliperDragging ? 'grabbing' : 'grab') : 'crosshair';
+    }
+
+    function resetCaliperZoom() {
+        caliperScale = 1; caliperTx = 0; caliperTy = 0; updateCaliperTransform();
+    }
+
     function startCaliper() {
         if(caliperLibrary.length === 0) { alert("題庫載入中或連線失敗，請稍後再試。"); return; }
         document.getElementById('mode-screen').style.display = 'none'; document.getElementById('caliper-screen').style.display = 'flex';
-        currentCaliperData = shuffle([...caliperLibrary]); caliperIdx = 0; document.getElementById('caliper-total').innerText = currentCaliperData.length;
+        
+        // 💡 初始化計分與紀錄
+        currentCaliperData = shuffle([...caliperLibrary]); 
+        caliperIdx = 0; caliperScore = 0; caliperWrongAnswers = []; 
+        document.getElementById('caliper-total').innerText = currentCaliperData.length;
         renderCaliperTest();
     }
 
     function renderCaliperTest() {
-        if (caliperIdx >= currentCaliperData.length) { alert("🎉 太棒了！所有游標卡尺圖紙皆已測量完畢！"); location.reload(); return; }
+        // 💡 v2.15 修改：如果圖紙測量完畢，進入專屬錯題結算畫面
+        if (caliperIdx >= currentCaliperData.length) { 
+            showCaliperResultScreen();
+            return; 
+        }
+        
+        resetCaliperZoom(); 
+
         const item = currentCaliperData[caliperIdx];
         document.getElementById('caliper-cur').innerText = caliperIdx + 1;
         document.getElementById('caliper-header-title').innerText = `📏 游標卡尺練習 (${item.id})`;
@@ -671,10 +783,7 @@
             const group = document.createElement('div');
             group.className = 'caliper-input-group';
             
-            // 標題 Label
             let labelHTML = `<label>${p.label}</label>`;
-            
-            // 動態產生子輸入框區域
             let subInputsHTML = `<div class="caliper-sub-inputs-wrapper">`;
             p.subPoints.forEach((sp, spIndex) => {
                 subInputsHTML += `
@@ -702,42 +811,73 @@
         document.getElementById('caliper-submit-btn').style.display = 'block'; document.getElementById('caliper-next-btn').style.display = 'none'; document.getElementById('caliper-final-msg').innerText = '';
     }
 
-    // 💡 v2.13 修改：點擊圖片後，給出要填進 D 欄和 E 欄的數字
-    document.getElementById('caliper-test-img').addEventListener('click', function(e) {
-        const xPercent = (e.offsetX / this.clientWidth) * 100;
-        const yPercent = (e.offsetY / this.clientHeight) * 100;
+    document.getElementById('caliper-img-wrapper').addEventListener('click', function(e) {
+        if (caliperHasDragged) return; 
+        const rect = this.getBoundingClientRect();
+        const xPercent = ((e.clientX - rect.left) / rect.width) * 100;
+        const yPercent = ((e.clientY - rect.top) / rect.height) * 100;
         
         const picker = document.getElementById('caliper-coord-picker');
         picker.innerHTML = `📍 點擊成功！請填入試算表：<br>D欄(Top): <span class="copy-friendly">${yPercent.toFixed(1)}</span><br>E欄(Left): <span class="copy-friendly">${xPercent.toFixed(1)}</span>`;
         picker.style.display = 'block';
     });
 
+    // 💡 v2.15 核心修改：允許錯題通關，並記錄錯誤輸入
     function checkCaliperAnswers() {
         const item = currentCaliperData[caliperIdx];
         let allCorrect = true;
+        let currentUserInputs = []; // 暫存這張圖紙使用者的所有輸入
 
         item.points.forEach((p, pIndex) => {
             p.subPoints.forEach((sp, spIndex) => {
-                let inputVal = parseFloat(document.getElementById(`caliper-q${pIndex}-${spIndex}`).value);
+                const inputEl = document.getElementById(`caliper-q${pIndex}-${spIndex}`);
+                let inputVal = parseFloat(inputEl.value);
                 let feedbackElement = document.getElementById(`caliper-f${pIndex}-${spIndex}`);
                 
+                inputEl.disabled = true; // 批改後立即鎖定輸入框，防止修改
+                
+                let isCorrect = false;
                 if (isNaN(inputVal)) {
                     feedbackElement.innerText = '⚠️'; feedbackElement.style.color = '#fbbf24'; allCorrect = false;
                 } else if (inputVal >= sp.min && inputVal <= sp.max) {
-                    feedbackElement.innerText = '✔'; feedbackElement.style.color = '#4ade80';
+                    feedbackElement.innerText = '✔'; feedbackElement.style.color = '#4ade80'; isCorrect = true;
                 } else {
                     feedbackElement.innerText = '✘'; feedbackElement.style.color = '#f87171'; allCorrect = false;
                 }
+
+                // 記錄下來準備丟到錯題本
+                currentUserInputs.push({
+                    label: p.label,
+                    val: inputEl.value,
+                    min: sp.min,
+                    max: sp.max,
+                    isCorrect: isCorrect
+                });
             });
         });
 
+        if (allCorrect) {
+            caliperScore++; // 這張圖紙全對才加分
+        } else {
+            caliperWrongAnswers.push({ item: item, inputs: currentUserInputs }); // 有錯就塞入錯題庫
+        }
+
         const finalMsg = document.getElementById('caliper-final-msg');
         if (allCorrect) {
-            finalMsg.innerText = "🎉 恭喜！所有測量點數值皆符合公差標準！"; finalMsg.style.color = "#4ade80";
-            document.getElementById('caliper-submit-btn').style.display = 'none'; document.getElementById('caliper-next-btn').style.display = 'block';
+            finalMsg.innerText = "🎉 恭喜！所有測量點數值皆完全正確！"; finalMsg.style.color = "#4ade80";
         } else {
-            finalMsg.innerText = "⚠️ 有部分測量點未達標或未輸入，請重新確認！"; finalMsg.style.color = "#f87171";
-            document.getElementById('caliper-next-btn').style.display = 'none';
+            finalMsg.innerText = "⚠️ 有部分測量點未達標準或未輸入，請檢視錯誤後前往下一題！"; finalMsg.style.color = "#f87171";
+        }
+        
+        // 隱藏送出按鈕，顯示下一步按鈕 (無論對錯都顯示)
+        document.getElementById('caliper-submit-btn').style.display = 'none'; 
+        
+        const nextBtn = document.getElementById('caliper-next-btn');
+        nextBtn.style.display = 'block';
+        if (caliperIdx >= currentCaliperData.length - 1) {
+            nextBtn.innerText = "查看測驗結果 ➡️"; // 如果是最後一題，按鈕文字變更
+        } else {
+            nextBtn.innerText = "前往下一張圖紙 ➡️";
         }
     }
 
@@ -748,7 +888,7 @@
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.13</div>
+<div id="app-version" onclick="openChangelog()">v2.15</div>
 
 </body>
 </html>
