@@ -132,7 +132,7 @@
         .bottom-actions { margin-top: auto; display: flex; justify-content: flex-end; padding-top: 15px; }
         #preload-status { color: #94a3b8; font-size: 14px; margin-top: 15px; }
 
-        /* ---------------- 結算與錯題回顧畫面 ---------------- */
+        /* ---------------- 結算畫面 ---------------- */
         #result-screen {
             width: 100%; max-width: 1000px; background: #1e293b;
             padding: 30px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -143,16 +143,14 @@
             width: 100%; flex: 1; overflow-y: auto; background: #0f172a; 
             border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155;
         }
-        .wrong-card {
-            background: #334155; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px;
-        }
+        .wrong-card { background: #334155; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; }
         .wrong-img { width: 120px; height: 80px; object-fit: contain; background: #000; border-radius: 6px; border: 1px solid #475569; }
         .wrong-text-q { width: 120px; font-size: 14px; color: #38bdf8; font-weight: bold; line-height: 1.3; text-align: center; }
         .wrong-info { flex: 1; font-size: 18px; font-weight: 700; line-height: 1.6; }
         .wrong-ans { color: #f87171; }
         .correct-ans { color: #4ade80; }
 
-        /* ---------------- 題庫總覽畫面 ---------------- */
+        /* ---------------- 題庫預習畫面 ---------------- */
         #gallery-screen {
             width: 100%; max-width: 1400px; background: #1e293b;
             padding: 15px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
@@ -197,9 +195,7 @@
         }
         .gallery-list-btn:hover { background: #334155; border-color: #38bdf8; transform: translateX(8px); }
 
-        #image-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.92); z-index: 999; justify-content: center; align-items: center; flex-direction: column; cursor: pointer;
-        }
+        #image-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.92); z-index: 999; justify-content: center; align-items: center; flex-direction: column; cursor: pointer; }
         .modal-content { position: relative; max-width: 95%; max-height: 90%; display: flex; flex-direction: column; align-items: center; cursor: default; }
         #modal-img { max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px; border: 2px solid #475569; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: none; }
         #modal-text-q {
@@ -257,7 +253,7 @@
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
     <button class="mode-btn data-entry" onclick="startCaliper()">📏 游標卡尺練習</button>
     <button class="mode-btn gallery" onclick="showGallery()">📚 題庫預習區</button>
-    <div id="preload-status">⏳ 正在從 Google 試算表載入題庫...</div>
+    <div id="preload-status">⏳ 正在連線至 Google 雲端題庫...</div>
 </div>
 
 <div id="gallery-screen">
@@ -286,14 +282,16 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統更新日誌</h3>
         <ul class="changelog-list">
-            <li><strong>v2.7</strong> - 串接 Google 試算表，異常辨認題庫雲端動態化</li>
-            <li><strong>v2.6</strong> - 游標卡尺升級為「陣列題庫模式」，支援擴充圖紙</li>
+            <li><strong>v2.9</strong> - 串接 Google 試算表，游標卡尺題庫雲端動態化</li>
+            <li><strong>v2.8</strong> - 游標卡尺題庫全面雲端化，支援試算表串接</li>
+            <li><strong>v2.7</strong> - 串接 Google 試算表，異常辨認題庫動態化</li>
+            <li><strong>v2.6</strong> - 游標卡尺升級為「陣列題庫模式」</li>
             <li><strong>v2.5</strong> - 替換為游標卡尺(公差判斷)實境練習</li>
             <li><strong>v2.4</strong> - 新增試算表介面：資料輸入練習</li>
             <li><strong>v2.3</strong> - 整合題庫預習區/重新分類規格與異常題庫</li>
             <li><strong>v2.2</strong> - 增加異常辦認圖片/恢復檢驗標準題庫</li>
             <li><strong>v2.1</strong> - 新增異常辨認</li>
-            <li><strong>v2.0</strong> - 完善色卡辨識/檢測測試/題庫</li>
+            <li><strong>v1.0</strong> - 系統建置</li>
         </ul>
     </div>
 </div>
@@ -381,7 +379,6 @@
         { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
     ];
 
-    // 💡 v2.7 修改：將 defectLibrary 從 const 改為 let，並清空預設資料
     let defectLibrary = [];
 
     const standardLibrary = [
@@ -396,71 +393,85 @@
         { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
     ];
 
-    const caliperLibrary = [
-        {
-            id: "TEST-G304A", // 第一張圖
-            url: "TEST-Vernier calipers/TEST-G304A.jpg",
-            points: [
-                { label: "測量點 1", min: 25.0, max: 25.5, placeholder: "公差: +0.5" },
-                { label: "測量點 2", min: 25.0, max: 25.4, placeholder: "公差: +0.4" },
-                { label: "測量點 3", min: 7.8,  max: 8.1,  placeholder: "公差: +0.1 -0.2" },
-                { label: "測量點 4", min: 25.8, max: 26.1, placeholder: "公差: +0.1 -0.2" }
-            ]
-        },
-        {
-            id: "TEST-G302", // ⬇️ 這是你未來新增的第二張圖！
-            url: "TEST-Vernier calipers/TEST-G302.jpg",
-                        points: [
-                { label: "測量點 1", min: 25.2, max: 25.5, placeholder: "公差: -0.3" },
-                { label: "測量點 2", min: 25.8, max: 26.2, placeholder: "公差: +-0.2" },
-                { label: "測量點 3", min: 12.2,  max: 12.4,  placeholder: "公差: +-0.2" },
-                // 就算只有兩個測量點，系統也會自動只生出兩個輸入框！
-            ]
-        }
-    ];
-
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
     let currentCaliperData = [];
     let caliperIdx = 0;
+    
+    let caliperLibrary = [];
 
-    // 💡 v2.7 新增：從 Google 試算表讀取資料的函數
+    // 從 Google Sheets 抓取「異常題庫」
     async function loadDefectDataFromGoogle() {
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?output=csv";
-        
         try {
             const response = await fetch(sheetUrl);
             const csvText = await response.text();
-            
-            // 解析 CSV 格式 (過濾掉空白列)
-            const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0);
-            const dataRows = rows.slice(1); // 跳過第一列標題
-            
-            defectLibrary = dataRows.map(row => {
+            const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0).slice(1);
+            defectLibrary = rows.map(row => {
                 const cols = row.split(','); 
                 if (cols.length >= 3) {
                     return {
-                        url: cols[0].trim(),
-                        ans: cols[1].trim(),
-                        maskH: 0, // 異常題不需要遮罩
-                        opts: cols[2].trim().split('|') // 用 | 符號切出多個選項
+                        url: cols[0].trim(), ans: cols[1].trim(), maskH: 0, opts: cols[2].trim().split('|')
                     };
                 }
             }).filter(item => item !== undefined); 
-            
-            console.log("✅ 成功從 Google Sheets 載入異常題庫:", defectLibrary);
-            
-            // 資料抓完後，觸發預先載入圖片的流程
-            preloadImages();
-            
         } catch (error) {
-            console.error("載入 Google 試算表失敗:", error);
-            document.getElementById('preload-status').innerText = "❌ 題庫連線失敗";
-            alert("題庫載入失敗，請檢查網路連線或 CSV 網址是否正確！");
+            console.error("載入異常題庫失敗:", error);
         }
     }
 
-    // 💡 網頁一打開，第一件事就是去抓取試算表資料
-    window.addEventListener('DOMContentLoaded', loadDefectDataFromGoogle);
+    // 💡 從 Google Sheets 抓取「卡尺題庫」 (已換上新的 CSV 連結)
+    async function loadCaliperDataFromGoogle() {
+        const caliperSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?gid=1631554971&single=true&output=csv";
+        
+        try {
+            const response = await fetch(caliperSheetUrl);
+            const csvText = await response.text();
+            const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0).slice(1);
+            
+            caliperLibrary = rows.map(row => {
+                const cols = row.split(','); 
+                if (cols.length >= 3) {
+                    const id = cols[0].trim();
+                    const url = cols[1].trim();
+                    const pointsRaw = cols[2].trim();
+                    const points = pointsRaw.split('|').map(pt => {
+                        const parts = pt.split(';');
+                        return {
+                            label: parts[0],
+                            min: parseFloat(parts[1]),
+                            max: parseFloat(parts[2]),
+                            placeholder: parts[3] || ""
+                        };
+                    });
+                    return { id, url, points };
+                }
+            }).filter(item => item !== undefined);
+            
+            console.log("✅ 成功載入卡尺題庫:", caliperLibrary);
+        } catch (error) {
+            console.error("載入卡尺題庫失敗:", error);
+            caliperLibrary = [
+                {
+                    id: "TEST-G304A", url: "TEST-Vernier calipers/TEST-G304A.jpg",
+                    points: [
+                        { label: "測量點 1", min: 25.0, max: 25.5, placeholder: "公差: 25~25.5 (25+0.5)" },
+                        { label: "測量點 2", min: 25.0, max: 25.4, placeholder: "公差: 25~25.4" },
+                        { label: "測量點 3", min: 7.8,  max: 8.1,  placeholder: "公差: 7.8~8.1" },
+                        { label: "測量點 4", min: 25.8, max: 26.1, placeholder: "公差: 25.8~26.1" }
+                    ]
+                }
+            ];
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        document.getElementById('preload-status').innerText = "⏳ 正在連線至 Google 雲端雙題庫...";
+        await Promise.all([
+            loadDefectDataFromGoogle(),
+            loadCaliperDataFromGoogle()
+        ]);
+        preloadImages();
+    });
 
     function openChangelog() { document.getElementById('changelog-modal').style.display = 'flex'; }
     function closeChangelog() { document.getElementById('changelog-modal').style.display = 'none'; }
@@ -512,10 +523,10 @@
 
     function closeModal() { document.getElementById('image-modal').style.display = 'none'; }
 
-    // 💡 預載圖片函數移到資料抓取完畢後才執行
     function preloadImages() {
         const all = [...colorLibrary, ...defectLibrary, ...standardLibrary, ...caliperLibrary].filter(i => i.url);
         let loaded = 0;
+        if(all.length === 0) { document.getElementById('preload-status').innerText = "✅ 資源與雲端題庫已備妥"; return; }
         all.forEach(item => {
             const img = new Image();
             img.onload = img.onerror = () => {
@@ -687,7 +698,7 @@
 
     function renderCaliperTest() {
         if (caliperIdx >= currentCaliperData.length) {
-            alert("🎉 太棒了！游標卡尺圖紙已全部測量完畢！");
+            alert("🎉 太棒了！所有游標卡尺圖紙皆已測量完畢！");
             location.reload();
             return;
         }
@@ -757,7 +768,7 @@
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v2.7</div>
+<div id="app-version" onclick="openChangelog()">v2.9</div>
 
 </body>
 </html>
