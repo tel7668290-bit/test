@@ -8,9 +8,11 @@
         * { box-sizing: border-box; touch-action: manipulation; }
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: #0f172a; color: #f8fafc; margin: 0; padding: 10px; 
+            background: #0f172a; color: #f8fafc; margin: 0; 
+            /* 💡 v3.6 修正：加入手機瀏海安全距離，並改用 100dvh 適應網址列 */
+            padding: max(12px, env(safe-area-inset-top)) 10px 10px 10px; 
             display: flex; flex-direction: column; align-items: center; 
-            height: 100vh; overflow: hidden;
+            height: 100dvh; overflow: hidden;
         }
 
         /* ---------------- 手機版首頁 ---------------- */
@@ -39,10 +41,11 @@
         .gallery-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 5px 5px 10px 5px; border-bottom: 2px solid #334155; margin-bottom: 10px;
+            flex-shrink: 0;
         }
         .gallery-header h2 { margin: 0; font-size: 20px; color: #f8fafc; }
         
-        .gallery-nav { display: flex; gap: 8px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; white-space: nowrap; }
+        .gallery-nav { display: flex; gap: 8px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; white-space: nowrap; flex-shrink: 0;}
         .tab-btn {
             flex: 0 0 auto; padding: 10px 15px; background: #334155; border: 2px solid #475569;
             color: #cbd5e1; border-radius: 8px; font-size: 14px; font-weight: bold;
@@ -76,6 +79,7 @@
             display: flex; justify-content: space-between; align-items: center; 
             font-size: 15px; font-weight: 800; padding-bottom: 8px; margin-bottom: 10px;
             border-bottom: 2px solid #334155;
+            flex-shrink: 0; /* 💡 v3.6 修正：確保標題絕對不會被壓縮 */
         }
         .header span { color: #38bdf8; display: flex; align-items: center; gap: 8px;}
         .home-icon-btn { background: none; border: none; color: #f8fafc; font-size: 22px; padding: 0; margin: 0; display: flex; align-items: center;}
@@ -84,6 +88,7 @@
             position: relative; width: 100%; height: 35vh; background: #000;
             border-radius: 8px; border: 2px solid #475569; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
+            flex-shrink: 0; /* 💡 v3.6 修正：確保圖片區塊不會被壓縮 */
         }
         #color-img-wrapper {
             position: relative; display: inline-block; max-width: 100%; max-height: 100%;
@@ -95,16 +100,18 @@
             display: none; font-size: 22px; font-weight: 900; color: #38bdf8;
             text-align: center; padding: 30px 10px; line-height: 1.4; background: #1e293b;
             border-radius: 8px; border: 1px solid #475569;
+            flex-shrink: 0;
         }
 
         .right-panel {
             flex: 1; display: flex; flex-direction: column; margin-top: 10px;
             background: #1e293b; padding: 12px; border-radius: 12px; overflow-y: auto;
+            min-height: 0; /* 💡 v3.6 修正：這是防擠壓的最關鍵語法，允許內部滾動 */
         }
         #feedback { 
             font-size: 16px; font-weight: 700; margin-bottom: 10px; 
             min-height: 40px; display: flex; align-items: center; justify-content: center;
-            text-align: center; border-radius: 8px;
+            text-align: center; border-radius: 8px; flex-shrink: 0;
         }
         .feedback-correct { background: #064e3b; color: #4ade80; }
         .feedback-wrong { background: #7f1d1d; color: #f87171; }
@@ -116,7 +123,7 @@
         }
         .selected-correct { background: #22c55e !important; color: white !important; }
         .selected-wrong { background: #ef4444 !important; color: white !important; }
-        .bottom-actions { margin-top: auto; display: flex; justify-content: center; padding-top: 10px; }
+        .bottom-actions { margin-top: auto; display: flex; justify-content: center; padding-top: 10px; flex-shrink: 0; }
 
         #mask-coord-picker {
             display: none; position: absolute; top: 10px; left: 10px; background: rgba(16, 185, 129, 0.95); color: white; 
@@ -129,6 +136,7 @@
         #wrong-list-container {
             width: 100%; flex: 1; overflow-y: auto; background: #1e293b; 
             border-radius: 12px; padding: 10px; margin-bottom: 15px; border: 1px solid #334155;
+            min-height: 0;
         }
         .wrong-card { background: #334155; border-radius: 8px; padding: 10px; margin-bottom: 10px; text-align: center; display: flex; flex-direction: column; gap: 8px;}
         .wrong-img { width: 100%; height: 100px; object-fit: contain; background: #000; border-radius: 6px; }
@@ -141,6 +149,7 @@
             position: relative; width: 100%; height: 35vh; background: #000;
             border-radius: 8px; border: 2px solid #475569; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
+            flex-shrink: 0; /* 💡 v3.6 修正：確保圖片區塊不會被壓縮 */
         }
         #caliper-img-wrapper {
             position: relative; display: inline-block; max-width: 100%; max-height: 100%;
@@ -168,6 +177,7 @@
         .caliper-input-group {
             display: flex; flex-direction: column; margin-bottom: 12px; gap: 5px;
             background: #334155; padding: 10px; border-radius: 8px; border: 1px solid #475569;
+            flex-shrink: 0;
         }
         .caliper-input-group > label { color: #38bdf8; font-size: 16px; font-weight: 900; border-bottom: 1px solid #475569; padding-bottom: 5px;}
         .caliper-sub-inputs-wrapper { display: flex; flex-direction: column; gap: 8px; }
@@ -179,31 +189,6 @@
         .caliper-single-input input:focus { border-color: #10b981; }
         .caliper-single-input input:disabled { background: #1e293b; color: #cbd5e1; border-color: #475569;}
         .caliper-feedback { width: 30px; font-size: 18px; text-align: center; font-weight: bold; }
-
-        /* 更新日誌彈窗樣式 */
-        #changelog-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); z-index: 10000; 
-            justify-content: center; align-items: center; flex-direction: column; cursor: pointer;
-        }
-        .changelog-content {
-            background: #1e293b; padding: 25px; border-radius: 12px; border: 1px solid #475569;
-            width: 95%; max-width: 450px; color: #f8fafc; cursor: default; position: relative;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.8);
-        }
-        .changelog-content h3 { margin-top: 0; color: #38bdf8; border-bottom: 2px solid #334155; padding-bottom: 12px; text-align: center; font-size: 20px;}
-        .changelog-list { list-style: none; padding: 0; margin: 0; line-height: 1.5; font-size: 14px; max-height: 50vh; overflow-y: auto;}
-        .changelog-list li { margin-bottom: 12px; border-bottom: 1px dashed #334155; padding-bottom: 12px;}
-        .changelog-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
-        .changelog-list strong { color: #fbbf24; display: block; font-size: 16px; margin-bottom: 4px; }
-        #app-version {
-            position: fixed; bottom: 15px; right: 15px;
-            color: #94a3b8; font-size: 14px; font-weight: 700;
-            letter-spacing: 1px; z-index: 9998; 
-            cursor: pointer; background: rgba(30, 41, 59, 0.8);
-            padding: 6px 12px; border-radius: 20px; border: 1px solid #334155;
-            transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
     </style>
 </head>
 <body>
@@ -292,12 +277,12 @@
         </div>
     </div>
 
-    <div class="right-panel" style="background: #1e293b; padding: 12px; overflow-y: auto;">
-        <div style="font-size: 16px; font-weight: 900; color: #10b981; margin-bottom: 15px; text-align: center;">請雙指放大或按鈕縮放<br>並輸入測量結果</div>
+    <div class="right-panel">
+        <div style="font-size: 16px; font-weight: 900; color: #10b981; margin-bottom: 15px; text-align: center; flex-shrink: 0;">請雙指放大或按鈕縮放<br>並輸入測量結果</div>
         <div id="caliper-inputs-container"></div>
-        <button id="caliper-submit-btn" class="mode-btn caliper" style="width: 100%; max-width: none; margin-top: 10px; padding:12px;" onclick="checkCaliperAnswers()">送出批改</button>
-        <button id="caliper-next-btn" class="mode-btn exam" style="width: 100%; max-width: none; margin-top: 10px; padding:12px; display: none;" onclick="nextCaliperTest()">前往下一張圖紙 ➡️</button>
-        <div id="caliper-final-msg" style="text-align: center; font-size: 15px; font-weight: bold; margin-top: 12px; min-height: 20px;"></div>
+        <button id="caliper-submit-btn" class="mode-btn caliper" style="width: 100%; max-width: none; margin-top: 10px; padding:12px; flex-shrink: 0;" onclick="checkCaliperAnswers()">送出批改</button>
+        <button id="caliper-next-btn" class="mode-btn exam" style="width: 100%; max-width: none; margin-top: 10px; padding:12px; display: none; flex-shrink: 0;" onclick="nextCaliperTest()">前往下一張圖紙 ➡️</button>
+        <div id="caliper-final-msg" style="text-align: center; font-size: 15px; font-weight: bold; margin-top: 12px; min-height: 20px; flex-shrink: 0;"></div>
     </div>
 </div>
 
@@ -313,11 +298,11 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統開發里程碑</h3>
         <ul class="changelog-list">
-            <li><strong>v3.5 - 根除響應式跑版問題</strong><br>統一將色卡遮罩架構升級為「緊身衣模式」，徹底解決換手機螢幕座標偏移的痛點。</li>
-            <li><strong>v3.3 - 手機版專屬優化</strong><br>新增全域首頁按鈕，並加入「2點定位遮罩神器」，手機上也能無痛精準設定座標。</li>
-            <li><strong>v3.0 - 游標卡尺互動實境升級</strong><br>支援觸控縮放、平移看圖；新增「動態座標標記圈」、「座標抓取器」與專屬錯題結算機制。</li>
-            <li><strong>v2.0 - 雲端試算表全面串接</strong><br>導入 Google Sheets API，實現免改程式碼的「無痛動態擴充題庫」。</li>
-            <li><strong>v1.0 - 系統基礎建置</strong><br>建立品保教育訓練網頁框架，完成首波「色卡辨識」模組。</li>
+            <li><strong>v3.6 - 修復手機排版擠壓問題</strong><br>加入防擠壓語法與 `100dvh`，徹底解決按鈕過多導致頂部標題消失的問題。</li>
+            <li><strong>v3.5 - 根除響應式跑版問題</strong><br>統一將色卡遮罩架構升級為「緊身衣模式」，解決換手機螢幕座標偏移。</li>
+            <li><strong>v3.3 - 手機版專屬優化</strong><br>新增全域首頁按鈕，並加入「2點定位遮罩神器」，無痛精準設定座標。</li>
+            <li><strong>v3.0 - 游標卡尺互動實境升級</strong><br>支援觸控縮放、平移看圖；新增「動態座標標記圈」、「座標抓取器」。</li>
+            <li><strong>v2.0 - 雲端試算表全面串接</strong><br>導入 Google Sheets API，實現免改程式碼無痛擴充題庫。</li>
         </ul>
     </div>
 </div>
@@ -379,7 +364,7 @@
     let maskP1 = { x: 0, y: 0 };
 
     async function loadDefectDataFromGoogle() {
-        // 💡 1. 第一個網址：異常辨認題庫
+        // 💡 第一個網址：異常辨認題庫
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?gid=0&single=true&output=csv";
         try {
             const response = await fetch(sheetUrl);
@@ -395,7 +380,7 @@
     }
 
     async function loadCaliperDataFromGoogle() {
-        // 💡 2. 第二個網址：游標卡尺題庫
+        // 💡 第二個網址：游標卡尺題庫
         const caliperSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?gid=1631554971&single=true&output=csv";
         try {
             const response = await fetch(caliperSheetUrl);
@@ -887,6 +872,6 @@
         document.getElementById('changelog-modal').style.display = 'none';
     }
 </script>
-<div id="app-version" onclick="openChangelog()">v3.5</div>
+<div id="app-version" onclick="openChangelog()">v3.6</div>
 </body>
 </html>
