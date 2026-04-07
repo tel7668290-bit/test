@@ -1,850 +1,1675 @@
 <!DOCTYPE html>
+
 <html lang="zh-TW">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>清展科技-品保部 | 手機版測驗與題庫</title>
+
     <style>
+
         * { box-sizing: border-box; touch-action: manipulation; }
+
         body { 
+
             font-family: 'Segoe UI', system-ui, sans-serif; 
+
             background: #0f172a; color: #f8fafc; margin: 0; padding: 10px; 
+
             display: flex; flex-direction: column; align-items: center; 
+
             height: 100vh; overflow: hidden;
+
         }
+
+
 
         /* ---------------- 手機版首頁 ---------------- */
+
         #mode-screen {
+
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
             background: rgba(15, 23, 42, 0.98); z-index: 100;
+
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+
             gap: 15px; padding: 20px;
+
         }
+
         .mode-title { font-size: 28px; margin-bottom: 10px; color: #f8fafc; text-align: center; line-height: 1.4; font-weight: 900;}
+
         .mode-btn {
+
             padding: 16px 20px; font-size: 18px; font-weight: 900;
+
             background: #38bdf8; color: #0f172a; border: none; border-radius: 12px;
+
             cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+
             width: 100%; max-width: 350px; text-align: center;
+
         }
+
         .mode-btn.anomaly { background: #f97316; color: #fff; }
+
         .mode-btn.exam { background: #fbbf24; }
+
         .mode-btn.caliper { background: #10b981; color: #fff; }
+
         .mode-btn.gallery { background: #c084fc; color: #fff; }
+
         .mode-btn.back { background: #475569; color: #fff; margin-top: 10px; }
+
         #preload-status { color: #94a3b8; font-size: 14px; margin-top: 10px; text-align: center; }
 
+
+
         /* ---------------- 手機版題庫 (列表式) ---------------- */
+
         #gallery-screen { width: 100%; height: 100%; display: none; flex-direction: column; }
+
         .gallery-header {
+
             display: flex; justify-content: space-between; align-items: center;
+
             padding: 5px 5px 10px 5px; border-bottom: 2px solid #334155; margin-bottom: 10px;
+
         }
+
         .gallery-header h2 { margin: 0; font-size: 20px; color: #f8fafc; }
+
         
+
         .gallery-nav { display: flex; gap: 8px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; white-space: nowrap; }
+
         .tab-btn {
+
             flex: 0 0 auto; padding: 10px 15px; background: #334155; border: 2px solid #475569;
+
             color: #cbd5e1; border-radius: 8px; font-size: 14px; font-weight: bold;
+
         }
+
         .tab-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
+
         .tab-btn.active.exam-tab { background: #fbbf24; border-color: #fbbf24; }
+
         .tab-btn.active.anomaly-tab { background: #f97316; border-color: #f97316; color: #fff;}
 
+
+
         #gallery-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
+
         .gallery-list-btn {
+
             width: 100%; padding: 16px 20px; background: #1e293b; border: 1px solid #334155;
+
             border-radius: 12px; color: #f8fafc; font-size: 16px; font-weight: 700;
+
             text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px;
+
         }
+
         .gallery-img-preview { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #000; }
 
+
+
         /* ---------------- 圖片放大彈出視窗 (Modal) ---------------- */
+
         #image-modal {
+
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
             background: rgba(0, 0, 0, 0.95); z-index: 999; 
+
             flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+
         }
+
         #modal-img { max-width: 100%; max-height: 60vh; border-radius: 8px; border: 2px solid #475569; display: none; }
+
         #modal-text-q { font-size: 22px; color: #38bdf8; text-align: center; line-height: 1.4; display: none; margin-bottom: 20px; }
+
         #modal-caption { margin-top: 20px; font-size: 24px; font-weight: 900; color: #4ade80; background: #064e3b; padding: 8px 25px; border-radius: 20px; text-align: center; }
+
         .modal-close { position: absolute; top: 15px; right: 20px; font-size: 50px; color: #cbd5e1; background: none; border: none; padding: 0; line-height: 1;}
 
+
+
         /* ---------------- 共用測驗容器 (上下排列) ---------------- */
+
         .container { width: 100%; height: 100%; display: none; flex-direction: column; padding-bottom: 10px;}
+
         .header { 
+
             display: flex; justify-content: space-between; align-items: center; 
+
             font-size: 15px; font-weight: 800; padding-bottom: 8px; margin-bottom: 10px;
+
             border-bottom: 2px solid #334155;
+
         }
+
         .header span { color: #38bdf8; display: flex; align-items: center; gap: 8px;}
-        /* 💡 新增：左上角首頁按鈕樣式 */
+
         .home-icon-btn { background: none; border: none; color: #f8fafc; font-size: 22px; padding: 0; margin: 0; display: flex; align-items: center;}
+
         
+
         #img-wrapper {
+
             position: relative; width: 100%; max-height: 35vh; display: flex; justify-content: center; align-items: center;
+
             border: 2px solid #475569; border-radius: 8px; overflow: hidden; background: #000;
+
         }
+
         #quiz-img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; pointer-events: none;}
+
         #mask { position: absolute; background: #000; z-index: 10; border-radius: 4px; box-shadow: 0 0 3px rgba(0,0,0,0.5); }
 
+
+
         #quiz-text {
+
             display: none; font-size: 22px; font-weight: 900; color: #38bdf8;
+
             text-align: center; padding: 30px 10px; line-height: 1.4; background: #1e293b;
+
             border-radius: 8px; border: 1px solid #475569;
+
         }
+
+
 
         .right-panel {
+
             flex: 1; display: flex; flex-direction: column; margin-top: 10px;
+
             background: #1e293b; padding: 12px; border-radius: 12px; overflow-y: auto;
+
         }
+
         #feedback { 
+
             font-size: 16px; font-weight: 700; margin-bottom: 10px; 
+
             min-height: 40px; display: flex; align-items: center; justify-content: center;
+
             text-align: center; border-radius: 8px;
+
         }
+
         .feedback-correct { background: #064e3b; color: #4ade80; }
+
         .feedback-wrong { background: #7f1d1d; color: #f87171; }
+
         
+
         .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
         button.option-btn { 
+
             padding: 12px 5px; border: 1px solid #475569; background: #334155; 
+
             color: #f8fafc; border-radius: 8px; font-size: 15px; font-weight: 700; 
+
         }
+
         .selected-correct { background: #22c55e !important; color: white !important; }
+
         .selected-wrong { background: #ef4444 !important; color: white !important; }
+
         .bottom-actions { margin-top: auto; display: flex; justify-content: center; padding-top: 10px; }
 
-        /* 💡 新增：色卡遮罩座標工具樣式 */
+
+
         #mask-coord-picker {
+
             display: none; position: absolute; top: 10px; left: 10px; background: rgba(16, 185, 129, 0.95); color: white; 
+
             padding: 8px 12px; border-radius: 6px; font-weight: bold; z-index: 100; font-size: 13px; border: 1px solid #34d399;
+
         }
+
         .coord-toggle-btn { background: rgba(100, 116, 139, 0.9); border: none; color: #fff; padding: 6px 10px; border-radius: 6px; font-weight: bold; font-size: 12px;}
 
+
+
         /* ---------------- 結算畫面 ---------------- */
+
         #result-screen { width: 100%; display: none; flex-direction: column; align-items: center; height: 100%; padding-bottom: 20px;}
+
         #wrong-list-container {
+
             width: 100%; flex: 1; overflow-y: auto; background: #1e293b; 
+
             border-radius: 12px; padding: 10px; margin-bottom: 15px; border: 1px solid #334155;
+
         }
+
         .wrong-card { background: #334155; border-radius: 8px; padding: 10px; margin-bottom: 10px; text-align: center; display: flex; flex-direction: column; gap: 8px;}
+
         .wrong-img { width: 100%; height: 100px; object-fit: contain; background: #000; border-radius: 6px; }
+
         .wrong-info { font-size: 15px; font-weight: 700; line-height: 1.5;}
+
         .wrong-ans { color: #f87171; }
+
         .correct-ans { color: #4ade80; }
 
+
+
         /* ---------------- 📏 游標卡尺專屬樣式 (手機版) ---------------- */
+
         #caliper-left-panel {
+
             position: relative; width: 100%; height: 35vh; background: #000;
+
             border-radius: 8px; border: 2px solid #475569; overflow: hidden;
+
             display: flex; justify-content: center; align-items: center;
+
         }
+
         #caliper-img-wrapper {
+
             position: relative; display: inline-block; max-width: 100%; max-height: 100%;
+
             transition: transform 0.1s ease-out; transform-origin: center center;
+
         }
+
         #caliper-test-img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; pointer-events: none;}
+
         .caliper-marker {
+
             position: absolute; width: 22px; height: 22px; background: #ef4444; color: #fff; border: 1px solid #fff;
+
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
+
             font-weight: 900; font-size: 12px; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.6);
+
             transform: translate(-50%, -50%); pointer-events: none;
+
         }
+
         
+
         .zoom-controls {
+
             position: absolute; bottom: 8px; left: 8px; right: 8px; z-index: 50;
+
             display: flex; justify-content: space-between; align-items: center; pointer-events: auto;
+
         }
+
         .zoom-btn-group { display: flex; gap: 5px; }
+
         .zoom-btn { background: rgba(56, 189, 248, 0.9); border: none; color: #0f172a; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
+
         #caliper-coord-picker {
+
             display: none; position: absolute; top: 10px; left: 10px; background: rgba(16, 185, 129, 0.95); color: white; 
+
             padding: 8px 12px; border-radius: 6px; font-weight: bold; z-index: 100; font-size: 12px; border: 1px solid #34d399;
+
         }
+
+
 
         .caliper-input-group {
+
             display: flex; flex-direction: column; margin-bottom: 12px; gap: 5px;
+
             background: #334155; padding: 10px; border-radius: 8px; border: 1px solid #475569;
+
         }
+
         .caliper-input-group > label { color: #38bdf8; font-size: 16px; font-weight: 900; border-bottom: 1px solid #475569; padding-bottom: 5px;}
+
         .caliper-sub-inputs-wrapper { display: flex; flex-direction: column; gap: 8px; }
+
         .caliper-single-input { display: flex; width: 100%; align-items: center; gap: 8px; }
+
         .caliper-single-input input {
+
             flex: 1; padding: 10px; border-radius: 6px; border: 2px solid #475569;
+
             background: #0f172a; color: #f8fafc; font-size: 16px; font-weight: 700; text-align: center;
+
         }
+
         .caliper-single-input input:focus { border-color: #10b981; }
+
         .caliper-single-input input:disabled { background: #1e293b; color: #cbd5e1; border-color: #475569;}
+
         .caliper-feedback { width: 30px; font-size: 18px; text-align: center; font-weight: bold; }
+
     </style>
+
 </head>
+
 <body>
 
+
+
 <div id="mode-screen">
+
     <div class="mode-title">清展科技-品保部<br>【手機版系統】</div>
+
     <button class="mode-btn" onclick="startQuiz('color')">🎨 色卡辨識</button>
+
     <button class="mode-btn anomaly" onclick="startQuiz('defect')">🚨 異常辨認</button>
+
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準</button>
+
     <button class="mode-btn caliper" onclick="startCaliper()">📏 游標卡尺實境</button>
+
     <button class="mode-btn gallery" onclick="showGallery()">📚 題庫總覽</button>
+
     <div id="preload-status">⏳ 正在連線至雲端雙題庫...</div>
+
 </div>
+
+
 
 <div id="gallery-screen">
+
     <div class="gallery-header">
+
         <h2>📚 題庫總覽</h2>
+
         <button class="mode-btn exam" style="font-size: 14px; padding: 6px 12px; width: auto; margin: 0; box-shadow: none;" onclick="location.reload()">🏠 首頁</button>
+
     </div>
+
     <div class="gallery-nav">
+
         <button id="tab-color" class="tab-btn active" onclick="renderGallery('color')">🎨 色卡</button>
+
         <button id="tab-defect" class="tab-btn anomaly-tab" onclick="renderGallery('defect')">🚨 異常</button>
+
         <button id="tab-standard" class="tab-btn" onclick="renderGallery('standard')">🔍 標準</button>
+
     </div>
+
     <div id="gallery-list"></div>
+
 </div>
+
+
 
 <div id="image-modal" onclick="closeModal()">
+
     <button class="modal-close" onclick="closeModal()">&times;</button>
+
     <div id="modal-text-q" onclick="event.stopPropagation()"></div>
+
     <img id="modal-img" src="" alt="圖片" onclick="event.stopPropagation()">
+
     <div id="modal-caption" onclick="event.stopPropagation()"></div>
+
 </div>
+
+
 
 <div class="container" id="quiz-container">
+
     <div class="header">
+
         <span id="quiz-title">
+
             <button class="home-icon-btn" onclick="location.reload()">🏠</button>
+
             <span id="quiz-title-text">載入中...</span>
+
         </span>
+
         <span>進度: <span id="cur">1</span>/<span id="total">0</span> | 得分: <span id="score">0</span></span>
+
     </div>
+
     <div id="img-wrapper">
+
         <img id="quiz-img" src="">
+
         <div id="mask"></div>
-        
+
         <div id="mask-coord-picker"></div>
+
         <button id="mask-toggle-btn" class="coord-toggle-btn" style="position: absolute; bottom: 8px; right: 8px; z-index: 100; display: none;" onclick="toggleMaskPicker(event)">📍 抓遮罩</button>
+
     </div>
+
     <div id="quiz-text"></div>
 
+
+
     <div class="right-panel">
+
         <div id="feedback">請選擇正確答案</div>
+
         <div class="btn-grid" id="btns"></div>
+
         <div class="bottom-actions">
+
             <button class="mode-btn back" style="padding: 10px 20px; font-size: 16px; margin: 0; box-shadow: none;" onclick="location.reload()">🏠 結束測驗</button>
+
         </div>
+
     </div>
+
 </div>
+
+
 
 <div class="container" id="caliper-screen" style="display: none;">
+
     <div class="header">
+
         <span id="caliper-header-title">
+
             <button class="home-icon-btn" onclick="location.reload()">🏠</button>
+
             <span style="margin-left:8px;">📏 游標卡尺</span>
+
         </span>
+
         <span>進度: <span id="caliper-cur">1</span>/<span id="caliper-total">1</span></span>
+
     </div>
+
     
+
     <div id="caliper-left-panel">
+
         <div id="caliper-coord-picker">點擊抓座標</div>
+
         <div class="zoom-controls">
+
             <div class="zoom-btn-group">
+
                 <button class="zoom-btn" onclick="zoomCaliper(0.3)">➕</button>
+
                 <button class="zoom-btn" onclick="zoomCaliper(-0.3)">➖</button>
+
                 <button class="zoom-btn" onclick="resetCaliperZoom()" style="background:#fbbf24;">🔍</button>
+
             </div>
+
             <button id="coord-toggle-btn" class="coord-toggle-btn" onclick="toggleCaliperCoordPicker(event)">📍 開座標</button>
+
         </div>
+
         <div id="caliper-img-wrapper">
+
             <img id="caliper-test-img" src="">
+
             <div id="caliper-markers-container" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none;"></div>
+
         </div>
+
     </div>
+
+
 
     <div class="right-panel" style="background: #1e293b; padding: 12px; overflow-y: auto;">
+
         <div style="font-size: 16px; font-weight: 900; color: #10b981; margin-bottom: 15px; text-align: center;">請雙指放大或按鈕縮放<br>並輸入測量結果</div>
+
         <div id="caliper-inputs-container"></div>
+
         <button id="caliper-submit-btn" class="mode-btn caliper" style="width: 100%; max-width: none; margin-top: 10px; padding:12px;" onclick="checkCaliperAnswers()">送出批改</button>
+
         <button id="caliper-next-btn" class="mode-btn exam" style="width: 100%; max-width: none; margin-top: 10px; padding:12px; display: none;" onclick="nextCaliperTest()">前往下一張圖紙 ➡️</button>
+
         <div id="caliper-final-msg" style="text-align: center; font-size: 15px; font-weight: bold; margin-top: 12px; min-height: 20px;"></div>
+
     </div>
+
 </div>
+
+
 
 <div id="result-screen">
+
     <h2 style="color: #f8fafc; margin-bottom: 5px; margin-top:0;">測驗結束</h2>
+
     <div style="font-size: 26px; font-weight: 900; color: #fbbf24; margin-bottom: 15px;" id="final-score-text">得分：0/0</div>
+
     <div id="wrong-list-container"></div>
+
     <button class="mode-btn exam" style="padding: 12px; font-size:18px;" onclick="location.reload()">🏠 返回首頁</button>
+
 </div>
 
+
+
 <script>
+
     function shuffle(array) {
+
         for (let i = array.length - 1; i > 0; i--) {
+
             const j = Math.floor(Math.random() * (i + 1));
+
             [array[i], array[j]] = [array[j], array[i]];
+
         }
+
         return array;
+
     }
 
+
+
     const colorOptions = ["120A", "121A", "220B", "231B", "292K", "801K", "813B", "870B", "877K", "882C", "920A", "921B", "923K", "926C"];
+
+    
+
+    // 💡 v3.4 更新了最精準的色卡遮罩座標
+
     const colorLibrary = [
-        { url: "colors/120A.png", ans: "120A", maskT: 36, maskL: 68, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/121A.jpg", ans: "121A", maskT: 34, maskL: 70, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/220B.jpg", ans: "220B", maskT: 30, maskL: 75, maskW: 18, maskH: 12, opts: colorOptions },
-        { url: "colors/231B.png", ans: "231B", maskT: 21, maskL: 73, maskW: 20, maskH: 16, opts: colorOptions },
-        { url: "colors/292K.png", ans: "292K", maskT: 21, maskL: 14, maskW: 35, maskH: 15, opts: colorOptions },
-        { url: "colors/801K.jpg", ans: "801K", maskT: 20, maskL: 60, maskW: 20, maskH: 18, opts: colorOptions },
-        { url: "colors/813B.jpg", ans: "813B", maskT: 40, maskL: 69, maskW: 22, maskH: 15, opts: colorOptions },
-        { url: "colors/870B.jpg", ans: "870B", maskT: 39, maskL: 73, maskW: 18, maskH: 14, opts: colorOptions },
-        { url: "colors/877K.png", ans: "877K", maskT: 18, maskL: 65, maskW: 20, maskH: 18, opts: colorOptions },
-        { url: "colors/882C.jpg", ans: "882C", maskT: 30, maskL: 68, maskW: 19, maskH: 14, opts: colorOptions },
-        { url: "colors/920A.jpg", ans: "920A", maskT: 36, maskL: 73, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/921B.jpg", ans: "921B", maskT: 36, maskL: 75, maskW: 18, maskH: 11, opts: colorOptions },
-        { url: "colors/923K.jpg", ans: "923K", maskT: 20, maskL: 68, maskW: 20, maskH: 18, opts: colorOptions },
-        { url: "colors/926C.jpg", ans: "926C", maskT: 15, maskL: 72, maskW: 20, maskH: 18, opts: colorOptions }
+
+        { url: "colors/120A.png", ans: "120A", maskT: 37.4, maskL: 55.7, maskW: 7.0, maskH: 7.4, opts: colorOptions },
+
+        { url: "colors/121A.jpg", ans: "121A", maskT: 39.0, maskL: 57.9, maskW: 6.4, maskH: 5.1, opts: colorOptions },
+
+        { url: "colors/220B.jpg", ans: "220B", maskT: 32.0, maskL: 59.0, maskW: 5.5, maskH: 7.0, opts: colorOptions },
+
+        { url: "colors/231B.png", ans: "231B", maskT: 23.1, maskL: 63.8, maskW: 14.2, maskH: 15.2, opts: colorOptions },
+
+        { url: "colors/292K.png", ans: "292K", maskT: 23.1, maskL: 27.0, maskW: 22.4, maskH: 11.7, opts: colorOptions },
+
+        { url: "colors/801K.jpg", ans: "801K", maskT: 23.1, maskL: 58.5, maskW: 8.6, maskH: 9.3, opts: colorOptions },
+
+        { url: "colors/813B.jpg", ans: "813B", maskT: 40.9, maskL: 61.4, maskW: 10.8, maskH: 11.7, opts: colorOptions },
+
+        { url: "colors/870B.jpg", ans: "870B", maskT: 36.7, maskL: 63.4, maskW: 9.2, maskH: 13.6, opts: colorOptions },
+
+        { url: "colors/877K.png", ans: "877K", maskT: 25.0, maskL: 59.4, maskW: 9.6, maskH: 7.8, opts: colorOptions },
+
+        { url: "colors/882C.jpg", ans: "882C", maskT: 31.6, maskL: 64.7, maskW: 10.3, maskH: 13.2, opts: colorOptions },
+
+        { url: "colors/920A.jpg", ans: "920A", maskT: 37.1, maskL: 57.9, maskW: 5.7, maskH: 8.2, opts: colorOptions },
+
+        { url: "colors/921B.jpg", ans: "921B", maskT: 38.2, maskL: 58.6, maskW: 5.7, maskH: 5.1, opts: colorOptions },
+
+        { url: "colors/923K.jpg", ans: "923K", maskT: 20.7, maskL: 60.7, maskW: 11.8, maskH: 13.6, opts: colorOptions },
+
+        { url: "colors/926C.jpg", ans: "926C", maskT: 20.3, maskL: 65.4, maskW: 12.5, maskH: 12.4, opts: colorOptions }
+
     ];
+
+
 
     let defectLibrary = [];
 
+
+
     const standardLibrary = [
+
         { type: "text", text: "📝 請問「亮光」的代表號是？", ans: "A", opts: ["A", "B", "C", "K", "Q", "Y"] },
+
         { type: "text", text: "📝 請問「平光」的代表號是？", ans: "B", opts: ["A", "B", "C", "K", "Q", "Y"] },
+
         { type: "text", text: "📝 請問「消光」的代表號是？", ans: "C", opts: ["A", "B", "C", "K", "Q", "Y"] },
+
         { type: "text", text: "📝 請問「混合白點」的代表號是？", ans: "Q", opts: ["A", "B", "C", "K", "Q", "Y"] },
+
         { type: "text", text: "📝 請問「混合金點」的代表號是？", ans: "Y", opts: ["A", "B", "C", "K", "Q", "Y"] },
+
         { type: "text", text: "📝 請問「砂紋」的代表號是？", ans: "K", opts: ["A", "B", "C", "K", "Q", "Y"] },
+
         { type: "text", text: "📝 請問「毛料硬度」的標準規格範圍是？", ans: "11~14", opts: ["1~10", "11~14", "15~20", "21~25", "26~30"] },
+
         { type: "text", text: "📝 請問「粉體模厚」的標準規格範圍是？", ans: "40um~130um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] },
+
         { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
+
     ];
 
+
+
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
+
     
+
     let caliperLibrary = [];
+
     let currentCaliperData = [];
+
     let caliperIdx = 0, caliperScore = 0, caliperWrongAnswers = [];
 
-    // 手機版縮放平移變數
+
+
     let caliperScale = 1, caliperTx = 0, caliperTy = 0;
+
     let isCaliperDragging = false, caliperStartX, caliperStartY, caliperHasDragged = false; 
+
     let isCoordPickerActive = false;
 
-    // 💡 色卡遮罩工具專用變數
+
+
     let isMaskPickerActive = false;
+
     let maskClickStep = 0;
+
     let maskP1 = { x: 0, y: 0 };
 
-    // 💡 1. 讀取異常辨認題庫 (請替換網址)
+
+
     async function loadDefectDataFromGoogle() {
-        const sheetUrl = "你的異常辨認題庫CSV網址請貼在這裡";
+
+        // 💡 1. 請替換為異常辨認的 CSV 網址
+
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?gid=0&single=true&output=csv";
+
         try {
+
             const response = await fetch(sheetUrl);
+
             const csvText = await response.text();
+
             const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0).slice(1);
+
             defectLibrary = rows.map(row => {
+
                 const cols = row.split(','); 
+
                 if (cols.length >= 3 && cols[0].trim() !== "" && !cols[0].includes('TEST-')) {
+
                     return { url: cols[0].trim(), ans: cols[1].trim(), maskH: 0, opts: cols[2].trim().split('|') };
+
                 }
+
             }).filter(item => item !== undefined); 
+
         } catch (error) { console.error("載入異常題庫失敗", error); }
+
     }
 
-    // 💡 2. 讀取游標卡尺題庫 (請替換網址)
+
+
     async function loadCaliperDataFromGoogle() {
-        const caliperSheetUrl = "你的游標卡尺題庫CSV網址請貼在這裡";
+
+        // 💡 2. 請替換為游標卡尺的 CSV 網址
+
+        const caliperSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?gid=1631554971&single=true&output=csv";
+
         try {
+
             const response = await fetch(caliperSheetUrl);
+
             const csvText = await response.text();
+
             const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0).slice(1);
+
             
+
             caliperLibrary = [];
+
             rows.forEach(row => {
+
                 const cols = row.split(','); 
+
                 if (cols.length < 6 || cols[0].trim() === "") return; 
 
+
+
                 const id = cols[0].trim(), url = cols[1].trim(), label = cols[2].trim();
+
                 const top = cols[3] && cols[3].trim() !== "" ? parseFloat(cols[3].trim()) : null;
+
                 const left = cols[4] && cols[4].trim() !== "" ? parseFloat(cols[4].trim()) : null;
+
                 const min = parseFloat(cols[5].trim()), max = parseFloat(cols[6].trim());
+
                 const placeholder = cols[7] ? cols[7].trim() : "";
 
+
+
                 let drawing = caliperLibrary.find(d => d.id === id);
+
                 if (!drawing) { drawing = { id: id, url: url, points: [] }; caliperLibrary.push(drawing); }
 
+
+
                 let point = drawing.points.find(p => p.label === label);
+
                 if (!point) {
+
                     point = { label: label, top: top, left: left, subPoints: [] }; drawing.points.push(point);
+
                 } else {
+
                     if (top !== null && point.top === null) point.top = top;
+
                     if (left !== null && point.left === null) point.left = left;
+
                 }
+
+
 
                 if (!isNaN(min) && !isNaN(max)) { point.subPoints.push({ min: min, max: max, placeholder: placeholder }); }
+
             });
+
         } catch (error) { console.error("載入卡尺題庫失敗", error); }
+
     }
+
+
 
     window.addEventListener('DOMContentLoaded', async () => {
+
         const status = document.getElementById('preload-status');
+
         status.innerText = "⏳ 正在連線至雲端雙題庫...";
+
         await Promise.all([ loadDefectDataFromGoogle(), loadCaliperDataFromGoogle() ]);
+
         
+
         const all = [...colorLibrary, ...defectLibrary, ...standardLibrary, ...caliperLibrary].filter(i => i.url);
+
         let loaded = 0;
+
         if(all.length === 0) { status.innerText = "✅ 系統備妥"; return; }
+
         all.forEach(item => {
+
             const img = new Image();
+
             img.onload = img.onerror = () => { loaded++; if (loaded === all.length) status.innerText = "✅ 系統備妥，請選擇模式"; };
+
             img.src = encodeURI(item.url);
+
         });
+
+
 
         setupMobileZoomAndPan();
+
         setupMaskPicker();
+
     });
 
-    // ---------------- 題庫預覽區 ----------------
+
+
     function showGallery() {
+
         document.getElementById('mode-screen').style.display = 'none';
+
         document.getElementById('gallery-screen').style.display = 'flex';
+
         renderGallery('color'); 
+
     }
+
+
 
     function renderGallery(type) {
+
         document.getElementById('tab-color').classList.remove('active');
+
         document.getElementById('tab-defect').classList.remove('active', 'anomaly-tab');
+
         document.getElementById('tab-standard').classList.remove('active');
+
         
+
         let dataToRender = [];
+
         if (type === 'color') {
+
             document.getElementById('tab-color').classList.add('active');
+
             dataToRender = colorLibrary;
+
         } else if (type === 'defect') {
+
             document.getElementById('tab-defect').classList.add('active', 'anomaly-tab');
+
             dataToRender = defectLibrary;
+
         } else {
+
             document.getElementById('tab-standard').classList.add('active');
+
             dataToRender = standardLibrary;
+
         }
+
+
 
         const list = document.getElementById('gallery-list');
+
         list.innerHTML = ""; 
+
         
+
         dataToRender.forEach(item => {
+
             const btn = document.createElement('div');
+
             btn.className = "gallery-list-btn";
+
             
+
             let displayName = "";
+
             let leftIcon = "";
+
             
+
             if (item.type === "text") {
+
                 displayName = item.text;
+
                 leftIcon = `📝`;
+
                 btn.innerHTML = `<div>${leftIcon}</div> <div style="flex:1;">${displayName}</div>`;
+
             } else {
+
                 if (type === 'color') displayName = item.ans;
+
                 else displayName = decodeURI(item.url).split('/').pop().replace(/\.(jpg|png|jpeg)$/i, '');
+
                 
+
                 leftIcon = `<img src="${encodeURI(item.url)}" class="gallery-img-preview">`;
+
                 btn.innerHTML = `${leftIcon} <div style="flex:1;">${displayName}</div>`;
+
             }
+
             
+
             btn.onclick = () => {
+
                 if (item.type === "text") openModal("", item.ans, item.text);
+
                 else openModal(encodeURI(item.url), item.ans, "");
+
             };
+
             list.appendChild(btn);
+
         });
+
     }
+
+
 
     function openModal(url, ans, textQ) {
+
         const img = document.getElementById('modal-img'), txt = document.getElementById('modal-text-q');
+
         if (url) { img.src = url; img.style.display = 'block'; txt.style.display = 'none'; } 
+
         else { img.style.display = 'none'; txt.innerText = textQ; txt.style.display = 'block'; }
+
         document.getElementById('modal-caption').innerText = ans; document.getElementById('image-modal').style.display = 'flex';
+
     }
+
     function closeModal() { document.getElementById('image-modal').style.display = 'none'; }
 
-    // ---------------- 選擇題測驗區 ----------------
+
+
     function startQuiz(mode) {
+
         document.getElementById('mode-screen').style.display = 'none';
+
         document.getElementById('quiz-container').style.display = 'flex';
+
         
-        // 💡 開啟測驗時，如果是色卡模式，顯示遮罩按鈕
+
         const maskBtn = document.getElementById('mask-toggle-btn');
+
         if (mode === 'color') {
+
             currentData = [...colorLibrary]; document.getElementById('quiz-title-text').innerText = "🎨 色卡辨識";
+
             maskBtn.style.display = 'block';
+
         } else if (mode === 'defect') {
+
             currentData = [...defectLibrary]; document.getElementById('quiz-title-text').innerText = "🚨 異常辨認";
+
             maskBtn.style.display = 'none';
+
         } else {
+
             currentData = [...standardLibrary]; document.getElementById('quiz-title-text').innerText = "🔍 檢驗標準";
+
             maskBtn.style.display = 'none';
+
         }
+
         
+
         currentData = shuffle(currentData);
+
         idx = 0; score = 0; wrongAnswers = [];
+
         document.getElementById('total').innerText = currentData.length;
+
         initQuiz();
+
     }
+
+
 
     function initQuiz() {
+
         if (idx >= currentData.length) { showResultScreen(); return; }
+
         const item = currentData[idx];
+
         const img = document.getElementById('quiz-img'), txt = document.getElementById('quiz-text'), 
+
               msk = document.getElementById('mask'), fbk = document.getElementById('feedback'),
+
               wrapper = document.getElementById('img-wrapper');
 
+
+
         if (item.type === "text") {
+
             wrapper.style.display = 'none';
+
             txt.style.display = 'block'; txt.innerText = item.text;
+
         } else {
+
             txt.style.display = 'none'; wrapper.style.display = 'flex';
+
             img.src = encodeURI(item.url);
+
             
+
             msk.style.top = (item.maskT || 0) + "%"; msk.style.left = (item.maskL || 0) + "%";
+
             msk.style.width = (item.maskW || 100) + "%"; msk.style.height = (item.maskH || 0) + "%";
+
             msk.style.display = (item.maskH > 0 && !isMaskPickerActive) ? 'block' : 'none';
+
         }
+
         
+
         fbk.innerText = "請選擇正確答案"; fbk.className = ""; 
+
         document.getElementById('cur').innerText = idx + 1;
+
         
+
         const area = document.getElementById('btns'); area.innerHTML = "";
+
         item.opts.forEach(c => {
+
             const b = document.createElement('button'); b.className = "option-btn"; b.innerText = c;
+
             b.onclick = () => checkAnswer(c, item.ans, b, (item.type !== "text" && item.maskH > 0));
+
             area.appendChild(b);
+
         });
+
     }
+
+
 
     function checkAnswer(selected, correct, btn, hasMask) {
+
         document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
         if(hasMask) document.getElementById('mask').style.display = 'none';
+
         const fbk = document.getElementById('feedback');
+
         
+
         if (selected === correct) {
+
             score++; document.getElementById('score').innerText = score;
+
             fbk.innerText = "✔ 正確！"; fbk.className = "feedback-correct"; btn.classList.add('selected-correct');
+
             setTimeout(() => { idx++; initQuiz(); }, 400); 
+
         } else {
+
             wrongAnswers.push({ item: currentData[idx], userAns: selected });
+
             fbk.innerText = "✘ 錯誤！"; fbk.className = "feedback-wrong"; btn.classList.add('selected-wrong');
+
             document.querySelectorAll('.option-btn').forEach(b => { if(b.innerText===correct) b.classList.add('selected-correct'); });
+
             setTimeout(() => { idx++; initQuiz(); }, 1200);
+
         }
+
     }
 
-    // ---------------- 💡 新增：2點定位遮罩工具 ----------------
+
+
     function toggleMaskPicker(e) {
+
         if(e) e.stopPropagation();
+
         isMaskPickerActive = !isMaskPickerActive;
+
         const btn = document.getElementById('mask-toggle-btn');
+
         const picker = document.getElementById('mask-coord-picker');
+
         
+
         if (isMaskPickerActive) {
+
             btn.innerText = "📍 關閉抓取"; btn.style.background = "#ef4444";
+
             picker.innerHTML = "👆 第一步：點擊【左上角】";
+
             picker.style.display = 'block';
+
             maskClickStep = 0;
-            document.getElementById('mask').style.display = 'none'; // 隱藏原本的遮罩以免干擾
+
+            document.getElementById('mask').style.display = 'none';
+
         } else {
+
             btn.innerText = "📍 抓遮罩"; btn.style.background = "rgba(100, 116, 139, 0.9)";
+
             picker.style.display = 'none';
-            // 恢復顯示
+
             if (currentData[idx] && currentData[idx].maskH > 0) document.getElementById('mask').style.display = 'block';
+
         }
+
     }
+
+
 
     function setupMaskPicker() {
+
         document.getElementById('img-wrapper').addEventListener('click', function(e) {
+
             if (!isMaskPickerActive) return;
+
             const rect = this.getBoundingClientRect();
+
+            
+
             let clientX = e.clientX, clientY = e.clientY;
+
+            if(e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+
             
+
             const xPercent = ((clientX - rect.left) / rect.width) * 100;
+
             const yPercent = ((clientY - rect.top) / rect.height) * 100;
+
             
+
             const picker = document.getElementById('mask-coord-picker');
+
             
+
             if (maskClickStep === 0) {
+
                 maskP1 = { x: xPercent, y: yPercent };
+
                 maskClickStep = 1;
+
                 picker.innerHTML = "👇 第二步：點擊【右下角】";
+
                 
-                // 放一個小紅點提示起點
+
                 const msk = document.getElementById('mask');
+
                 msk.style.top = yPercent + "%"; msk.style.left = xPercent + "%";
+
                 msk.style.width = "4px"; msk.style.height = "4px";
+
                 msk.style.background = "#ef4444";
+
                 msk.style.display = 'block';
+
+
 
             } else {
+
                 let maskT = Math.min(maskP1.y, yPercent);
+
                 let maskL = Math.min(maskP1.x, xPercent);
+
                 let maskW = Math.abs(xPercent - maskP1.x);
+
                 let maskH = Math.abs(yPercent - maskP1.y);
+
                 
+
                 picker.innerHTML = `✅ 完成！請更新至程式碼：<br>maskT: <span style="color:#fbbf24">${maskT.toFixed(1)}</span><br>maskL: <span style="color:#fbbf24">${maskL.toFixed(1)}</span><br>maskW: <span style="color:#fbbf24">${maskW.toFixed(1)}</span><br>maskH: <span style="color:#fbbf24">${maskH.toFixed(1)}</span>`;
+
                 
-                // 即時預覽畫出的遮罩框
+
                 const msk = document.getElementById('mask');
-                msk.style.background = "#000"; // 恢復黑色
-                msk.style.top = maskT + "%";
-                msk.style.left = maskL + "%";
-                msk.style.width = maskW + "%";
-                msk.style.height = maskH + "%";
+
+                msk.style.background = "#000"; 
+
+                msk.style.top = maskT + "%"; msk.style.left = maskL + "%";
+
+                msk.style.width = maskW + "%"; msk.style.height = maskH + "%";
+
                 msk.style.display = 'block';
+
                 
-                maskClickStep = 0; // 重置等待下一次
+
+                maskClickStep = 0; 
+
             }
+
         });
+
     }
 
-    // ---------------- 結算畫面 ----------------
+
+
     function showResultScreen() {
+
         document.getElementById('quiz-container').style.display = 'none';
+
         document.getElementById('result-screen').style.display = 'flex';
+
         
+
         const passRate = score / currentData.length;
+
         const scoreDiv = document.getElementById('final-score-text');
+
         
+
         if (passRate === 1) scoreDiv.innerHTML = `${score} / ${currentData.length}<br><span style="color:#4ade80; font-size:24px;">🏆 完美通關</span>`;
+
         else if (passRate >= 0.8) scoreDiv.innerHTML = `${score} / ${currentData.length}<br><span style="color:#22c55e; font-size:24px;">🎉 合格</span>`;
+
         else scoreDiv.innerHTML = `${score} / ${currentData.length}<br><span style="color:#f87171; font-size:24px;">⚠️ 不及格</span>`;
 
+
+
         const listContainer = document.getElementById('wrong-list-container'); listContainer.innerHTML = "";
+
+
 
         if (wrongAnswers.length === 0) {
+
             listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 18px; color: #94a3b8;">本次無錯題紀錄</div>`;
+
         } else {
+
             wrongAnswers.forEach(wrong => {
+
                 let mediaHtml = wrong.item.type === "text" ? `<div style="font-size:16px; color:#38bdf8; margin-bottom:5px;">${wrong.item.text}</div>` : `<img src="${encodeURI(wrong.item.url)}" class="wrong-img">`;
+
                 listContainer.innerHTML += `
+
                     <div class="wrong-card">
+
                         ${mediaHtml}
+
                         <div class="wrong-info">
+
                             <span class="wrong-ans">你選: ${wrong.userAns}</span><br>
+
                             <span class="correct-ans">正確: ${wrong.item.ans}</span>
+
                         </div>
+
                     </div>`;
+
             });
+
         }
+
     }
 
-    // ---------------- 游標卡尺實境區 ----------------
+
+
     function startCaliper() {
+
         if(caliperLibrary.length === 0) { alert("題庫準備中或連線失敗，請稍後"); return; }
+
         document.getElementById('mode-screen').style.display = 'none'; 
+
         document.getElementById('caliper-screen').style.display = 'flex';
+
         
+
         currentCaliperData = shuffle([...caliperLibrary]); 
+
         caliperIdx = 0; caliperScore = 0; caliperWrongAnswers = []; 
+
         document.getElementById('caliper-total').innerText = currentCaliperData.length;
+
         
+
         isCoordPickerActive = false;
+
         document.getElementById('coord-toggle-btn').innerText = "📍 開座標";
+
         document.getElementById('coord-toggle-btn').style.background = "rgba(100, 116, 139, 0.9)";
+
         document.getElementById('caliper-coord-picker').style.display = 'none';
+
         
+
         renderCaliperTest();
+
     }
+
+
 
     function renderCaliperTest() {
+
         if (caliperIdx >= currentCaliperData.length) { showCaliperResultScreen(); return; }
+
         
+
         resetCaliperZoom(); 
+
         const item = currentCaliperData[caliperIdx];
+
         document.getElementById('caliper-cur').innerText = caliperIdx + 1;
+
         document.getElementById('caliper-test-img').src = encodeURI(item.url);
 
+
+
         const container = document.getElementById('caliper-inputs-container'); container.innerHTML = ""; 
+
         const markersContainer = document.getElementById('caliper-markers-container'); markersContainer.innerHTML = "";
+
         
+
         item.points.forEach((p, pIndex) => {
+
             const group = document.createElement('div');
+
             group.className = 'caliper-input-group';
+
             
+
             let html = `<label>${p.label}</label><div class="caliper-sub-inputs-wrapper">`;
+
             p.subPoints.forEach((sp, spIndex) => {
+
                 html += `
+
                     <div class="caliper-single-input">
+
                         <input type="number" id="caliper-q${pIndex}-${spIndex}" step="0.01" placeholder="${sp.placeholder}">
+
                         <span id="caliper-f${pIndex}-${spIndex}" class="caliper-feedback"></span>
+
                     </div>`;
+
             });
+
             html += `</div>`;
+
             group.innerHTML = html;
+
             container.appendChild(group);
 
+
+
             if (p.top !== null && p.left !== null && !isNaN(p.top) && !isNaN(p.left)) {
+
                 const marker = document.createElement('div');
+
                 marker.className = 'caliper-marker';
+
                 marker.innerText = pIndex + 1; 
+
                 marker.style.top = p.top + '%'; marker.style.left = p.left + '%';
+
                 markersContainer.appendChild(marker);
+
             }
+
         });
+
+
 
         document.getElementById('caliper-submit-btn').style.display = 'block'; 
+
         document.getElementById('caliper-next-btn').style.display = 'none'; 
+
         document.getElementById('caliper-final-msg').innerText = '';
+
     }
+
+
 
     function checkCaliperAnswers() {
+
         const item = currentCaliperData[caliperIdx];
+
         let allCorrect = true;
+
         let currentUserInputs = []; 
 
+
+
         item.points.forEach((p, pIndex) => {
+
             p.subPoints.forEach((sp, spIndex) => {
+
                 const inputEl = document.getElementById(`caliper-q${pIndex}-${spIndex}`);
+
                 let inputVal = parseFloat(inputEl.value);
+
                 let feedback = document.getElementById(`caliper-f${pIndex}-${spIndex}`);
+
                 
+
                 inputEl.disabled = true; 
+
                 let isCorrect = false;
+
                 
+
                 if (isNaN(inputVal)) {
+
                     feedback.innerText = '⚠️'; feedback.style.color = '#fbbf24'; allCorrect = false;
+
                 } else if (inputVal >= sp.min && inputVal <= sp.max) {
+
                     feedback.innerText = '✔'; feedback.style.color = '#4ade80'; isCorrect = true;
+
                 } else {
+
                     feedback.innerText = '✘'; feedback.style.color = '#f87171'; allCorrect = false;
+
                 }
 
+
+
                 currentUserInputs.push({ label: p.label, val: inputEl.value, min: sp.min, max: sp.max, isCorrect: isCorrect });
+
             });
+
         });
+
+
 
         if (allCorrect) caliperScore++; 
+
         else caliperWrongAnswers.push({ item: item, inputs: currentUserInputs }); 
 
+
+
         const finalMsg = document.getElementById('caliper-final-msg');
+
         if (allCorrect) { finalMsg.innerText = "🎉 測量完全正確！"; finalMsg.style.color = "#4ade80"; } 
+
         else { finalMsg.innerText = "⚠️ 有錯誤或漏填，請檢視後下一題"; finalMsg.style.color = "#f87171"; }
+
         
+
         document.getElementById('caliper-submit-btn').style.display = 'none'; 
+
         const nextBtn = document.getElementById('caliper-next-btn');
+
         nextBtn.style.display = 'block';
+
         nextBtn.innerText = (caliperIdx >= currentCaliperData.length - 1) ? "查看結果 ➡️" : "下一張圖紙 ➡️";
+
     }
+
+
 
     function nextCaliperTest() { 
+
         document.getElementById('caliper-coord-picker').style.display = 'none'; 
+
         caliperIdx++; renderCaliperTest(); 
+
     }
+
+
 
     function showCaliperResultScreen() {
+
         document.getElementById('caliper-screen').style.display = 'none'; 
+
         document.getElementById('result-screen').style.display = 'flex';
+
         
+
         const passRate = caliperScore / currentCaliperData.length; 
+
         const scoreDiv = document.getElementById('final-score-text');
+
         
+
         if (passRate === 1) scoreDiv.innerHTML = `${caliperScore} / ${currentCaliperData.length}<br><span style="color:#4ade80; font-size:24px;">🏆 卡尺滿分</span>`;
+
         else if (passRate >= 0.8) scoreDiv.innerHTML = `${caliperScore} / ${currentCaliperData.length}<br><span style="color:#22c55e; font-size:24px;">🎉 測量合格</span>`;
+
         else scoreDiv.innerHTML = `${caliperScore} / ${currentCaliperData.length}<br><span style="color:#f87171; font-size:24px;">⚠️ 精準度不足</span>`;
 
+
+
         const listContainer = document.getElementById('wrong-list-container'); listContainer.innerHTML = "";
+
         
+
         if (caliperWrongAnswers.length === 0) { 
+
             listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 18px; color: #94a3b8;">卡尺無錯題紀錄</div>`; 
+
         } else {
+
             caliperWrongAnswers.forEach(wrong => {
+
                 let html = `
+
                     <div class="wrong-card">
+
                         <div style="color:#fbbf24; font-weight:bold; border-bottom:1px solid #475569; padding-bottom:5px; margin-bottom:8px;">圖紙: ${wrong.item.id}</div>
+
                         <img src="${encodeURI(wrong.item.url)}" style="width:100%; height:120px; object-fit:contain; background:#000; border-radius:6px;">
+
                         <div style="display:flex; flex-direction:column; gap:5px; margin-top:10px;">`;
+
                 
+
                 wrong.inputs.forEach(input => {
+
                     let color = input.isCorrect ? '#4ade80' : '#f87171';
+
                     let icon = input.isCorrect ? '✔' : '✘';
+
                     html += `
+
                         <div style="background:#0f172a; padding:8px; border-radius:6px; border:1px solid #475569; text-align:left;">
+
                             <span style="color:#38bdf8; font-size:14px;">${input.label}</span><br>
+
                             <span style="font-size:14px; color:#cbd5e1;">你輸入: <span style="color:${color}; font-weight:bold;">${input.val || '未填'} ${icon}</span></span><br>
+
                             <span style="font-size:13px; color:#94a3b8;">公差區間: ${input.min} ~ ${input.max}</span>
+
                         </div>`;
+
                 });
+
                 html += `</div></div>`;
+
                 listContainer.innerHTML += html;
+
             });
+
         }
+
     }
 
-    // ---------------- 手機觸控縮放平移 ----------------
+
+
     function setupMobileZoomAndPan() {
+
         const leftPanel = document.getElementById('caliper-left-panel');
+
+        const wrapper = document.getElementById('caliper-img-wrapper');
+
         
+
         leftPanel.addEventListener('touchstart', (e) => {
+
             if (caliperScale > 1 && e.touches.length === 1) {
+
                 isCaliperDragging = true; caliperHasDragged = false;
+
                 caliperStartX = e.touches[0].clientX - caliperTx;
+
                 caliperStartY = e.touches[0].clientY - caliperTy;
+
             }
+
         });
+
+
 
         leftPanel.addEventListener('touchmove', (e) => {
+
             if (isCaliperDragging && e.touches.length === 1) {
+
                 e.preventDefault(); 
+
                 caliperHasDragged = true;
+
                 caliperTx = e.touches[0].clientX - caliperStartX;
+
                 caliperTy = e.touches[0].clientY - caliperStartY;
+
                 updateCaliperTransform();
+
             }
+
         }, { passive: false });
 
+
+
         leftPanel.addEventListener('touchend', () => {
+
             isCaliperDragging = false;
+
             setTimeout(() => caliperHasDragged = false, 50);
+
         });
 
-        // 卡尺座標抓取器 (手機版點擊)
-        document.getElementById('caliper-img-wrapper').addEventListener('click', function(e) {
+
+
+        wrapper.addEventListener('click', function(e) {
+
             if (caliperHasDragged || !isCoordPickerActive) return; 
+
             
+
             const rect = this.getBoundingClientRect();
+
             let clientX = e.clientX, clientY = e.clientY;
+
+            if(e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+
             
+
             const xPercent = ((clientX - rect.left) / rect.width) * 100;
+
             const yPercent = ((clientY - rect.top) / rect.height) * 100;
+
             
+
             const picker = document.getElementById('caliper-coord-picker');
+
             picker.innerHTML = `D欄: ${yPercent.toFixed(1)}<br>E欄: ${xPercent.toFixed(1)}`;
+
             picker.style.display = 'block';
+
         });
+
     }
+
+
 
     function zoomCaliper(amount) {
+
         caliperScale += amount;
+
         caliperScale = Math.max(1, Math.min(caliperScale, 4)); 
+
         if (caliperScale === 1) { caliperTx = 0; caliperTy = 0; }
+
         updateCaliperTransform();
+
     }
+
+
 
     function updateCaliperTransform() {
+
         document.getElementById('caliper-img-wrapper').style.transform = `translate(${caliperTx}px, ${caliperTy}px) scale(${caliperScale})`;
+
     }
+
+
 
     function resetCaliperZoom() {
+
         caliperScale = 1; caliperTx = 0; caliperTy = 0; updateCaliperTransform();
+
     }
 
+
+
     function toggleCaliperCoordPicker(e) {
+
         if(e) e.stopPropagation();
+
         isCoordPickerActive = !isCoordPickerActive;
+
         const btn = document.getElementById('coord-toggle-btn');
+
         const picker = document.getElementById('caliper-coord-picker');
+
         if (isCoordPickerActive) {
+
             btn.innerText = "📍 關閉抓取"; btn.style.background = "#ef4444";
+
         } else {
+
             btn.innerText = "📍 開座標"; btn.style.background = "rgba(100, 116, 139, 0.9)"; picker.style.display = 'none';
+
         }
+
     }
+
 </script>
+
 </body>
+
 </html>
