@@ -77,13 +77,15 @@
             font-size: 15px; font-weight: 800; padding-bottom: 8px; margin-bottom: 10px;
             border-bottom: 2px solid #334155;
         }
-        .header span { color: #38bdf8; }
+        .header span { color: #38bdf8; display: flex; align-items: center; gap: 8px;}
+        /* 💡 新增：左上角首頁按鈕樣式 */
+        .home-icon-btn { background: none; border: none; color: #f8fafc; font-size: 22px; padding: 0; margin: 0; display: flex; align-items: center;}
         
         #img-wrapper {
             position: relative; width: 100%; max-height: 35vh; display: flex; justify-content: center; align-items: center;
             border: 2px solid #475569; border-radius: 8px; overflow: hidden; background: #000;
         }
-        #quiz-img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+        #quiz-img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; pointer-events: none;}
         #mask { position: absolute; background: #000; z-index: 10; border-radius: 4px; box-shadow: 0 0 3px rgba(0,0,0,0.5); }
 
         #quiz-text {
@@ -112,6 +114,13 @@
         .selected-correct { background: #22c55e !important; color: white !important; }
         .selected-wrong { background: #ef4444 !important; color: white !important; }
         .bottom-actions { margin-top: auto; display: flex; justify-content: center; padding-top: 10px; }
+
+        /* 💡 新增：色卡遮罩座標工具樣式 */
+        #mask-coord-picker {
+            display: none; position: absolute; top: 10px; left: 10px; background: rgba(16, 185, 129, 0.95); color: white; 
+            padding: 8px 12px; border-radius: 6px; font-weight: bold; z-index: 100; font-size: 13px; border: 1px solid #34d399;
+        }
+        .coord-toggle-btn { background: rgba(100, 116, 139, 0.9); border: none; color: #fff; padding: 6px 10px; border-radius: 6px; font-weight: bold; font-size: 12px;}
 
         /* ---------------- 結算畫面 ---------------- */
         #result-screen { width: 100%; display: none; flex-direction: column; align-items: center; height: 100%; padding-bottom: 20px;}
@@ -143,20 +152,17 @@
             transform: translate(-50%, -50%); pointer-events: none;
         }
         
-        /* 手機版縮放控制條 */
         .zoom-controls {
             position: absolute; bottom: 8px; left: 8px; right: 8px; z-index: 50;
             display: flex; justify-content: space-between; align-items: center; pointer-events: auto;
         }
         .zoom-btn-group { display: flex; gap: 5px; }
         .zoom-btn { background: rgba(56, 189, 248, 0.9); border: none; color: #0f172a; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
-        .coord-toggle-btn { background: rgba(100, 116, 139, 0.9); border: none; color: #fff; padding: 6px 10px; border-radius: 6px; font-weight: bold; font-size: 12px;}
         #caliper-coord-picker {
             display: none; position: absolute; top: 10px; left: 10px; background: rgba(16, 185, 129, 0.95); color: white; 
             padding: 8px 12px; border-radius: 6px; font-weight: bold; z-index: 100; font-size: 12px; border: 1px solid #34d399;
         }
 
-        /* 游標卡尺輸入區 (垂直堆疊) */
         .caliper-input-group {
             display: flex; flex-direction: column; margin-bottom: 12px; gap: 5px;
             background: #334155; padding: 10px; border-radius: 8px; border: 1px solid #475569;
@@ -207,12 +213,18 @@
 
 <div class="container" id="quiz-container">
     <div class="header">
-        <span id="quiz-title">載入中...</span>
+        <span id="quiz-title">
+            <button class="home-icon-btn" onclick="location.reload()">🏠</button>
+            <span id="quiz-title-text">載入中...</span>
+        </span>
         <span>進度: <span id="cur">1</span>/<span id="total">0</span> | 得分: <span id="score">0</span></span>
     </div>
     <div id="img-wrapper">
         <img id="quiz-img" src="">
         <div id="mask"></div>
+        
+        <div id="mask-coord-picker"></div>
+        <button id="mask-toggle-btn" class="coord-toggle-btn" style="position: absolute; bottom: 8px; right: 8px; z-index: 100; display: none;" onclick="toggleMaskPicker(event)">📍 抓遮罩</button>
     </div>
     <div id="quiz-text"></div>
 
@@ -227,7 +239,10 @@
 
 <div class="container" id="caliper-screen" style="display: none;">
     <div class="header">
-        <span id="caliper-header-title">📏 游標卡尺</span>
+        <span id="caliper-header-title">
+            <button class="home-icon-btn" onclick="location.reload()">🏠</button>
+            <span style="margin-left:8px;">📏 游標卡尺</span>
+        </span>
         <span>進度: <span id="caliper-cur">1</span>/<span id="caliper-total">1</span></span>
     </div>
     
@@ -239,7 +254,7 @@
                 <button class="zoom-btn" onclick="zoomCaliper(-0.3)">➖</button>
                 <button class="zoom-btn" onclick="resetCaliperZoom()" style="background:#fbbf24;">🔍</button>
             </div>
-            <button id="coord-toggle-btn" class="coord-toggle-btn" onclick="toggleCoordPicker()">📍 開座標</button>
+            <button id="coord-toggle-btn" class="coord-toggle-btn" onclick="toggleCaliperCoordPicker(event)">📍 開座標</button>
         </div>
         <div id="caliper-img-wrapper">
             <img id="caliper-test-img" src="">
@@ -315,9 +330,14 @@
     let isCaliperDragging = false, caliperStartX, caliperStartY, caliperHasDragged = false; 
     let isCoordPickerActive = false;
 
-    // 💡 Google Sheets 讀取
+    // 💡 色卡遮罩工具專用變數
+    let isMaskPickerActive = false;
+    let maskClickStep = 0;
+    let maskP1 = { x: 0, y: 0 };
+
+    // 💡 1. 讀取異常辨認題庫 (請替換網址)
     async function loadDefectDataFromGoogle() {
-        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?output=csv";
+        const sheetUrl = "你的異常辨認題庫CSV網址請貼在這裡";
         try {
             const response = await fetch(sheetUrl);
             const csvText = await response.text();
@@ -331,8 +351,9 @@
         } catch (error) { console.error("載入異常題庫失敗", error); }
     }
 
+    // 💡 2. 讀取游標卡尺題庫 (請替換網址)
     async function loadCaliperDataFromGoogle() {
-        const caliperSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJnI0DV_fSU7_9ahzLYmJEdzuBE0qjPJ0ldxPaarIZVQcNFzU9VZhOK1xzQ4Kz98Io0fx4pR8RbWo/pub?gid=1631554971&single=true&output=csv";
+        const caliperSheetUrl = "你的游標卡尺題庫CSV網址請貼在這裡";
         try {
             const response = await fetch(caliperSheetUrl);
             const csvText = await response.text();
@@ -370,7 +391,6 @@
         status.innerText = "⏳ 正在連線至雲端雙題庫...";
         await Promise.all([ loadDefectDataFromGoogle(), loadCaliperDataFromGoogle() ]);
         
-        // 預載圖片
         const all = [...colorLibrary, ...defectLibrary, ...standardLibrary, ...caliperLibrary].filter(i => i.url);
         let loaded = 0;
         if(all.length === 0) { status.innerText = "✅ 系統備妥"; return; }
@@ -381,6 +401,7 @@
         });
 
         setupMobileZoomAndPan();
+        setupMaskPicker();
     });
 
     // ---------------- 題庫預覽區 ----------------
@@ -450,9 +471,18 @@
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('quiz-container').style.display = 'flex';
         
-        if (mode === 'color') { currentData = [...colorLibrary]; document.getElementById('quiz-title').innerText = "🎨 色卡辨識"; } 
-        else if (mode === 'defect') { currentData = [...defectLibrary]; document.getElementById('quiz-title').innerText = "🚨 異常辨認"; } 
-        else { currentData = [...standardLibrary]; document.getElementById('quiz-title').innerText = "🔍 檢驗標準"; }
+        // 💡 開啟測驗時，如果是色卡模式，顯示遮罩按鈕
+        const maskBtn = document.getElementById('mask-toggle-btn');
+        if (mode === 'color') {
+            currentData = [...colorLibrary]; document.getElementById('quiz-title-text').innerText = "🎨 色卡辨識";
+            maskBtn.style.display = 'block';
+        } else if (mode === 'defect') {
+            currentData = [...defectLibrary]; document.getElementById('quiz-title-text').innerText = "🚨 異常辨認";
+            maskBtn.style.display = 'none';
+        } else {
+            currentData = [...standardLibrary]; document.getElementById('quiz-title-text').innerText = "🔍 檢驗標準";
+            maskBtn.style.display = 'none';
+        }
         
         currentData = shuffle(currentData);
         idx = 0; score = 0; wrongAnswers = [];
@@ -473,9 +503,10 @@
         } else {
             txt.style.display = 'none'; wrapper.style.display = 'flex';
             img.src = encodeURI(item.url);
+            
             msk.style.top = (item.maskT || 0) + "%"; msk.style.left = (item.maskL || 0) + "%";
             msk.style.width = (item.maskW || 100) + "%"; msk.style.height = (item.maskH || 0) + "%";
-            msk.style.display = (item.maskH > 0) ? 'block' : 'none';
+            msk.style.display = (item.maskH > 0 && !isMaskPickerActive) ? 'block' : 'none';
         }
         
         fbk.innerText = "請選擇正確答案"; fbk.className = ""; 
@@ -504,6 +535,72 @@
             document.querySelectorAll('.option-btn').forEach(b => { if(b.innerText===correct) b.classList.add('selected-correct'); });
             setTimeout(() => { idx++; initQuiz(); }, 1200);
         }
+    }
+
+    // ---------------- 💡 新增：2點定位遮罩工具 ----------------
+    function toggleMaskPicker(e) {
+        if(e) e.stopPropagation();
+        isMaskPickerActive = !isMaskPickerActive;
+        const btn = document.getElementById('mask-toggle-btn');
+        const picker = document.getElementById('mask-coord-picker');
+        
+        if (isMaskPickerActive) {
+            btn.innerText = "📍 關閉抓取"; btn.style.background = "#ef4444";
+            picker.innerHTML = "👆 第一步：點擊【左上角】";
+            picker.style.display = 'block';
+            maskClickStep = 0;
+            document.getElementById('mask').style.display = 'none'; // 隱藏原本的遮罩以免干擾
+        } else {
+            btn.innerText = "📍 抓遮罩"; btn.style.background = "rgba(100, 116, 139, 0.9)";
+            picker.style.display = 'none';
+            // 恢復顯示
+            if (currentData[idx] && currentData[idx].maskH > 0) document.getElementById('mask').style.display = 'block';
+        }
+    }
+
+    function setupMaskPicker() {
+        document.getElementById('img-wrapper').addEventListener('click', function(e) {
+            if (!isMaskPickerActive) return;
+            const rect = this.getBoundingClientRect();
+            let clientX = e.clientX, clientY = e.clientY;
+            
+            const xPercent = ((clientX - rect.left) / rect.width) * 100;
+            const yPercent = ((clientY - rect.top) / rect.height) * 100;
+            
+            const picker = document.getElementById('mask-coord-picker');
+            
+            if (maskClickStep === 0) {
+                maskP1 = { x: xPercent, y: yPercent };
+                maskClickStep = 1;
+                picker.innerHTML = "👇 第二步：點擊【右下角】";
+                
+                // 放一個小紅點提示起點
+                const msk = document.getElementById('mask');
+                msk.style.top = yPercent + "%"; msk.style.left = xPercent + "%";
+                msk.style.width = "4px"; msk.style.height = "4px";
+                msk.style.background = "#ef4444";
+                msk.style.display = 'block';
+
+            } else {
+                let maskT = Math.min(maskP1.y, yPercent);
+                let maskL = Math.min(maskP1.x, xPercent);
+                let maskW = Math.abs(xPercent - maskP1.x);
+                let maskH = Math.abs(yPercent - maskP1.y);
+                
+                picker.innerHTML = `✅ 完成！請更新至程式碼：<br>maskT: <span style="color:#fbbf24">${maskT.toFixed(1)}</span><br>maskL: <span style="color:#fbbf24">${maskL.toFixed(1)}</span><br>maskW: <span style="color:#fbbf24">${maskW.toFixed(1)}</span><br>maskH: <span style="color:#fbbf24">${maskH.toFixed(1)}</span>`;
+                
+                // 即時預覽畫出的遮罩框
+                const msk = document.getElementById('mask');
+                msk.style.background = "#000"; // 恢復黑色
+                msk.style.top = maskT + "%";
+                msk.style.left = maskL + "%";
+                msk.style.width = maskW + "%";
+                msk.style.height = maskH + "%";
+                msk.style.display = 'block';
+                
+                maskClickStep = 0; // 重置等待下一次
+            }
+        });
     }
 
     // ---------------- 結算畫面 ----------------
@@ -682,9 +779,7 @@
     // ---------------- 手機觸控縮放平移 ----------------
     function setupMobileZoomAndPan() {
         const leftPanel = document.getElementById('caliper-left-panel');
-        const wrapper = document.getElementById('caliper-img-wrapper');
         
-        // 支援觸控滑動
         leftPanel.addEventListener('touchstart', (e) => {
             if (caliperScale > 1 && e.touches.length === 1) {
                 isCaliperDragging = true; caliperHasDragged = false;
@@ -695,7 +790,7 @@
 
         leftPanel.addEventListener('touchmove', (e) => {
             if (isCaliperDragging && e.touches.length === 1) {
-                e.preventDefault(); // 防止畫面被滑走
+                e.preventDefault(); 
                 caliperHasDragged = true;
                 caliperTx = e.touches[0].clientX - caliperStartX;
                 caliperTy = e.touches[0].clientY - caliperStartY;
@@ -708,14 +803,12 @@
             setTimeout(() => caliperHasDragged = false, 50);
         });
 
-        // 座標抓取器 (手機版點擊)
-        wrapper.addEventListener('click', function(e) {
+        // 卡尺座標抓取器 (手機版點擊)
+        document.getElementById('caliper-img-wrapper').addEventListener('click', function(e) {
             if (caliperHasDragged || !isCoordPickerActive) return; 
             
             const rect = this.getBoundingClientRect();
-            // 相容滑鼠點擊與觸控點擊
             let clientX = e.clientX, clientY = e.clientY;
-            if(e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
             
             const xPercent = ((clientX - rect.left) / rect.width) * 100;
             const yPercent = ((clientY - rect.top) / rect.height) * 100;
@@ -728,7 +821,7 @@
 
     function zoomCaliper(amount) {
         caliperScale += amount;
-        caliperScale = Math.max(1, Math.min(caliperScale, 4)); // 手機版最多放大 4 倍
+        caliperScale = Math.max(1, Math.min(caliperScale, 4)); 
         if (caliperScale === 1) { caliperTx = 0; caliperTy = 0; }
         updateCaliperTransform();
     }
@@ -741,7 +834,8 @@
         caliperScale = 1; caliperTx = 0; caliperTy = 0; updateCaliperTransform();
     }
 
-    function toggleCoordPicker() {
+    function toggleCaliperCoordPicker(e) {
+        if(e) e.stopPropagation();
         isCoordPickerActive = !isCoordPickerActive;
         const btn = document.getElementById('coord-toggle-btn');
         const picker = document.getElementById('caliper-coord-picker');
