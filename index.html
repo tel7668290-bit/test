@@ -71,6 +71,8 @@
         .mode-btn.gallery:hover { background: #d8b4fe; }
         .mode-btn.data-entry { background: #10b981; color: #fff; }
         .mode-btn.data-entry:hover { background: #34d399; }
+        .mode-btn.slogan { background: #ec4899; color: #fff; }
+        .mode-btn.slogan:hover { background: #f472b6; }
 
         /* ---------------- 共用測驗畫面樣式 ---------------- */
         .container {
@@ -253,6 +255,26 @@
             cursor: grab;
         }
 
+        /* ---------------- 月會口號專屬樣式 ---------------- */
+        #slogan-screen {
+            width: 100%; max-width: 900px; background: #1e293b;
+            padding: 30px; border-radius: 16px; box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            display: none; flex-direction: column; align-items: center; min-height: 60vh;
+        }
+        .slogan-text-container {
+            font-size: 32px; font-weight: 900; color: #f8fafc; line-height: 2.2;
+            text-align: center; margin: 30px 0; width: 100%;
+        }
+        .slogan-input {
+            font-size: 28px; font-weight: 900; padding: 4px 10px;
+            text-align: center; border-radius: 8px; border: 2px solid #475569;
+            background: #0f172a; color: #38bdf8; outline: none; margin: 0 5px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .slogan-input:focus { border-color: #ec4899; box-shadow: 0 0 10px rgba(236, 72, 153, 0.5); background: #1e293b; }
+        .slogan-input.correct { border-color: #4ade80; color: #4ade80; }
+        .slogan-input.wrong { border-color: #f87171; color: #f87171; }
+
         @media (max-width: 768px) {
             body { padding: 8px; }
             .header { font-size: 16px; }
@@ -276,6 +298,10 @@
             .caliper-input-group > label { font-size: 16px; width: 100%; justify-content: flex-start; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 5px; }
             .caliper-single-input input { font-size: 16px; padding: 8px; }
             .caliper-marker { width: 22px; height: 22px; font-size: 12px; border-width: 1px;}
+            
+            /* Slogan mobile fixes */
+            .slogan-text-container { font-size: 22px; line-height: 2.2; margin: 15px 0;}
+            .slogan-input { font-size: 20px; padding: 2px 5px; }
         }
     </style>
 </head>
@@ -287,6 +313,7 @@
     <button class="mode-btn anomaly" onclick="startQuiz('defect')">🚨 異常辨認測試</button>
     <button class="mode-btn exam" onclick="startQuiz('standard')">🔍 檢驗標準測試</button>
     <button class="mode-btn data-entry" onclick="startCaliper()">📏 游標卡尺練習</button>
+    <button class="mode-btn slogan" onclick="startSlogan()">📢 月會口號練習</button>
     <button class="mode-btn gallery" onclick="showGallery()">📚 題庫預習區</button>
     <div id="preload-status">⏳ 正在連線至 Google 雲端題庫...</div>
 </div>
@@ -317,6 +344,7 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統開發里程碑</h3>
         <ul class="changelog-list">
+            <li><strong>v3.1 - 組織文化深耕</strong><br>新增「月會口號練習」填空模組，支援自動寬度調整與 Enter 快捷鍵作答。</li>
             <li><strong>v3.0 - 游標卡尺互動實境升級</strong><br>支援滑鼠滾輪縮放、平移看圖；新增「動態座標標記圈」、「座標抓取器」與專屬錯題結算機制。</li>
             <li><strong>v2.5 - 雲端試算表全面串接</strong><br>導入 Google Sheets API，實現免改程式碼的「動態擴充題庫」，支援多格並排輸入與資料庫表格結構。</li>
             <li><strong>v2.0 - 檢驗模組大幅擴充</strong><br>新增「異常瑕疵辨認」、「文字檢驗標準」題庫，並整合了題庫預習區。</li>
@@ -344,6 +372,24 @@
                 <button class="mode-btn exam" style="font-size: 14px; padding: 8px 16px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="container" id="slogan-screen" style="max-height: none; height: auto;">
+    <div class="header">
+        <div style="display:flex; align-items:center; gap: 15px;">
+            <div style="font-size:24px; font-weight:800; color:#f8fafc;">📢 月會口號練習</div>
+            <div style="color: #94a3b8; font-size: 16px;">📊 進度: <span id="slogan-cur">1</span> / <span id="slogan-total">5</span></div>
+        </div>
+        <button class="mode-btn exam" style="font-size: 14px; padding: 8px 16px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 20px;">
+        <div id="slogan-title" style="font-size: 36px; font-weight: 900; color: #fbbf24; margin-bottom: 20px;"></div>
+        <div id="slogan-content" class="slogan-text-container"></div>
+        <div id="slogan-feedback" style="font-size: 24px; font-weight: bold; margin: 20px 0; text-align: center; min-height: 70px;"></div>
+        <button id="slogan-submit-btn" class="mode-btn slogan" style="width: 100%; max-width: 350px; margin-top: 15px;" onclick="checkSlogan()">送出批改</button>
+        <button id="slogan-next-btn" class="mode-btn exam" style="width: 100%; max-width: 350px; margin-top: 15px; display: none;" onclick="nextSlogan()">下一題 ➡️</button>
     </div>
 </div>
 
@@ -433,6 +479,15 @@
         { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
     ];
 
+    // 💡 新增的口號題庫資料
+    const sloganLibrary = [
+        { title: "【理念】", template: "{0}　{1}　{2}　{3}", answers: ["誠信", "創新", "服務", "永續經營"] },
+        { title: "【使命】", template: "{0}企業　提供員工{1}　對消費者提供{2}產品　讓{3}幸福　每年做{4}", answers: ["幸福", "幸福", "幸福", "股東", "公益"] },
+        { title: "【願景】", template: "{0}的專家　隱紗{1}第一", answers: ["紗窗", "世界"] },
+        { title: "【目標】", template: "{0}型企業　營業額及利潤每年成長{1}%", answers: ["成長", "20"] },
+        { title: "【口號】", template: "HISS HISS 用心{0}　貼近{1}心", answers: ["創新", "你"] }
+    ];
+
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
     
     let currentCaliperData = [];
@@ -441,13 +496,34 @@
     let caliperScore = 0;
     let caliperWrongAnswers = [];
 
+    // 口號狀態變數
+    let currentSloganData = [];
+    let sloganIdx = 0;
+    let sloganScore = 0;
+    let sloganWrongAnswers = [];
+
     let caliperScale = 1;
     let caliperTx = 0, caliperTy = 0;
     let isCaliperDragging = false;
     let caliperStartX, caliperStartY;
     let caliperHasDragged = false; 
-
     let isCoordPickerActive = false;
+
+    // 綁定口號輸入框的 Enter 快捷鍵
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('slogan-content').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const inputs = Array.from(document.querySelectorAll('.slogan-input'));
+                const currentIndex = inputs.indexOf(e.target);
+                if (currentIndex >= 0 && currentIndex < inputs.length - 1) {
+                    inputs[currentIndex + 1].focus(); // 跳下一格
+                } else if (currentIndex === inputs.length - 1) {
+                    checkSlogan(); // 最後一格直接送出
+                }
+            }
+        });
+    });
 
     function toggleCoordPicker() {
         isCoordPickerActive = !isCoordPickerActive;
@@ -615,6 +691,140 @@
         
         currentData = shuffle(data); document.getElementById('quiz-title').innerText = titleText;
         idx = 0; score = 0; wrongAnswers = []; document.getElementById('total').innerText = currentData.length; init();
+    }
+
+    // 💡 新增的口號練習邏輯
+    function startSlogan() {
+        document.getElementById('mode-screen').style.display = 'none';
+        document.getElementById('slogan-screen').style.display = 'flex';
+        currentSloganData = [...sloganLibrary]; // 依序顯示
+        sloganIdx = 0;
+        sloganScore = 0;
+        sloganWrongAnswers = [];
+        renderSlogan();
+    }
+
+    function renderSlogan() {
+        if (sloganIdx >= currentSloganData.length) {
+            showSloganResultScreen();
+            return;
+        }
+        const item = currentSloganData[sloganIdx];
+        document.getElementById('slogan-cur').innerText = sloganIdx + 1;
+        document.getElementById('slogan-total').innerText = currentSloganData.length;
+        document.getElementById('slogan-title').innerText = item.title;
+
+        let html = item.template;
+        item.answers.forEach((ans, i) => {
+            // 動態計算寬度 (至少 80px)
+            let width = Math.max(80, ans.length * 36 + 20);
+            html = html.replace(`{${i}}`, `<input type="text" class="slogan-input" id="slogan-input-${i}" style="width:${width}px;" autocomplete="off">`);
+        });
+
+        document.getElementById('slogan-content').innerHTML = html;
+        document.getElementById('slogan-feedback').innerText = "";
+        document.getElementById('slogan-submit-btn').style.display = 'block';
+        document.getElementById('slogan-next-btn').style.display = 'none';
+
+        // 自動聚焦第一個空格
+        setTimeout(() => { 
+            const firstInput = document.getElementById('slogan-input-0');
+            if(firstInput) firstInput.focus(); 
+        }, 100);
+    }
+
+    function checkSlogan() {
+        const item = currentSloganData[sloganIdx];
+        let allCorrect = true;
+        let userInputs = [];
+
+        item.answers.forEach((ans, i) => {
+            const inputEl = document.getElementById(`slogan-input-${i}`);
+            // 去除頭尾空白
+            const val = inputEl.value.trim();
+            userInputs.push(val);
+            inputEl.disabled = true;
+
+            if (val === ans) {
+                inputEl.classList.add('correct');
+            } else {
+                inputEl.classList.add('wrong');
+                allCorrect = false;
+            }
+        });
+
+        const fbk = document.getElementById('slogan-feedback');
+        if (allCorrect) {
+            fbk.innerHTML = "✔ 完全正確！";
+            fbk.style.color = "#4ade80";
+            sloganScore++;
+        } else {
+            fbk.innerHTML = `✘ 填寫有誤！<br><span style="font-size:20px; color:#cbd5e1; font-weight:normal; margin-top:5px; display:inline-block;">正確解答：${item.answers.join("、")}</span>`;
+            fbk.style.color = "#f87171";
+            sloganWrongAnswers.push({ item: item, userInputs: userInputs });
+        }
+
+        document.getElementById('slogan-submit-btn').style.display = 'none';
+        const nextBtn = document.getElementById('slogan-next-btn');
+        nextBtn.style.display = 'block';
+        nextBtn.innerText = sloganIdx >= currentSloganData.length - 1 ? "查看口號測驗結果 ➡️" : "下一題 ➡️";
+    }
+
+    function nextSlogan() {
+        sloganIdx++;
+        renderSlogan();
+    }
+
+    function showSloganResultScreen() {
+        document.getElementById('slogan-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'flex';
+
+        const passRate = sloganScore / currentSloganData.length;
+        const finalScoreDiv = document.getElementById('final-score');
+
+        if (passRate === 1) {
+            finalScoreDiv.innerHTML = `口號總得分：${sloganScore} / ${currentSloganData.length}<br><span style="color: #4ade80; font-size: 32px;">🏆 公司精神完美內化！</span>`;
+        } else if (passRate >= 0.8) {
+            finalScoreDiv.innerHTML = `口號總得分：${sloganScore} / ${currentSloganData.length}<br><span style="color: #22c55e; font-size: 32px;">🎉 表現優異！</span>`;
+        } else {
+            finalScoreDiv.innerHTML = `口號總得分：${sloganScore} / ${currentSloganData.length}<br><span style="color: #f87171; font-size: 32px;">⚠️ 還不夠熟練，請多加練習喔！</span>`;
+        }
+
+        const listContainer = document.getElementById('wrong-list-container');
+        listContainer.innerHTML = "";
+
+        if (sloganWrongAnswers.length === 0) {
+            listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 20px; color: #94a3b8; font-weight: 700;">本次口號測驗完全正確，超棒的！</div>`;
+        } else {
+            sloganWrongAnswers.forEach(wrong => {
+                const card = document.createElement('div');
+                card.className = "wrong-card";
+                card.style.flexDirection = "column";
+                card.style.alignItems = "flex-start";
+
+                // 將正確答案標記為綠色
+                let correctStr = wrong.item.template;
+                wrong.item.answers.forEach((ans, i) => {
+                    correctStr = correctStr.replace(`{${i}}`, `<span style="color:#4ade80; font-weight:bold;">${ans}</span>`);
+                });
+
+                // 將使用者輸入標記對或錯
+                let userStr = wrong.item.template;
+                wrong.userInputs.forEach((val, i) => {
+                    let isCorrect = val === wrong.item.answers[i];
+                    let color = isCorrect ? '#4ade80' : '#f87171';
+                    let text = val || '(未填)';
+                    userStr = userStr.replace(`{${i}}`, `<span style="color:${color}; font-weight:bold; text-decoration:underline;">${text}</span>`);
+                });
+
+                card.innerHTML = `
+                    <div style="font-size:22px; font-weight:900; color:#38bdf8; margin-bottom:10px;">${wrong.item.title}</div>
+                    <div style="font-size:18px; color:#94a3b8; margin-bottom:8px;">你的作答：<br><span style="color:#cbd5e1">${userStr}</span></div>
+                    <div style="font-size:18px; color:#94a3b8;">正確解答：<br><span style="color:#f8fafc">${correctStr}</span></div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
     }
 
     function showResultScreen() {
@@ -912,7 +1122,7 @@
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v3.0</div>
+<div id="app-version" onclick="openChangelog()">v3.1</div>
 
 </body>
 </html>
