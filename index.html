@@ -363,7 +363,7 @@
             <div id="mask"></div>
         </div>
         <div class="right-panel">
-            <div id="feedback">請根據圖片選擇正確答案 (方向鍵可微調)</div>
+            <div id="feedback">請選擇正確答案 (方向鍵微調)</div>
             <div class="btn-grid" id="btns"></div>
             <div class="bottom-actions">
                 <button class="mode-btn exam" style="font-size: 14px; padding: 8px 16px; width: auto; box-shadow: none;" onclick="location.reload()">🏠 返回首頁</button>
@@ -423,13 +423,13 @@
         </div>
         <div class="right-panel" style="justify-content: flex-start; padding: 25px;">
             <div style="font-size: 22px; font-weight: 900; color: #10b981; margin-bottom: 25px; text-align: center; line-height: 1.4;">
-                請讀取左圖各點尺寸<br>並輸入測量結果
+                讀取左圖尺寸<br>並輸入結果
             </div>
             
             <div id="caliper-inputs-container"></div>
 
             <button id="caliper-submit-btn" class="mode-btn data-entry" style="width: 100%; max-width: none; margin-top: 15px;" onclick="checkCaliperAnswers()">送出批改</button>
-            <button id="caliper-next-btn" class="mode-btn exam" style="width: 100%; max-width: none; margin-top: 15px; display: none;" onclick="nextCaliperTest()">前往下一張圖紙 ➡️</button>
+            <button id="caliper-next-btn" class="mode-btn exam" style="width: 100%; max-width: none; margin-top: 15px; display: none;" onclick="nextCaliperTest()">前往下一題 ➡️</button>
             <div id="caliper-final-msg" style="text-align: center; font-size: 18px; font-weight: bold; margin-top: 15px; min-height: 25px;"></div>
         </div>
     </div>
@@ -802,7 +802,7 @@
             fbk.style.color = "#4ade80";
             sloganScore++;
         } else {
-            fbk.innerHTML = `✘ 填寫有誤！<br><span style="font-size:20px; color:#cbd5e1; font-weight:normal; margin-top:5px; display:inline-block;">本次隱藏的正確解答為：${currentSloganRenderState.answers.join("、")}</span>`;
+            fbk.innerHTML = `✘ 填寫有誤！<br><span style="font-size:20px; color:#cbd5e1; font-weight:normal; margin-top:5px; display:inline-block;">正確解答：${currentSloganRenderState.answers.join("、")}</span>`;
             fbk.style.color = "#f87171";
             
             // 紀錄錯題
@@ -818,7 +818,7 @@
         document.getElementById('slogan-submit-btn').style.display = 'none';
         const nextBtn = document.getElementById('slogan-next-btn');
         nextBtn.style.display = 'block';
-        nextBtn.innerText = sloganIdx >= currentSloganData.length - 1 ? "查看口號測驗結果 ➡️" : "下一題 ➡️";
+        nextBtn.innerText = sloganIdx >= currentSloganData.length - 1 ? "查看測驗結果 ➡️" : "下一題 ➡️";
     }
 
     function nextSlogan() {
@@ -897,7 +897,7 @@
         
         if (passRate === 1) { finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #4ade80; font-size: 32px;">🏆 滿分完美通關！</span>`; } 
         else if (passRate >= 0.8) { finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #22c55e; font-size: 32px;">🎉 測驗合格！</span>`; } 
-        else { finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #f87171; font-size: 32px;">⚠️ 未達 80% 及格標準，請重新訓練</span>`; }
+        else { finalScoreDiv.innerHTML = `總得分：${score} / ${currentData.length}<br><span style="color: #f87171; font-size: 32px;">⚠️ 未達及格標準，請重新訓練</span>`; }
 
         const listContainer = document.getElementById('wrong-list-container'); listContainer.innerHTML = "";
         if (wrongAnswers.length === 0) { listContainer.innerHTML = `<div style="text-align: center; padding: 40px; font-size: 20px; color: #94a3b8; font-weight: 700;">本次測驗無錯題紀錄。</div>`; } 
@@ -964,7 +964,7 @@
         if (item.type === "text") {
             img.style.display = msk.style.display = 'none'; txt.style.display = 'block'; txt.innerText = item.text; fbk.innerText = "請選擇正確規格";
         } else {
-            txt.style.display = 'none'; img.style.display = 'block'; img.onload = () => { placeMask(); }; img.src = encodeURI(item.url); fbk.innerText = "請根據圖片選擇正確答案 (方向鍵可微調)";
+            txt.style.display = 'none'; img.style.display = 'block'; img.onload = () => { placeMask(); }; img.src = encodeURI(item.url); fbk.innerText = "請選擇正確答案 (方向鍵微調)";
         }
         fbk.className = ""; document.getElementById('cur').innerText = idx + 1;
         const area = document.getElementById('btns'); area.innerHTML = "";
@@ -1165,7 +1165,7 @@
         if (allCorrect) {
             finalMsg.innerText = "🎉 恭喜！所有測量點數值皆完全正確！"; finalMsg.style.color = "#4ade80";
         } else {
-            finalMsg.innerText = "⚠️ 有部分測量點未達標準或未輸入，請檢視錯誤後前往下一題！"; finalMsg.style.color = "#f87171";
+            finalMsg.innerText = "⚠️ 部分測量點未達標或未輸入，請檢視錯誤！"; finalMsg.style.color = "#f87171";
         }
         
         document.getElementById('caliper-submit-btn').style.display = 'none'; 
@@ -1175,7 +1175,7 @@
         if (caliperIdx >= currentCaliperData.length - 1) {
             nextBtn.innerText = "查看測驗結果 ➡️"; 
         } else {
-            nextBtn.innerText = "前往下一張圖紙 ➡️";
+            nextBtn.innerText = "前往下一題 ➡️";
         }
     }
 
