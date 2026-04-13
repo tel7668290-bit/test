@@ -299,7 +299,6 @@
             .caliper-single-input input { font-size: 16px; padding: 8px; }
             .caliper-marker { width: 22px; height: 22px; font-size: 12px; border-width: 1px;}
             
-            /* Slogan mobile fixes */
             .slogan-text-container { font-size: 22px; line-height: 2.2; margin: 15px 0;}
             .slogan-input { font-size: 20px; padding: 2px 5px; }
         }
@@ -344,11 +343,10 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 系統開發里程碑</h3>
         <ul class="changelog-list">
+            <li><strong>v3.2 - 智慧動態挖空</strong><br>口號練習全新升級！系統會隨機洗牌「題目順序」與「挖空位置」，徹底杜絕背位置作弊，真正內化公司精神。</li>
             <li><strong>v3.1 - 組織文化深耕</strong><br>新增「月會口號練習」填空模組，支援自動寬度調整與 Enter 快捷鍵作答。</li>
-            <li><strong>v3.0 - 游標卡尺互動實境升級</strong><br>支援滑鼠滾輪縮放、平移看圖；新增「動態座標標記圈」、「座標抓取器」與專屬錯題結算機制。</li>
-            <li><strong>v2.5 - 雲端試算表全面串接</strong><br>導入 Google Sheets API，實現免改程式碼的「動態擴充題庫」，支援多格並排輸入與資料庫表格結構。</li>
-            <li><strong>v2.0 - 檢驗模組大幅擴充</strong><br>新增「異常瑕疵辨認」、「文字檢驗標準」題庫，並整合了題庫預習區。</li>
-            <li><strong>v1.0 - 系統基礎建置</strong><br>建立品保教育訓練網頁框架，完成首波「色卡辨識」。</li>
+            <li><strong>v3.0 - 游標卡尺互動實境升級</strong><br>支援滑鼠滾輪縮放、平移看圖；新增「動態座標標記圈」、「座標抓取器」。</li>
+            <li><strong>v2.5 - 雲端試算表全面串接</strong><br>導入 Google Sheets API，實現免改程式碼無痛擴充題庫。</li>
         </ul>
     </div>
 </div>
@@ -479,13 +477,13 @@
         { type: "text", text: "📝 請問「陽極(電鍍)模厚」的標準規格範圍是？", ans: "8um~30um", opts: ["8um~30um", "40um~130um", "130um~150um", "150um~200um"] }
     ];
 
-    // 💡 新增的口號題庫資料
+    // 💡 v3.2 全新口號字庫架構：透過括號 [ ] 標示所有可能的挖空字詞
     const sloganLibrary = [
-        { title: "【理念】", template: "{0}　{1}　{2}　{3}", answers: ["誠信", "創新", "服務", "永續經營"] },
-        { title: "【使命】", template: "{0}企業　提供員工{1}　對消費者提供{2}產品　讓{3}幸福　每年做{4}", answers: ["幸福", "幸福", "幸福", "股東", "公益"] },
-        { title: "【願景】", template: "{0}的專家　隱紗{1}第一", answers: ["紗窗", "世界"] },
-        { title: "【目標】", template: "{0}型企業　營業額及利潤每年成長{1}%", answers: ["成長", "20"] },
-        { title: "【口號】", template: "HISS HISS 用心{0}　貼近{1}心", answers: ["創新", "你"] }
+        { title: "【理念】", text: "[誠信]　[創新]　[服務]　[永續經營]" },
+        { title: "【使命】", text: "[幸福]企業　提供員工[幸福]　對消費者提供[幸福]產品　讓[股東]幸福　每年做[公益]" },
+        { title: "【願景】", text: "[紗窗]的專家　隱紗[世界]第一" },
+        { title: "【目標】", text: "[成長]型企業　營業額及利潤每年成長[20]%" },
+        { title: "【口號】", text: "HISS HISS 用心[創新]　貼近[你]心" }
     ];
 
     let currentData = [], idx = 0, score = 0, wrongAnswers = [];
@@ -501,6 +499,7 @@
     let sloganIdx = 0;
     let sloganScore = 0;
     let sloganWrongAnswers = [];
+    let currentSloganRenderState = null; // 紀錄當下這題到底隨機抽了哪幾個空格
 
     let caliperScale = 1;
     let caliperTx = 0, caliperTy = 0;
@@ -693,11 +692,12 @@
         idx = 0; score = 0; wrongAnswers = []; document.getElementById('total').innerText = currentData.length; init();
     }
 
-    // 💡 新增的口號練習邏輯
+    // 💡 v3.2 月會口號練習 - 智慧動態挖空邏輯
     function startSlogan() {
         document.getElementById('mode-screen').style.display = 'none';
         document.getElementById('slogan-screen').style.display = 'flex';
-        currentSloganData = [...sloganLibrary]; // 依序顯示
+        // 每次進入測驗都把題目的順序隨機洗牌
+        currentSloganData = shuffle([...sloganLibrary]); 
         sloganIdx = 0;
         sloganScore = 0;
         sloganWrongAnswers = [];
@@ -714,12 +714,47 @@
         document.getElementById('slogan-total').innerText = currentSloganData.length;
         document.getElementById('slogan-title').innerText = item.title;
 
-        let html = item.template;
-        item.answers.forEach((ans, i) => {
-            // 動態計算寬度 (至少 80px)
-            let width = Math.max(80, ans.length * 36 + 20);
-            html = html.replace(`{${i}}`, `<input type="text" class="slogan-input" id="slogan-input-${i}" style="width:${width}px;" autocomplete="off">`);
+        // 尋找所有的挖空標記 [...]
+        const matches = [...item.text.matchAll(/\[(.*?)\]/g)];
+        
+        // 隨機決定要挖空幾個（至少一半，最多全挖空）
+        let minBlanks = Math.ceil(matches.length / 2);
+        let numBlanks = Math.floor(Math.random() * (matches.length - minBlanks + 1)) + minBlanks;
+        
+        // 隨機抽選要被挖空的 index
+        let allIndices = matches.map((_, i) => i);
+        let blankIndices = shuffle(allIndices).slice(0, numBlanks);
+        
+        let html = "";
+        let lastIndex = 0;
+        let inputCounter = 0;
+        let currentAnswers = [];
+
+        matches.forEach((match, idx) => {
+            html += item.text.substring(lastIndex, match.index);
+            
+            if (blankIndices.includes(idx)) {
+                // 這個位置被抽中挖空
+                let ans = match[1];
+                currentAnswers.push(ans);
+                let width = Math.max(80, ans.length * 36 + 20); // 依照答案長度決定框寬
+                html += `<input type="text" class="slogan-input" id="slogan-input-${inputCounter}" style="width:${width}px;" autocomplete="off">`;
+                inputCounter++;
+            } else {
+                // 這個位置沒被抽中，直接顯示正常文字
+                html += match[1];
+            }
+            lastIndex = match.index + match[0].length;
         });
+        html += item.text.substring(lastIndex);
+
+        // 把這次隨機產生的「考卷狀態」存起來，對答案時會用到
+        currentSloganRenderState = {
+            title: item.title,
+            text: item.text,
+            blankIndices: blankIndices,
+            answers: currentAnswers
+        };
 
         document.getElementById('slogan-content').innerHTML = html;
         document.getElementById('slogan-feedback').innerText = "";
@@ -734,13 +769,12 @@
     }
 
     function checkSlogan() {
-        const item = currentSloganData[sloganIdx];
         let allCorrect = true;
         let userInputs = [];
 
-        item.answers.forEach((ans, i) => {
+        currentSloganRenderState.answers.forEach((ans, i) => {
             const inputEl = document.getElementById(`slogan-input-${i}`);
-            // 去除頭尾空白
+            // 去除頭尾空白確保比對正確
             const val = inputEl.value.trim();
             userInputs.push(val);
             inputEl.disabled = true;
@@ -759,9 +793,17 @@
             fbk.style.color = "#4ade80";
             sloganScore++;
         } else {
-            fbk.innerHTML = `✘ 填寫有誤！<br><span style="font-size:20px; color:#cbd5e1; font-weight:normal; margin-top:5px; display:inline-block;">正確解答：${item.answers.join("、")}</span>`;
+            fbk.innerHTML = `✘ 填寫有誤！<br><span style="font-size:20px; color:#cbd5e1; font-weight:normal; margin-top:5px; display:inline-block;">本次隱藏的正確解答為：${currentSloganRenderState.answers.join("、")}</span>`;
             fbk.style.color = "#f87171";
-            sloganWrongAnswers.push({ item: item, userInputs: userInputs });
+            
+            // 紀錄錯題
+            sloganWrongAnswers.push({ 
+                title: currentSloganRenderState.title,
+                text: currentSloganRenderState.text,
+                blankIndices: currentSloganRenderState.blankIndices,
+                answers: currentSloganRenderState.answers,
+                userInputs: userInputs
+            });
         }
 
         document.getElementById('slogan-submit-btn').style.display = 'none';
@@ -802,23 +844,36 @@
                 card.style.flexDirection = "column";
                 card.style.alignItems = "flex-start";
 
-                // 將正確答案標記為綠色
-                let correctStr = wrong.item.template;
-                wrong.item.answers.forEach((ans, i) => {
-                    correctStr = correctStr.replace(`{${i}}`, `<span style="color:#4ade80; font-weight:bold;">${ans}</span>`);
+                let correctStr = "";
+                let userStr = "";
+                let lastIndex = 0;
+                let inputCounter = 0;
+                
+                const matches = [...wrong.text.matchAll(/\[(.*?)\]/g)];
+                matches.forEach((match, idx) => {
+                    correctStr += wrong.text.substring(lastIndex, match.index);
+                    userStr += wrong.text.substring(lastIndex, match.index);
+                    
+                    if (wrong.blankIndices.includes(idx)) {
+                        let correctAns = match[1];
+                        let userAns = wrong.userInputs[inputCounter] || '(未填)';
+                        let isCorrect = userAns === correctAns;
+                        
+                        correctStr += `<span style="color:#4ade80; font-weight:bold;">${correctAns}</span>`;
+                        let color = isCorrect ? '#4ade80' : '#f87171';
+                        userStr += `<span style="color:${color}; font-weight:bold; text-decoration:underline;">${userAns}</span>`;
+                        inputCounter++;
+                    } else {
+                        correctStr += match[1];
+                        userStr += match[1];
+                    }
+                    lastIndex = match.index + match[0].length;
                 });
-
-                // 將使用者輸入標記對或錯
-                let userStr = wrong.item.template;
-                wrong.userInputs.forEach((val, i) => {
-                    let isCorrect = val === wrong.item.answers[i];
-                    let color = isCorrect ? '#4ade80' : '#f87171';
-                    let text = val || '(未填)';
-                    userStr = userStr.replace(`{${i}}`, `<span style="color:${color}; font-weight:bold; text-decoration:underline;">${text}</span>`);
-                });
+                correctStr += wrong.text.substring(lastIndex);
+                userStr += wrong.text.substring(lastIndex);
 
                 card.innerHTML = `
-                    <div style="font-size:22px; font-weight:900; color:#38bdf8; margin-bottom:10px;">${wrong.item.title}</div>
+                    <div style="font-size:22px; font-weight:900; color:#38bdf8; margin-bottom:10px;">${wrong.title}</div>
                     <div style="font-size:18px; color:#94a3b8; margin-bottom:8px;">你的作答：<br><span style="color:#cbd5e1">${userStr}</span></div>
                     <div style="font-size:18px; color:#94a3b8;">正確解答：<br><span style="color:#f8fafc">${correctStr}</span></div>
                 `;
@@ -1122,7 +1177,7 @@
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v3.1</div>
+<div id="app-version" onclick="openChangelog()">v3.2</div>
 
 </body>
 </html>
