@@ -343,6 +343,7 @@
         <button class="modal-close" onclick="closeChangelog()">&times;</button>
         <h3>🔄 品保系統更新日誌</h3>
         <ul class="changelog-list">
+            <li><strong>v3.2 - 新增口號 Enter 快捷鍵</strong><br>口號測驗答題完畢後，直接按 Enter 即可快速跳至下一題！</li>
             <li><strong>v3.1 - 新增「月會口號練習」</strong><br>口號填空練習，系統會隨機洗牌「題目順序」與「挖空位置」。</li>
             <li><strong>v3.0 - 游標卡尺測驗升級</strong><br>支援滑鼠滾輪縮放、平移看圖。</li>
             <li><strong>v2.0 - 雲端資料庫串接</strong><br>導入 Google Sheets API。</li>
@@ -612,7 +613,24 @@
 
     window.addEventListener('resize', () => { if(document.getElementById('quiz-container').style.display === 'flex') placeMask(); });
 
+    // ==========================================
+    // 💡 全域鍵盤監聽事件（包含新增的 Enter 下一題功能）
+    // ==========================================
     document.addEventListener('keydown', (e) => {
+        // --- 新增：月會口號「按 Enter 下一題」功能 ---
+        if (e.key === 'Enter') {
+            const sloganScreen = document.getElementById('slogan-screen');
+            const nextSloganBtn = document.getElementById('slogan-next-btn');
+            
+            // 確認目前在口號畫面，而且「下一題」按鈕是顯示狀態
+            if (sloganScreen.style.display === 'flex' && nextSloganBtn.style.display === 'block') {
+                e.preventDefault(); // 避免觸發其他預設行為
+                nextSloganBtn.click(); // 模擬點擊「下一題」或「查看結果」按鈕
+                return; // 執行完畢就跳出，不干擾其他功能
+            }
+        }
+
+        // --- 原本：色卡與異常測驗的遮罩微調功能 ---
         if(document.getElementById('quiz-container').style.display === 'none') return;
         const item = currentData[idx];
         if(!item || item.type === 'text' || !item.maskH) return;
@@ -1186,7 +1204,7 @@
     }
 </script>
 
-<div id="app-version" onclick="openChangelog()">v3.1</div>
+<div id="app-version" onclick="openChangelog()">v3.2</div>
 
 </body>
 </html>
